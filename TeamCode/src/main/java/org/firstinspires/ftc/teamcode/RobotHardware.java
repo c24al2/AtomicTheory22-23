@@ -58,7 +58,6 @@ public class RobotHardware {
 
     /* Initialize standard Hardware interfaces */
     public void init(HardwareMap ahwMap,Telemetry telemetry) {
-        // Save reference to Hardware map
         hardwareMap = ahwMap;
         this.telemetry = telemetry;
 
