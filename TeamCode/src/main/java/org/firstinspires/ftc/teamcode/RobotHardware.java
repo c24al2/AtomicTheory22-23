@@ -65,14 +65,13 @@ public class RobotHardware {
 
         // Define and initialize motors
         W1 = hardwareMap.get(DcMotor.class, "fl");
-        W2 = hardwareMap.get(DcMotor.class, "br");
+        W2 = hardwareMap.get(DcMotor.class, "fr");
         W3 = hardwareMap.get(DcMotor.class, "bl");
         W1.setDirection(DcMotor.Direction.FORWARD);
         W2.setDirection(DcMotor.Direction.FORWARD);
         W3.setDirection(DcMotor.Direction.FORWARD);
         //set zero power behaviors for each motor
         W1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
         W2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         W3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // Set all motors to zero power

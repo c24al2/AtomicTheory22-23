@@ -130,7 +130,6 @@ public class Iterative_Opmode_V_2 extends OpMode {
     public void loop() {
         //Get the positions of the left stick in terms of x and y
         //Invert y because of the input from the controller
-//        while(gamepad1.x) {
             double StickX = Math.abs(gamepad1.left_stick_x) < Constants.STICK_THRESH ? 0 : gamepad1.left_stick_x;
             double StickY = Math.abs(gamepad1.left_stick_y) < Constants.STICK_THRESH ? 0 : -gamepad1.left_stick_y;
             double rotation = gamepad1.left_trigger * Constants.ROTATION_SENSITIVITY - gamepad1.right_trigger * Constants.ROTATION_SENSITIVITY;
@@ -139,42 +138,11 @@ public class Iterative_Opmode_V_2 extends OpMode {
             double LockStickX = (Math.cos(angle) * StickX + Math.sin(angle) * StickY);
             double LockStickY = (-Math.sin(angle) * StickX + Math.cos(angle) * StickY);
             double StickPowerScalar = Math.sqrt(StickY * StickY + StickX * StickX);
-            //DRIVER LOCK STARTS HERE
-            //get the direction from the IMU
-            //rotate the positions to prep for wheel powers
-            //determine how much the robot should turn
             boolean areTriggersDown = Math.abs(rotation) > Constants.STICK_THRESH;
             boolean areSticksMoved = Math.sqrt((StickX * StickX) + (StickY * StickY)) > Constants.STICK_THRESH;
             boolean isGunnerStickMoved = Math.abs(gunnerStickY) > Constants.STICK_THRESH;
             if (areSticksMoved) {
                 // create the speed vector
-                double w = 0;
-                //motor power based on inverted matrix DO NOT CHANGE THE HARDCODED NUMBERS
-                double W1Power = -.33 * LockStickX + .58 * LockStickY + .33 * w;
-                double W2Power = -.33 * LockStickX - .58 * LockStickY + .33 * w;
-                double W3Power = .67 * LockStickX + 0.33 * w;
-                //keep the powers proportional and within a range of -1 to 1
-                double motorMax = Math.max(Math.max(Math.abs(W1Power), Math.abs(W2Power)), Math.abs(W3Power));
-                double proportion = Math.min(1, motorMax);
-                W1.setPower(W1Power * StickPowerScalar / proportion);
-                W2.setPower(W2Power * StickPowerScalar / proportion);
-                W3.setPower(W3Power * StickPowerScalar / proportion);
-            }
-            else if (isGunnerStickMoved){
-                intake.setPower(gunnerStickY);
-            }
-            else if (!isGunnerStickMoved){
-                intake.setPower(0);
-            }
-            //open the claw
-            else if (gamepad2.x){
-                clawClose.setPosition(0);
-            }
-            //close the claw
-            else if (gamepad2.b){
-                clawClose.setPosition(.25);
-            }
-            else if (areTriggersDown){
                 double w = rotation;
                 //motor power based on inverted matrix DO NOT CHANGE THE HARDCODED NUMBERS
                 double W1Power = -.33 * LockStickX + .58 * LockStickY + .33 * w;
@@ -187,26 +155,32 @@ public class Iterative_Opmode_V_2 extends OpMode {
                 W2.setPower(W2Power * StickPowerScalar / proportion);
                 W3.setPower(W3Power * StickPowerScalar / proportion);
             }
-
-//        }
-       /* if (gamepad1.x){
-            telemetry.addData("XpressStatus", "Yes");
-            double w = 0;
-            double W1Power = -.33 * StickX + .58 * StickY + .33 * w;
-            double W2Power = -.33 * StickX - .58 * StickY + .33 * w;
-            double W3Power = .67 * StickX + 0.33 * w;
-            //keep the powers proportional and within a range of -1 to 1
-            double motorMax = Math.max(Math.max(Math.abs(W1Power), Math.abs(W2Power)), Math.abs(W3Power));
-            double proportion = Math.min(1, motorMax);
-            W1.setPower(W1Power * StickPowerScalar/ proportion);
-            W2.setPower(W2Power * StickPowerScalar/ proportion);
-            W3.setPower(W3Power * StickPowerScalar/ proportion);
-        }*/
+            else if (areTriggersDown){
+                double w = rotation;
+                //motor power based on inverted matrix DO NOT CHANGE THE HARDCODED NUMBERS
+                double W1Power = -.33 * LockStickX + .58 * LockStickY + .33 * w;
+                double W2Power = -.33 * LockStickX - .58 * LockStickY + .33 * w;
+                double W3Power = .67 * LockStickX + 0.33 * w;
+                //keep the powers proportional and within a range of -1 to 1
+                double motorMax = Math.max(Math.max(Math.abs(W1Power), Math.abs(W2Power)), Math.abs(W3Power));
+                double proportion = Math.min(1, motorMax);
+                StickPowerScalar = .5;
+                W1.setPower(W1Power * StickPowerScalar / proportion);
+                W2.setPower(W2Power * StickPowerScalar / proportion);
+                W3.setPower(W3Power * StickPowerScalar / proportion);
+            }
             else {
-                stopDrive();
+                W1.setPower(0);
+                W2.setPower(0);
+                W3.setPower(0);
+                telemetry.addData("Status:","Not Moving");
+            }
+        if (isGunnerStickMoved){
+            intake.setPower(gunnerStickY);
         }
-        //ElapsedTime timer = new ElapsedTime();
-        //double current_time = runtime.milliseconds();
+        else {
+            intake.setPower(0);
+        }
         boolean driversKnowEndgame = false;
         telemetry.addData("Runtime", getRuntime());
         if (runtime.milliseconds()>83000 && driversKnowEndgame == false){
@@ -219,13 +193,18 @@ public class Iterative_Opmode_V_2 extends OpMode {
             driversKnowEndgame = true;
             telemetry.addData("Endgame:","Yes");
         }
-    }
+        else {
+            telemetry.addData("Endgame:", "No");
+        }
 
-    private void stopDrive() {
-        W1.setPower(0);
-        W2.setPower(0);
-        W3.setPower(0);
-        telemetry.addData("Status:", "Not Moving");
+        if (gamepad2.left_bumper){
+            clawClose.setPosition(Servo.MAX_POSITION);
+        }
+        //close the claw
+        if (gamepad2.right_bumper){
+            clawClose.setPosition(Servo.MIN_POSITION);
+        }
+        //open the claw
     }
 
 
