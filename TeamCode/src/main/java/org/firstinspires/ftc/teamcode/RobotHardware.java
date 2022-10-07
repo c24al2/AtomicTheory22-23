@@ -44,7 +44,6 @@ public class RobotHardware {
     private DcMotor W2 = null;
     private DcMotor W3 = null;
     private BNO055IMU imu = null;
-    private Servo clawClose = null;
     private ElapsedTime runtime = new ElapsedTime();
     HardwareMap hardwareMap = null;
     Telemetry telemetry;
