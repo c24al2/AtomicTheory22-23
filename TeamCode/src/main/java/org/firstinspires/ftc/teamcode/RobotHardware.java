@@ -40,12 +40,11 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class RobotHardware {
     /* Public OpMode members. */
-    public DcMotor W1 = null;
-    private DcMotor W2 = null;
-    private DcMotor W3 = null;
-    private BNO055IMU imu = null;
-    private ElapsedTime runtime = new ElapsedTime();
-    HardwareMap hardwareMap = null;
+    public DcMotor W1;
+    public DcMotor W2;
+    public DcMotor W3;
+    public BNO055IMU imu = null;
+    HardwareMap hardwareMap;
     Telemetry telemetry;
 
 
@@ -54,17 +53,11 @@ public class RobotHardware {
     public RobotHardware(HardwareMap hardwareMap, Telemetry telemetry) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
-    }
-
-    /* Initialize standard Hardware interfaces */
-    public void init(HardwareMap ahwMap,Telemetry telemetry) {
-        hardwareMap = ahwMap;
-        this.telemetry = telemetry;
 
         // Define and initialize motors
         W1 = hardwareMap.get(DcMotor.class, "fl");
         W2 = hardwareMap.get(DcMotor.class, "fr");
-        W3 = hardwareMap.get(DcMotor.class, "bl");
+        W3 = hardwareMap.get(DcMotor.class, "br");
         W1.setDirection(DcMotor.Direction.FORWARD);
         W2.setDirection(DcMotor.Direction.FORWARD);
         W3.setDirection(DcMotor.Direction.FORWARD);
@@ -76,32 +69,45 @@ public class RobotHardware {
         W1.setPower(0);
         W2.setPower(0);
         W3.setPower(0);
-
-        // Reset all encoders and set the motors to run using the encoders
-
-        //define and initialize imu
-//        imu = hardwareMap.get(BNO055IMU.class, "imu 1");
-//        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-//        parameters.mode = BNO055IMU.SensorMode.IMU;
-//        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
-//        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-//        parameters.loggingEnabled = false;
-//        imu.initialize(parameters);
-
     }
+
     public void driveRightSide(double time){
         ElapsedTime runtime = new ElapsedTime();
         runtime.reset();
         while (runtime.milliseconds()<time){
-            double W1Power = -.33 * 1;
-            double W2Power = -.33 * 1;
-            double W3Power = .67 * 1;
-            double motorMax = Math.max(Math.max(Math.abs(W1Power), Math.abs(W2Power)), Math.abs(W3Power));
-            double proportion = Math.min(1, motorMax);
-            W1.setPower(W1Power/ proportion);
-            W2.setPower(W2Power/ proportion);
-            W3.setPower(W3Power/ proportion);
+            W1.setPower(-.495);
+            W2.setPower(-.495);
+            W3.setPower(1);
         }
+    }
+    public void driveLeftSide(double time){
+        ElapsedTime runtime = new ElapsedTime();
+        runtime.reset();
+        while (runtime.milliseconds()<time){
+            W1.setPower(.495);
+            W2.setPower(.495);
+            W3.setPower(-1);
+        }
+    }
+    public void driveFront(double time){
+        ElapsedTime runtime = new ElapsedTime();
+        runtime.reset();
+        while (runtime.milliseconds()<time){
+            W1.setPower(1);
+            W2.setPower(1);
+            W3.setPower(0);
+        }
+    }
+    public void driveBack(double time){
+        ElapsedTime runtime = new ElapsedTime();
+        runtime.reset();
+        while (runtime.milliseconds()<time){
+            W1.setPower(-1);
+            W2.setPower(-1);
+            W3.setPower(0);
+        }
+    }
+    public void stopDrive(){
         W1.setPower(0);
         W2.setPower(0);
         W3.setPower(0);

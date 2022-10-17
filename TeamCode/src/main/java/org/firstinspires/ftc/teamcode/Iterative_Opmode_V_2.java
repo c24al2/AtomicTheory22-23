@@ -68,9 +68,10 @@ public class Iterative_Opmode_V_2 extends OpMode {
     private DcMotor W1 = null;
     private DcMotor W2 = null;
     private DcMotor W3 = null;
-    private DcMotor intake = null;
+//    private DcMotor intake = null;
     private BNO055IMU imu = null;
-    private Servo clawClose = null;
+    boolean driversKnowEndgame = false;
+//    private Servo clawClose = null;
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -83,8 +84,8 @@ public class Iterative_Opmode_V_2 extends OpMode {
         W1 = hardwareMap.get(DcMotor.class, "fl");
         W2 = hardwareMap.get(DcMotor.class, "fr");
         W3 = hardwareMap.get(DcMotor.class, "br");
-        intake = hardwareMap.get(DcMotor.class, "intake");
-        clawClose = hardwareMap.get(Servo.class, "clawClose");
+//        intake = hardwareMap.get(DcMotor.class, "intake");
+//        clawClose = hardwareMap.get(Servo.class, "clawClose");
 
         //initialize the imu
         imu = hardwareMap.get(BNO055IMU.class, "imu");
@@ -98,12 +99,12 @@ public class Iterative_Opmode_V_2 extends OpMode {
         W1.setDirection(DcMotor.Direction.FORWARD);
         W2.setDirection(DcMotor.Direction.FORWARD);
         W3.setDirection(DcMotor.Direction.FORWARD);
-        intake.setDirection(DcMotor.Direction.REVERSE);
+//        intake.setDirection(DcMotor.Direction.REVERSE);
         //set zero behaviors
         W1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         W2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         W3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         telemetry.addData("Status", "Initialized");
         //Quality-of-life changes here
     }
@@ -134,9 +135,9 @@ public class Iterative_Opmode_V_2 extends OpMode {
             double StickY = Math.abs(gamepad1.left_stick_y) < Constants.STICK_THRESH ? 0 : -gamepad1.left_stick_y;
             double rotation = gamepad1.left_trigger * Constants.ROTATION_SENSITIVITY - gamepad1.right_trigger * Constants.ROTATION_SENSITIVITY;
             double gunnerStickY = Math.abs(gamepad2.left_stick_y) < Constants.STICK_THRESH ? 0 : -gamepad2.left_stick_y;
-            double angle = imu.getAngularOrientation().firstAngle;
-            double LockStickX = (Math.cos(angle) * StickX + Math.sin(angle) * StickY);
-            double LockStickY = (-Math.sin(angle) * StickX + Math.cos(angle) * StickY);
+//            double angle = imu.getAngularOrientation().firstAngle;
+//            double LockStickX = (Math.cos(angle) * StickX + Math.sin(angle) * StickY);
+//            double LockStickY = (-Math.sin(angle) * StickX + Math.cos(angle) * StickY);
             double StickPowerScalar = Math.sqrt(StickY * StickY + StickX * StickX);
             boolean areTriggersDown = Math.abs(rotation) > Constants.STICK_THRESH;
             boolean areSticksMoved = Math.sqrt((StickX * StickX) + (StickY * StickY)) > Constants.STICK_THRESH;
@@ -145,22 +146,24 @@ public class Iterative_Opmode_V_2 extends OpMode {
                 // create the speed vector
                 double w = rotation;
                 //motor power based on inverted matrix DO NOT CHANGE THE HARDCODED NUMBERS
-                double W1Power = -.33 * LockStickX + .58 * LockStickY + .33 * w;
-                double W2Power = -.33 * LockStickX - .58 * LockStickY + .33 * w;
-                double W3Power = .67 * LockStickX + 0.33 * w;
+                double W1Power = -.33 * StickX + .58 * StickY + .33 * w;
+                double W2Power = -.33 * StickX - .58 * StickY + .33 * w;
+                double W3Power = .67 * StickX + 0.33 * w;
                 //keep the powers proportional and within a range of -1 to 1
                 double motorMax = Math.max(Math.max(Math.abs(W1Power), Math.abs(W2Power)), Math.abs(W3Power));
                 double proportion = Math.min(1, motorMax);
                 W1.setPower(W1Power * StickPowerScalar / proportion);
                 W2.setPower(W2Power * StickPowerScalar / proportion);
                 W3.setPower(W3Power * StickPowerScalar / proportion);
+                telemetry.addData("Moving:","Yes");
+//                telemetry.addData("imuAngle",angle);
             }
-            else if (areTriggersDown){
+            if (areTriggersDown){
                 double w = rotation;
                 //motor power based on inverted matrix DO NOT CHANGE THE HARDCODED NUMBERS
-                double W1Power = -.33 * LockStickX + .58 * LockStickY + .33 * w;
-                double W2Power = -.33 * LockStickX - .58 * LockStickY + .33 * w;
-                double W3Power = .67 * LockStickX + 0.33 * w;
+                double W1Power = -.33 * StickX + .58 * StickY + .33 * w;
+                double W2Power = -.33 * StickX - .58 * StickY + .33 * w;
+                double W3Power = .67 * StickX + 0.33 * w;
                 //keep the powers proportional and within a range of -1 to 1
                 double motorMax = Math.max(Math.max(Math.abs(W1Power), Math.abs(W2Power)), Math.abs(W3Power));
                 double proportion = Math.min(1, motorMax);
@@ -168,27 +171,28 @@ public class Iterative_Opmode_V_2 extends OpMode {
                 W1.setPower(W1Power * StickPowerScalar / proportion);
                 W2.setPower(W2Power * StickPowerScalar / proportion);
                 W3.setPower(W3Power * StickPowerScalar / proportion);
+                telemetry.addData("Rotating:","Yes");
             }
-            else {
+            if (!areTriggersDown && !areSticksMoved){
                 W1.setPower(0);
                 W2.setPower(0);
                 W3.setPower(0);
                 telemetry.addData("Status:","Not Moving");
             }
-        if (isGunnerStickMoved){
-            intake.setPower(gunnerStickY);
-        }
-        else {
-            intake.setPower(0);
-        }
-        boolean driversKnowEndgame = false;
+//        if (isGunnerStickMoved){
+//            intake.setPower(gunnerStickY);
+//        }
+//        else {
+//            intake.setPower(0);
+//        }
+
         telemetry.addData("Runtime", getRuntime());
         if (runtime.milliseconds()>83000 && driversKnowEndgame == false){
             gamepad1.rumble(1000);
             gamepad2.rumble(1000);
             if (runtime.milliseconds()>85000){
                 gamepad1.stopRumble();
-                gamepad2.stopRumble();
+                gamepad2.stopRumble();///
             }
             driversKnowEndgame = true;
             telemetry.addData("Endgame:","Yes");
@@ -197,14 +201,14 @@ public class Iterative_Opmode_V_2 extends OpMode {
             telemetry.addData("Endgame:", "No");
         }
 
-        if (gamepad2.left_bumper){
-            clawClose.setPosition(Servo.MAX_POSITION);
-        }
-        //close the claw
-        if (gamepad2.right_bumper){
-            clawClose.setPosition(Servo.MIN_POSITION);
-        }
-        //open the claw
+//        if (gamepad2.left_bumper){
+//            clawClose.setPosition(Servo.MAX_POSITION);
+//        }
+//        //close the claw
+//        if (gamepad2.right_bumper){
+//            clawClose.setPosition(Servo.MIN_POSITION);
+//        }
+//        //open the claw
     }
 
 
