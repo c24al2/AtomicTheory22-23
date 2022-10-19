@@ -4,8 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous (name = "AutoBlueV1")
-public class AutoBlueV1 extends LinearOpMode {
+@Autonomous (name = "Vampire Drive Front")
+public class driveFront extends LinearOpMode {
     @Override
     public void runOpMode() {
         RobotHardware vampire = new RobotHardware(hardwareMap, telemetry);
@@ -23,12 +23,16 @@ public class AutoBlueV1 extends LinearOpMode {
 
             }
         };
-        vampire.driveRightSide(1000);
-        vampire.stopDrive();
-        sleep(5000);
+        if (opModeIsActive()) {
+            vampire.driveFront(1000);
+            vampire.stopDrive();
+            sleep(5000);
+        }
+
     };
 
 
 
-    }
+}
+
 

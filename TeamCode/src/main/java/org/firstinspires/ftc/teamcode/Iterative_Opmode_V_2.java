@@ -135,9 +135,9 @@ public class Iterative_Opmode_V_2 extends OpMode {
             double StickY = Math.abs(gamepad1.left_stick_y) < Constants.STICK_THRESH ? 0 : -gamepad1.left_stick_y;
             double rotation = gamepad1.left_trigger * Constants.ROTATION_SENSITIVITY - gamepad1.right_trigger * Constants.ROTATION_SENSITIVITY;
             double gunnerStickY = Math.abs(gamepad2.left_stick_y) < Constants.STICK_THRESH ? 0 : -gamepad2.left_stick_y;
-//            double angle = imu.getAngularOrientation().firstAngle;
-//            double LockStickX = (Math.cos(angle) * StickX + Math.sin(angle) * StickY);
-//            double LockStickY = (-Math.sin(angle) * StickX + Math.cos(angle) * StickY);
+            double angle = imu.getAngularOrientation().firstAngle;
+            double LockStickX = (Math.cos(angle) * StickX + Math.sin(angle) * StickY);
+            double LockStickY = (-Math.sin(angle) * StickX + Math.cos(angle) * StickY);
             double StickPowerScalar = Math.sqrt(StickY * StickY + StickX * StickX);
             boolean areTriggersDown = Math.abs(rotation) > Constants.STICK_THRESH;
             boolean areSticksMoved = Math.sqrt((StickX * StickX) + (StickY * StickY)) > Constants.STICK_THRESH;
@@ -146,9 +146,9 @@ public class Iterative_Opmode_V_2 extends OpMode {
                 // create the speed vector
                 double w = rotation;
                 //motor power based on inverted matrix DO NOT CHANGE THE HARDCODED NUMBERS
-                double W1Power = -.33 * StickX + .58 * StickY + .33 * w;
-                double W2Power = -.33 * StickX - .58 * StickY + .33 * w;
-                double W3Power = .67 * StickX + 0.33 * w;
+                double W1Power = -.33 * LockStickX + .58 * LockStickY + .33 * w;
+                double W2Power = -.33 * LockStickX - .58 * LockStickY + .33 * w;
+                double W3Power = .67 * LockStickX + 0.33 * w;
                 //keep the powers proportional and within a range of -1 to 1
                 double motorMax = Math.max(Math.max(Math.abs(W1Power), Math.abs(W2Power)), Math.abs(W3Power));
                 double proportion = Math.min(1, motorMax);
