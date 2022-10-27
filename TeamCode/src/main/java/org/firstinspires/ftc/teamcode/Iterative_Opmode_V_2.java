@@ -68,7 +68,8 @@ public class Iterative_Opmode_V_2 extends OpMode {
     private DcMotor W1 = null;
     private DcMotor W2 = null;
     private DcMotor W3 = null;
-//    private DcMotor intake = null;
+    private DcMotor slides = null;
+  private Servo intakeTurn = null;
     private BNO055IMU imu = null;
     boolean driversKnowEndgame = false;
 //    private Servo clawClose = null;
@@ -84,8 +85,8 @@ public class Iterative_Opmode_V_2 extends OpMode {
         W1 = hardwareMap.get(DcMotor.class, "fl");
         W2 = hardwareMap.get(DcMotor.class, "fr");
         W3 = hardwareMap.get(DcMotor.class, "br");
-//        intake = hardwareMap.get(DcMotor.class, "intake");
-//        clawClose = hardwareMap.get(Servo.class, "clawClose");
+        slides = hardwareMap.get(DcMotor.class, "slides");
+        intakeTurn = hardwareMap.get(Servo.class, "intakeTurn");
 
         //initialize the imu
         imu = hardwareMap.get(BNO055IMU.class, "imu");
@@ -99,11 +100,14 @@ public class Iterative_Opmode_V_2 extends OpMode {
         W1.setDirection(DcMotor.Direction.FORWARD);
         W2.setDirection(DcMotor.Direction.FORWARD);
         W3.setDirection(DcMotor.Direction.FORWARD);
+        slides.setDirection(DcMotor.Direction.FORWARD);
+        intakeTurn.setPosition(0);
 //        intake.setDirection(DcMotor.Direction.REVERSE);
         //set zero behaviors
         W1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         W2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         W3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 //        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         telemetry.addData("Status", "Initialized");
         //Quality-of-life changes here
@@ -141,7 +145,12 @@ public class Iterative_Opmode_V_2 extends OpMode {
             double StickPowerScalar = Math.sqrt(StickY * StickY + StickX * StickX);
             boolean areTriggersDown = Math.abs(rotation) > Constants.STICK_THRESH;
             boolean areSticksMoved = Math.sqrt((StickX * StickX) + (StickY * StickY)) > Constants.STICK_THRESH;
-            boolean isGunnerStickMoved = Math.abs(gunnerStickY) > Constants.STICK_THRESH;
+            double pickupFromTop = 0;
+            double pickupFromRight = .09;
+            double pickupFromLeft = -.09;
+            double pickupFromRightStabilize = -.25;
+            double pickupFromLeftStabilize = 25;
+        boolean isGunnerStickMoved = Math.abs(gunnerStickY) > Constants.STICK_THRESH;
             if (areSticksMoved) {
                 // create the speed vector
                 double w = rotation;
@@ -179,12 +188,28 @@ public class Iterative_Opmode_V_2 extends OpMode {
                 W3.setPower(0);
                 telemetry.addData("Status:","Not Moving");
             }
-//        if (isGunnerStickMoved){
-//            intake.setPower(gunnerStickY);
-//        }
-//        else {
-//            intake.setPower(0);
-//        }
+            if (isGunnerStickMoved){
+                slides.setPower(gunnerStickY);
+            }
+            if (!isGunnerStickMoved) {
+                slides.setPower(0);
+            }
+            if (gamepad2.a){
+                intakeTurn.setPosition(pickupFromLeftStabilize);
+            }
+            if (gamepad2.x){
+                intakeTurn.setPosition(pickupFromRight);
+            }
+            if (gamepad2.b){
+                intakeTurn.setPosition(pickupFromLeft);
+            }
+            if (gamepad2.y){
+                intakeTurn.setPosition(pickupFromRightStabilize);
+            }
+            if (gamepad2.right_stick_button){
+                intakeTurn.setPosition(0);
+            }
+
 
         telemetry.addData("Runtime", getRuntime());
         if (runtime.milliseconds()>83000 && driversKnowEndgame == false){
@@ -200,15 +225,6 @@ public class Iterative_Opmode_V_2 extends OpMode {
         else {
             telemetry.addData("Endgame:", "No");
         }
-
-//        if (gamepad2.left_bumper){
-//            clawClose.setPosition(Servo.MAX_POSITION);
-//        }
-//        //close the claw
-//        if (gamepad2.right_bumper){
-//            clawClose.setPosition(Servo.MIN_POSITION);
-//        }
-//        //open the claw
     }
 
 

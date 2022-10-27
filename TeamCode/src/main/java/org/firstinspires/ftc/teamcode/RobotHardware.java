@@ -43,6 +43,8 @@ public class RobotHardware {
     public DcMotor W1;
     public DcMotor W2;
     public DcMotor W3;
+    public DcMotor slides;
+    public Servo intakeTurn;
     public BNO055IMU imu = null;
     HardwareMap hardwareMap;
     Telemetry telemetry;
@@ -58,17 +60,21 @@ public class RobotHardware {
         W1 = hardwareMap.get(DcMotor.class, "fl");
         W2 = hardwareMap.get(DcMotor.class, "fr");
         W3 = hardwareMap.get(DcMotor.class, "br");
+        slides = hardwareMap.get(DcMotor.class, "slides");
         W1.setDirection(DcMotor.Direction.FORWARD);
         W2.setDirection(DcMotor.Direction.FORWARD);
         W3.setDirection(DcMotor.Direction.FORWARD);
+        slides.setDirection(DcMotor.Direction.FORWARD);
         //set zero power behaviors for each motor
         W1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         W2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         W3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // Set all motors to zero power
         W1.setPower(0);
         W2.setPower(0);
         W3.setPower(0);
+        slides.setPower(0);
     }
 
     public void driveRightSide(double time){
