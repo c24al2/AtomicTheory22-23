@@ -35,6 +35,16 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.vision.blueConePipeline;
+import org.opencv.core.Point;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvWebcam;
+
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -48,6 +58,9 @@ public class RobotHardware {
     public BNO055IMU imu = null;
     HardwareMap hardwareMap;
     Telemetry telemetry;
+    private OpenCvWebcam webcam;
+    private blueConePipeline BlueConePipeline;
+    public int parkingPlace;
 
 
     /* Constructor */
@@ -66,15 +79,42 @@ public class RobotHardware {
         W3.setDirection(DcMotor.Direction.FORWARD);
         slides.setDirection(DcMotor.Direction.FORWARD);
         //set zero power behaviors for each motor
-        W1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        W2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        W3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        W1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        W2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        W3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // Set all motors to zero power
         W1.setPower(0);
         W2.setPower(0);
         W3.setPower(0);
         slides.setPower(0);
+        telemetry.addData("Camera status:", "waiting");
+        telemetry.update();
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        BlueConePipeline = new blueConePipeline();
+        webcam.setPipeline(BlueConePipeline);
+        webcam.setMillisecondsPermissionTimeout(2500);
+        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                webcam.startStreaming(Constants.CAM_WIDTH, Constants.CAM_HEIGHT, OpenCvCameraRotation.SIDEWAYS_LEFT);
+                //telemetry.addData("Camera status:", "initialized");
+                telemetry.update();
+            }
+
+            @Override
+            public void onError(int errorCode) {
+                // This will be called if the camera could not be opened
+            }
+        });
+        while(BlueConePipeline.ParkingPositionPurple == false &&
+        BlueConePipeline.ParkingPositionGreen == false &&
+        BlueConePipeline.ParkingPositionOrange == false){
+            telemetry.addData("camera ready?", "false");
+            telemetry.addData("pipeline chosen", "Shipping");
+            telemetry.update();
+        }
     }
 
     public void driveRightSide(double time){
@@ -99,9 +139,15 @@ public class RobotHardware {
         ElapsedTime runtime = new ElapsedTime();
         runtime.reset();
         while (runtime.milliseconds()<time){
-            W1.setPower(1);
-            W2.setPower(1);
-            W3.setPower(0);
+            double w = 0;
+            double LockStickY = 1;
+            double LockStickX = 0;
+            double W1Power = -.33 * LockStickX + .58 * LockStickY + .33 * w;
+            double W2Power = -.33 * LockStickX - .58 * LockStickY + .33 * w;
+            double W3Power = .67 * LockStickX + 0.33 * w;
+            W1.setPower(W1Power);
+            W2.setPower(W2Power);
+            W3.setPower(W3Power);
         }
     }
     public void driveBack(double time){
@@ -119,57 +165,22 @@ public class RobotHardware {
         W3.setPower(0);
     }
 
-//    public void driveByTime(double angle, double time, double targetRotation, double power, double timeout) {
-//        //timer
-//        ElapsedTime timer = new ElapsedTime();
-//        timer.reset();
-//        //get movement direction in rads
-//        double newAngle = Math.toRadians(angle + 90);
-//        //reset encoders
-//        //get start angle
-//        double startAngle = imu.getAngularOrientation().firstAngle;
-//        //get components of original vector
-//        double xComponent = Math.cos(newAngle);
-//        double yComponent = Math.sin(newAngle);
-//        //rotate vector 45 degrees
-//        double LockStickX = (xComponent * Math.cos(startAngle)) - (yComponent * Math.sin(startAngle));
-//        double LockStickY = (yComponent * Math.cos(startAngle)) + (xComponent * Math.sin(startAngle));
-//        //get rotation angle in rads
-//        double targetRotationRad = Math.toRadians(targetRotation);
-//        //get needed rotation
-//        double rotation = targetRotationRad - startAngle;
-//        //get rotation between -360 and 360 degrees
-//        while (rotation > Math.PI * 2) {
-//            rotation -= Math.PI * 2;
-//        }
-//        while (rotation < -Math.PI * 2) {
-//            rotation += Math.PI * 2;
-//        }
-//        //make sure turn direction is correct
-//        if (rotation < -Math.PI) {
-//            rotation = Math.PI * 2 + rotation;
-//        }
-//        if (rotation > Math.PI) {
-//            rotation = -Math.PI * 2 + rotation;
-//        }
-//        //get the number of encoder counts for the target rotation
-//        double rotationInEncoderCounts = (rotation / (2 * Math.PI)) * Constants.FULL_SPIN;
-//        //setup target positions for each wheel
-//        double w = rotation;
-//        double W1Power = -.33 * LockStickX + .58 * LockStickY + .33 * w;
-//        double W2Power = -.33 * LockStickX - .58 * LockStickY + .33 * w;
-//        double W3Power = .67 * LockStickX + 0.33 * w;
-//        //set target positions
-//        //make powers less than 1
-//        double proportion = Math.max(Math.max(Math.abs(W1Power), Math.abs(W2Power)), (W3Power));
-//        //set the powers
-//        frontLeft.setPower(power *  W1Power/ proportion);
-//        backLeft.setPower(power * W2Power / proportion);
-//        backRight.setPower(power * W3Power / proportion);
-//        //wait until the motors finish or time expires
-//        //noinspection StatementWithEmptyBody
-//        //end the path
-//        //stopDrive();
-//    }
+    public int getParkingPlace(){
+        if (BlueConePipeline.ParkingPositionPurple){
+            return 1;
+        }
+        else if (BlueConePipeline.ParkingPositionGreen){
+            return 2;
+        }
+        else if (BlueConePipeline.ParkingPositionOrange){
+            return 3;
+        }
+        // in case of camera failure returns 0
+        else {
+            return 0;
+        }
+    }
+
+
 
 }

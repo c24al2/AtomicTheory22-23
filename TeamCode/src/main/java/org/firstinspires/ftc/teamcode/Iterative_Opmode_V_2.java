@@ -45,6 +45,8 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.Chassis;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -65,28 +67,24 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 public class Iterative_Opmode_V_2 extends OpMode {
     // Declare OpMode members.
     private final ElapsedTime runtime = new ElapsedTime();
-    private DcMotor W1 = null;
-    private DcMotor W2 = null;
-    private DcMotor W3 = null;
-    private DcMotor slides = null;
-  private Servo intakeTurn = null;
+    private final Chassis chassis = new Chassis();
+    private DcMotor intake = null;
     private BNO055IMU imu = null;
-    boolean driversKnowEndgame = false;
-//    private Servo clawClose = null;
+    private Servo clawClose = null;
+    private boolean driversKnowEndgame = false;
+
     /*
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
+        chassis.init(hardwareMap);
 
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        W1 = hardwareMap.get(DcMotor.class, "fl");
-        W2 = hardwareMap.get(DcMotor.class, "fr");
-        W3 = hardwareMap.get(DcMotor.class, "br");
-        slides = hardwareMap.get(DcMotor.class, "slides");
-        intakeTurn = hardwareMap.get(Servo.class, "intakeTurn");
+        intake = hardwareMap.get(DcMotor.class, "intake");
+        clawClose = hardwareMap.get(Servo.class, "clawClose");
 
         //initialize the imu
         imu = hardwareMap.get(BNO055IMU.class, "imu");
@@ -97,25 +95,22 @@ public class Iterative_Opmode_V_2 extends OpMode {
         parameters.loggingEnabled = false;
         imu.initialize(parameters);
         // Reverse the motor that runs backwards when connected directly to the battery
-        W1.setDirection(DcMotor.Direction.FORWARD);
-        W2.setDirection(DcMotor.Direction.FORWARD);
-        W3.setDirection(DcMotor.Direction.FORWARD);
-        slides.setDirection(DcMotor.Direction.FORWARD);
-        intakeTurn.setPosition(0);
-//        intake.setDirection(DcMotor.Direction.REVERSE);
+        intake.setDirection(DcMotor.Direction.REVERSE);
         //set zero behaviors
-        W1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        W2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        W3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         telemetry.addData("Status", "Initialized");
         //Quality-of-life changes here
+        intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
      */
+    public void goTo(int position,double power) {
+        intake.setTargetPosition(position);
+        intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        intake.setPower(power);
+    }
     @Override
     public void init_loop() {
     }
@@ -127,103 +122,86 @@ public class Iterative_Opmode_V_2 extends OpMode {
     public void start() {
         runtime.reset();
     }
-
+    boolean useEncoders = true;
     /*
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
      */
     @Override
     public void loop() {
-        //Get the positions of the left stick in terms of x and y
-        //Invert y because of the input from the controller
-            double StickX = Math.abs(gamepad1.left_stick_x) < Constants.STICK_THRESH ? 0 : gamepad1.left_stick_x;
-            double StickY = Math.abs(gamepad1.left_stick_y) < Constants.STICK_THRESH ? 0 : -gamepad1.left_stick_y;
-            double rotation = gamepad1.left_trigger * Constants.ROTATION_SENSITIVITY - gamepad1.right_trigger * Constants.ROTATION_SENSITIVITY;
-            double gunnerStickY = Math.abs(gamepad2.left_stick_y) < Constants.STICK_THRESH ? 0 : -gamepad2.left_stick_y;
-            double angle = imu.getAngularOrientation().firstAngle;
-            double LockStickX = (Math.cos(angle) * StickX + Math.sin(angle) * StickY);
-            double LockStickY = (-Math.sin(angle) * StickX + Math.cos(angle) * StickY);
-            double StickPowerScalar = Math.sqrt(StickY * StickY + StickX * StickX);
-            boolean areTriggersDown = Math.abs(rotation) > Constants.STICK_THRESH;
-            boolean areSticksMoved = Math.sqrt((StickX * StickX) + (StickY * StickY)) > Constants.STICK_THRESH;
-            double pickupFromTop = 0;
-            double pickupFromRight = .09;
-            double pickupFromLeft = -.09;
-            double pickupFromRightStabilize = -.25;
-            double pickupFromLeftStabilize = 25;
+        chassis.run(gamepad1);
+        int pickupPositionFromGround = 290*3;
+        int lowJunctionDeposit = 731*3;
+        int midJunctionDeposit = 1249*3;
+        int highJunctionDeposit = 1868*3;
+        int targetPosition = 0;
+        double gunnerStickY = Math.abs(gamepad2.left_stick_y) < Constants.STICK_THRESH ? 0 : -gamepad2.left_stick_y;
         boolean isGunnerStickMoved = Math.abs(gunnerStickY) > Constants.STICK_THRESH;
-            if (areSticksMoved) {
-                // create the speed vector
-                double w = rotation;
-                //motor power based on inverted matrix DO NOT CHANGE THE HARDCODED NUMBERS
-                double W1Power = -.33 * LockStickX + .58 * LockStickY + .33 * w;
-                double W2Power = -.33 * LockStickX - .58 * LockStickY + .33 * w;
-                double W3Power = .67 * LockStickX + 0.33 * w;
-                //keep the powers proportional and within a range of -1 to 1
-                double motorMax = Math.max(Math.max(Math.abs(W1Power), Math.abs(W2Power)), Math.abs(W3Power));
-                double proportion = Math.min(1, motorMax);
-                W1.setPower(W1Power * StickPowerScalar / proportion);
-                W2.setPower(W2Power * StickPowerScalar / proportion);
-                W3.setPower(W3Power * StickPowerScalar / proportion);
-                telemetry.addData("Moving:","Yes");
-//                telemetry.addData("imuAngle",angle);
-            }
-            if (areTriggersDown){
-                double w = rotation;
-                //motor power based on inverted matrix DO NOT CHANGE THE HARDCODED NUMBERS
-                double W1Power = -.33 * StickX + .58 * StickY + .33 * w;
-                double W2Power = -.33 * StickX - .58 * StickY + .33 * w;
-                double W3Power = .67 * StickX + 0.33 * w;
-                //keep the powers proportional and within a range of -1 to 1
-                double motorMax = Math.max(Math.max(Math.abs(W1Power), Math.abs(W2Power)), Math.abs(W3Power));
-                double proportion = Math.min(1, motorMax);
-                StickPowerScalar = .5;
-                W1.setPower(W1Power * StickPowerScalar / proportion);
-                W2.setPower(W2Power * StickPowerScalar / proportion);
-                W3.setPower(W3Power * StickPowerScalar / proportion);
-                telemetry.addData("Rotating:","Yes");
-            }
-            if (!areTriggersDown && !areSticksMoved){
-                W1.setPower(0);
-                W2.setPower(0);
-                W3.setPower(0);
-                telemetry.addData("Status:","Not Moving");
-            }
-            if (isGunnerStickMoved){
-                slides.setPower(gunnerStickY);
-            }
-            if (!isGunnerStickMoved) {
-                slides.setPower(0);
-            }
-            if (gamepad2.a){
-                intakeTurn.setPosition(pickupFromLeftStabilize);
-            }
-            if (gamepad2.x){
-                intakeTurn.setPosition(pickupFromRight);
-            }
-            if (gamepad2.b){
-                intakeTurn.setPosition(pickupFromLeft);
-            }
-            if (gamepad2.y){
-                intakeTurn.setPosition(pickupFromRightStabilize);
-            }
-            if (gamepad2.right_stick_button){
-                intakeTurn.setPosition(0);
-            }
 
+        if (isGunnerStickMoved) {
+            intake.setPower(gunnerStickY);
+        } else {
+            intake.setPower(0);
+        }
 
         telemetry.addData("Runtime", getRuntime());
-        if (runtime.milliseconds()>83000 && driversKnowEndgame == false){
+        if (runtime.milliseconds() > 83000 && !driversKnowEndgame) {
             gamepad1.rumble(1000);
             gamepad2.rumble(1000);
-            if (runtime.milliseconds()>85000){
+            if (runtime.milliseconds() > 85000) {
                 gamepad1.stopRumble();
-                gamepad2.stopRumble();///
+                gamepad2.stopRumble();
             }
             driversKnowEndgame = true;
-            telemetry.addData("Endgame:","Yes");
-        }
-        else {
+            telemetry.addData("Endgame:", "Yes");
+        } else {
             telemetry.addData("Endgame:", "No");
+        }
+
+        if (gamepad2.left_bumper) {
+            clawClose.setPosition(0.76);
+        }
+
+        if (gamepad2.b) {
+            clawClose.setPosition(0.77);
+        }
+        //close the claw
+        if (gamepad2.right_bumper) {
+            clawClose.setPosition(0.85);
+        }
+
+        if (gamepad2.a) {
+            clawClose.setPosition(.46);
+        }
+        if (gamepad2.dpad_down){
+            targetPosition = pickupPositionFromGround;
+        }
+        if (gamepad2.dpad_up){
+            targetPosition = highJunctionDeposit;
+        }
+        if (gamepad2.dpad_right){
+            targetPosition = midJunctionDeposit;
+        }
+        if (gamepad2.dpad_left){
+            targetPosition = lowJunctionDeposit;
+        }
+        //open the claw
+        if (gamepad2.x) {
+            // Ability for manual control, which resets the motor's encoder value when done
+            if (useEncoders) {
+                useEncoders = false;
+                intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
+            intake.setPower(-gamepad2.left_stick_y * 0.7);
+        } else {
+            if (!useEncoders) {
+                // Resetting the encoder value
+                intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                targetPosition = 0;
+                useEncoders = true;
+            }
+            targetPosition -= gamepad2.left_stick_y * 80;
+            targetPosition = Range.clip(targetPosition, 0, 1450);
+            goTo((int) targetPosition, .8);
         }
     }
 
