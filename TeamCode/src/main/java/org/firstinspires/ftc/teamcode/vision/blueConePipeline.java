@@ -26,15 +26,23 @@ public class blueConePipeline extends OpenCvPipeline {
 
     @Override
     public Mat processFrame(Mat input) {
-        Mat processedImage = new Mat();
-        Imgproc.cvtColor(input,processedImage,Imgproc.COLOR_RGB2HSV);
-        Imgproc.GaussianBlur(processedImage,processedImage,new Size(3,3),0);
+        Mat ProcessedImage = input.clone();
+        int x = (int) (0.2*ProcessedImage.width());
+        int y = (int) (.6*ProcessedImage.height());
+        int width = (int) (.5*ProcessedImage.width());
+        int height = (int) (.4*ProcessedImage.height());
+        Rect cropArea = new Rect (x, y, width, height);
+        Mat croppedProcessedImage = new Mat(ProcessedImage, cropArea);
+        Mat showingThing = croppedProcessedImage.clone();
+        Imgproc.rectangle(input, cropArea, new Scalar(133, 150, 60));
+        Imgproc.cvtColor(croppedProcessedImage,croppedProcessedImage,Imgproc.COLOR_RGB2HSV);
+        Imgproc.GaussianBlur(croppedProcessedImage,croppedProcessedImage,new Size(3,3),0);
 
         // Orange
         Mat orangeMat = new Mat();
-        Scalar orangeLower = new Scalar(8,30,30);
-        Scalar orangeUpper = new Scalar(10,255,255);
-        Core.inRange(processedImage,orangeLower,orangeUpper,orangeMat);
+        Scalar orangeLower = new Scalar(8,50,50);
+        Scalar orangeUpper = new Scalar(13,255,255);
+        Core.inRange(croppedProcessedImage,orangeLower,orangeUpper,orangeMat);
 //        Imgproc.morphologyEx(orangeMat,orangeMat,Imgproc.MORPH_OPEN,Mat.ones(new Size(3,3), CvType.CV_32F));
         ArrayList<MatOfPoint> orangeContours = new ArrayList<>();
         MatOfPoint orangeContour = null;
@@ -55,13 +63,13 @@ public class blueConePipeline extends OpenCvPipeline {
         Rect orangerect = null;
         try {
             orangerect = Imgproc.boundingRect(orangeContours.get(contourIndex));
-            Imgproc.drawContours(input,orangeContours,contourIndex,new Scalar(255, 150, 0));
+            Imgproc.drawContours(showingThing,orangeContours,contourIndex,new Scalar(255, 150, 0));
             if(orangerect.area()<200){
                 orangerect = null;
             }
         }catch(Exception ignored){}
         if(orangerect !=null) {
-            Imgproc.rectangle(input, orangerect, new Scalar(255, 150, 0));
+            Imgproc.rectangle(showingThing, orangerect, new Scalar(255, 150, 0));
             OrangeRectArea = orangerect.area();
         }else {
             OrangeRectArea = 0;
@@ -69,9 +77,9 @@ public class blueConePipeline extends OpenCvPipeline {
 
         // Green
         Mat greenMat = new Mat();
-        Scalar greenUpper = new Scalar(60,255,255);
-        Scalar greenLower = new Scalar(42,0,0);
-        Core.inRange(processedImage,greenLower,greenUpper,greenMat);
+        Scalar greenUpper = new Scalar(78,255,255);
+        Scalar greenLower = new Scalar(43,5,5);
+        Core.inRange(croppedProcessedImage,greenLower,greenUpper,greenMat);
 //        Imgproc.morphologyEx(greenMat,greenMat,Imgproc.MORPH_OPEN,Mat.ones(new Size(3,3), CvType.CV_32F));
         ArrayList<MatOfPoint> greenContours = new ArrayList<>();
         MatOfPoint greenContour = null;
@@ -92,13 +100,13 @@ public class blueConePipeline extends OpenCvPipeline {
         Rect greenrect = null;
         try {
             greenrect = Imgproc.boundingRect(greenContours.get(contourIndex));
-            Imgproc.drawContours(input,greenContours,contourIndex,new Scalar(0,255,255));
+            Imgproc.drawContours(showingThing,greenContours,contourIndex,new Scalar(0,255,255));
             if(greenrect.area()<200){
                 greenrect = null;
             }
         }catch(Exception ignored){}
         if(greenrect !=null) {
-            Imgproc.rectangle(input, greenrect, new Scalar(0, 255, 0));
+            Imgproc.rectangle(showingThing, greenrect, new Scalar(0, 255, 0));
             GreenRectArea = greenrect.area();
         }else {
             GreenRectArea = 0;
@@ -106,9 +114,9 @@ public class blueConePipeline extends OpenCvPipeline {
 
         // Purple
         Mat purpleMat = new Mat();
-        Scalar purpleLower = new Scalar(158,0,0);
-        Scalar purpleUpper = new Scalar(174,255,255);
-        Core.inRange(processedImage,purpleLower,purpleUpper,purpleMat);
+        Scalar purpleLower = new Scalar(140,30,30);
+        Scalar purpleUpper = new Scalar(162,255,255);
+        Core.inRange(croppedProcessedImage,purpleLower,purpleUpper,purpleMat);
 //        Imgproc.morphologyEx(purpleMat,purpleMat,Imgproc.MORPH_OPEN,Mat.ones(new Size(3,3), CvType.CV_32F));
         ArrayList<MatOfPoint> purpleContours = new ArrayList<>();
         MatOfPoint purpleContour = null;
@@ -129,13 +137,13 @@ public class blueConePipeline extends OpenCvPipeline {
         Rect purplerect = null;
         try {
             purplerect = Imgproc.boundingRect(purpleContours.get(contourIndex));
-            Imgproc.drawContours(input,purpleContours,contourIndex,new Scalar(0,255,255));
+            Imgproc.drawContours(showingThing,purpleContours,contourIndex,new Scalar(0,255,255));
             if(purplerect.area()<200){
                 purplerect = null;
             }
         }catch(Exception ignored){}
         if(purplerect !=null) {
-            Imgproc.rectangle(input, purplerect, new Scalar(255, 0, 0));
+            Imgproc.rectangle(showingThing, purplerect, new Scalar(255, 0, 0));
             PurpleRectArea = purplerect.area();
         }else {
             PurpleRectArea = 0;
@@ -162,10 +170,9 @@ public class blueConePipeline extends OpenCvPipeline {
             ParkingPositionOrange = false;
         }
 
-        processedImage.release();
-//        Imgproc.cvtColor(processedImage,input,Imgproc.COLOR_HSV2RGB);
+        croppedProcessedImage.release();
+        ProcessedImage.release();
 
-
-        return input;
+        return showingThing;
     }
 }

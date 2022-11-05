@@ -129,19 +129,9 @@ public class Iterative_Opmode_V_2 extends OpMode {
     @Override
     public void loop() {
         chassis.run(gamepad1);
-        int pickupPositionFromGround = 290*3;
-        int lowJunctionDeposit = 731*3;
-        int midJunctionDeposit = 1249*3;
-        int highJunctionDeposit = 1868*3;
-        int targetPosition = 0;
         double gunnerStickY = Math.abs(gamepad2.left_stick_y) < Constants.STICK_THRESH ? 0 : -gamepad2.left_stick_y;
         boolean isGunnerStickMoved = Math.abs(gunnerStickY) > Constants.STICK_THRESH;
 
-        if (isGunnerStickMoved) {
-            intake.setPower(gunnerStickY);
-        } else {
-            intake.setPower(0);
-        }
 
         telemetry.addData("Runtime", getRuntime());
         if (runtime.milliseconds() > 83000 && !driversKnowEndgame) {
@@ -156,7 +146,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
         } else {
             telemetry.addData("Endgame:", "No");
         }
-
+        //servo positions
         if (gamepad2.left_bumper) {
             clawClose.setPosition(0.76);
         }
@@ -164,7 +154,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
         if (gamepad2.b) {
             clawClose.setPosition(0.77);
         }
-        //close the claw
+
         if (gamepad2.right_bumper) {
             clawClose.setPosition(0.85);
         }
@@ -172,36 +162,14 @@ public class Iterative_Opmode_V_2 extends OpMode {
         if (gamepad2.a) {
             clawClose.setPosition(.46);
         }
-        if (gamepad2.dpad_down){
-            targetPosition = pickupPositionFromGround;
-        }
-        if (gamepad2.dpad_up){
-            targetPosition = highJunctionDeposit;
-        }
-        if (gamepad2.dpad_right){
-            targetPosition = midJunctionDeposit;
-        }
-        if (gamepad2.dpad_left){
-            targetPosition = lowJunctionDeposit;
-        }
-        //open the claw
-        if (gamepad2.x) {
-            // Ability for manual control, which resets the motor's encoder value when done
-            if (useEncoders) {
+        //lift
+        if (isGunnerStickMoved) {
                 useEncoders = false;
                 intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            }
             intake.setPower(-gamepad2.left_stick_y * 0.7);
-        } else {
-            if (!useEncoders) {
-                // Resetting the encoder value
-                intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                targetPosition = 0;
-                useEncoders = true;
-            }
-            targetPosition -= gamepad2.left_stick_y * 80;
-            targetPosition = Range.clip(targetPosition, 0, 1450);
-            goTo((int) targetPosition, .8);
+        }
+        else {
+            intake.setPower(0);
         }
     }
 

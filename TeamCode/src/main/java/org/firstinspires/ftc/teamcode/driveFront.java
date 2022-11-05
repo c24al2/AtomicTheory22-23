@@ -24,7 +24,6 @@ public class driveFront extends LinearOpMode {
             }
         };
         if (opModeIsActive()) {
-            vampire.driveFront(1000);
             vampire.stopDrive();
             sleep(5000);
         }

@@ -46,6 +46,7 @@ public class Chassis {
     protected DcMotor W2 = null;
     protected DcMotor W3 = null;
     protected BNO055IMU imu = null;
+    boolean slowMode = false;
 
     /* Initialize standard Hardware interfaces */
     public void init(HardwareMap hardwareMap) {
@@ -79,24 +80,6 @@ public class Chassis {
         imu.initialize(parameters);
     }
 
-    public void driveRightSide(double msDuration){
-        ElapsedTime runtime = new ElapsedTime();
-        runtime.reset();
-        while (runtime.milliseconds()<msDuration){
-            double W1Power = -.33 * 1;
-            double W2Power = -.33 * 1;
-            double W3Power = .67 * 1;
-            double motorMax = Math.max(Math.max(Math.abs(W1Power), Math.abs(W2Power)), Math.abs(W3Power));
-            double proportion = Math.min(1, motorMax);
-            W1.setPower(W1Power/ proportion);
-            W2.setPower(W2Power/ proportion);
-            W3.setPower(W3Power/ proportion);
-        }
-        W1.setPower(0);
-        W2.setPower(0);
-        W3.setPower(0);
-    }
-
     public void run(Gamepad gamepad) {
         //Get the positions of the left stick in terms of x and y
         //Invert y because of the input from the controller
@@ -109,19 +92,36 @@ public class Chassis {
         double StickPowerScalar = Math.sqrt(StickY * StickY + StickX * StickX);
         boolean areTriggersDown = Math.abs(rotation) > Constants.STICK_THRESH;
         boolean areSticksMoved = Math.sqrt((StickX * StickX) + (StickY * StickY)) > Constants.STICK_THRESH;
+        if (gamepad.a){
+            slowMode = !slowMode;
+        }
         if (areSticksMoved) {
-            // create the speed vector
-            double w = rotation;
-            //motor power based on inverted matrix DO NOT CHANGE THE HARDCODED NUMBERS
-            double W1Power = -.33 * LockStickX + .58 * LockStickY + .33 * w;
-            double W2Power = -.33 * LockStickX - .58 * LockStickY + .33 * w;
-            double W3Power = .67 * LockStickX + 0.33 * w;
-            //keep the powers proportional and within a range of -1 to 1
-            double motorMax = Math.max(Math.max(Math.abs(W1Power), Math.abs(W2Power)), Math.abs(W3Power));
-            double proportion = Math.min(1, motorMax);
-            W1.setPower(W1Power * StickPowerScalar / proportion);
-            W2.setPower(W2Power * StickPowerScalar / proportion);
-            W3.setPower(W3Power * StickPowerScalar / proportion);
+            if (slowMode){
+                double w = rotation;
+                //motor power based on inverted matrix DO NOT CHANGE THE HARDCODED NUMBERS
+                double W1Power = -.33 * LockStickX + .58 * LockStickY + .33 * w;
+                double W2Power = -.33 * LockStickX - .58 * LockStickY + .33 * w;
+                double W3Power = .67 * LockStickX + 0.33 * w;
+                //keep the powers proportional and within a range of -1 to 1
+                double motorMax = Math.max(Math.max(Math.abs(W1Power), Math.abs(W2Power)), Math.abs(W3Power));
+                double proportion = Math.min(1, motorMax);
+                W1.setPower(W1Power * StickPowerScalar *.5/ proportion);
+                W2.setPower(W2Power * StickPowerScalar *.5/ proportion);
+                W3.setPower(W3Power * StickPowerScalar *.5/ proportion);
+            }
+            else {// create the speed vector
+                double w = rotation;
+                //motor power based on inverted matrix DO NOT CHANGE THE HARDCODED NUMBERS
+                double W1Power = -.33 * LockStickX + .58 * LockStickY + .33 * w;
+                double W2Power = -.33 * LockStickX - .58 * LockStickY + .33 * w;
+                double W3Power = .67 * LockStickX + 0.33 * w;
+                //keep the powers proportional and within a range of -1 to 1
+                double motorMax = Math.max(Math.max(Math.abs(W1Power), Math.abs(W2Power)), Math.abs(W3Power));
+                double proportion = Math.min(1, motorMax);
+                W1.setPower(W1Power * StickPowerScalar / proportion);
+                W2.setPower(W2Power * StickPowerScalar / proportion);
+                W3.setPower(W3Power * StickPowerScalar / proportion);
+            }
         }
         else if (areTriggersDown){
             double w = rotation;

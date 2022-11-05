@@ -53,9 +53,8 @@ public class RobotHardware {
     public DcMotor W1;
     public DcMotor W2;
     public DcMotor W3;
-    public DcMotor slides;
-    public Servo intakeTurn;
-    public BNO055IMU imu = null;
+    public DcMotor intake;
+    private BNO055IMU imu = null;
     HardwareMap hardwareMap;
     Telemetry telemetry;
     private OpenCvWebcam webcam;
@@ -72,22 +71,42 @@ public class RobotHardware {
         // Define and initialize motors
         W1 = hardwareMap.get(DcMotor.class, "fl");
         W2 = hardwareMap.get(DcMotor.class, "fr");
-        W3 = hardwareMap.get(DcMotor.class, "br");
-        slides = hardwareMap.get(DcMotor.class, "slides");
+        W3 = hardwareMap.get(DcMotor.class, "bl");
+        intake = hardwareMap.get(DcMotor.class, "intake");
         W1.setDirection(DcMotor.Direction.FORWARD);
         W2.setDirection(DcMotor.Direction.FORWARD);
         W3.setDirection(DcMotor.Direction.FORWARD);
-        slides.setDirection(DcMotor.Direction.FORWARD);
+        intake.setDirection(DcMotor.Direction.FORWARD);
         //set zero power behaviors for each motor
         W1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         W2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         W3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // Set all motors to zero power
         W1.setPower(0);
         W2.setPower(0);
         W3.setPower(0);
-        slides.setPower(0);
+        intake.setPower(0);
+
+        intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        W1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        W2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        W3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W3.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.mode = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled = false;
+        imu.initialize(parameters);
+
+
         telemetry.addData("Camera status:", "waiting");
         telemetry.update();
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -98,7 +117,7 @@ public class RobotHardware {
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                webcam.startStreaming(Constants.CAM_WIDTH, Constants.CAM_HEIGHT, OpenCvCameraRotation.SIDEWAYS_LEFT);
+                webcam.startStreaming(Constants.CAM_WIDTH, Constants.CAM_HEIGHT, OpenCvCameraRotation.UPRIGHT);
                 //telemetry.addData("Camera status:", "initialized");
                 telemetry.update();
             }
@@ -111,58 +130,168 @@ public class RobotHardware {
         while(BlueConePipeline.ParkingPositionPurple == false &&
         BlueConePipeline.ParkingPositionGreen == false &&
         BlueConePipeline.ParkingPositionOrange == false){
-            telemetry.addData("camera ready?", "false");
-            telemetry.addData("pipeline chosen", "Shipping");
+            telemetry.addData("camera ready?", "true");
+            telemetry.addData("pipeline chosen", "Cone");
             telemetry.update();
         }
     }
 
-    public void driveRightSide(double time){
-        ElapsedTime runtime = new ElapsedTime();
-        runtime.reset();
-        while (runtime.milliseconds()<time){
-            W1.setPower(-.495);
-            W2.setPower(-.495);
-            W3.setPower(1);
+    public void driveByAngleEncoder(double angle, double distance, double power, double timeout) {
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        double newAngle = Math.toRadians(angle + 90);
+        //reset encoders
+        W1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        double angleX = Math.cos(newAngle);
+        double angleY = Math.sin(newAngle);
+        double startAngle = imu.getAngularOrientation().firstAngle;
+        double LockAngleX = (Math.cos(startAngle) * angleX + Math.sin(startAngle) * angleY);
+        double LockAngleY = (-Math.sin(startAngle) * angleX + Math.cos(startAngle) * angleY);
+
+        double W1Target = -.33 * LockAngleX + .58 * LockAngleY ;
+        double W2Target = -.33 * LockAngleX - .58 * LockAngleY;
+        double W3Target = .67 * LockAngleX;
+        double W1Encoder = W1Target * distance;
+        double W2Encoder = W2Target * distance;
+        double W3Encoder = W3Target * distance;
+        int intW1Encoder = (int)Math.round(W1Encoder);
+        int intW2Encoder = (int)Math.round(W2Encoder);
+        int intW3Encoder = (int)Math.round(W3Encoder);
+
+        W1.setTargetPosition(intW1Encoder);
+        W2.setTargetPosition(intW2Encoder);
+        W3.setTargetPosition(intW3Encoder);
+        W1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        W2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        W3.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        double proportion = Math.max(Math.max(Math.abs(W1Encoder), Math.abs(W2Encoder)), Math.max(Math.abs(W2Encoder), Math.abs(W3Encoder)));
+        W1.setPower(power * W1Encoder/ proportion);
+        W2.setPower(power * W2Encoder/ proportion);
+        W3.setPower(power * W3Encoder/ proportion);
+        //wait until the motors finish or time expires
+        //noinspection StatementWithEmptyBody
+        while ((W1.isBusy() || W2.isBusy() || W3.isBusy()) && timer.milliseconds() < timeout) {
         }
+        stopDrive();
     }
-    public void driveLeftSide(double time){
-        ElapsedTime runtime = new ElapsedTime();
-        runtime.reset();
-        while (runtime.milliseconds()<time){
-            W1.setPower(.495);
-            W2.setPower(.495);
-            W3.setPower(-1);
+    public void lift(double Distance, double timeout, double power){
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        int distance = (int)Math.round(Distance);
+        intake.setTargetPosition(distance);
+        intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        intake.setPower(power);
+        while (intake.isBusy() && timer.milliseconds() < timeout) {
         }
+        stopDrive();
     }
-    public void driveFront(double time){
-        ElapsedTime runtime = new ElapsedTime();
-        runtime.reset();
-        while (runtime.milliseconds()<time){
-            double w = 0;
-            double LockStickY = 1;
-            double LockStickX = 0;
-            double W1Power = -.33 * LockStickX + .58 * LockStickY + .33 * w;
-            double W2Power = -.33 * LockStickX - .58 * LockStickY + .33 * w;
-            double W3Power = .67 * LockStickX + 0.33 * w;
-            W1.setPower(W1Power);
-            W2.setPower(W2Power);
-            W3.setPower(W3Power);
+
+
+
+    public void driveRightSide(double distance, double timeout, double power){
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        //reset encoders
+        W1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        double W1Target = -.33;
+        double W2Target = -.33;
+        double W3Target = .67;
+        double W1Encoder = W1Target * distance;
+        double W2Encoder = W2Target * distance;
+        double W3Encoder = W3Target * distance;
+        int intW1Encoder = (int)Math.round(W1Encoder);
+        int intW2Encoder = (int)Math.round(W2Encoder);
+        int intW3Encoder = (int)Math.round(W3Encoder);
+
+        W1.setTargetPosition(intW1Encoder);
+        W2.setTargetPosition(intW2Encoder);
+        W3.setTargetPosition(intW3Encoder);
+        W1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        W2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        W3.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        double proportion = Math.max(Math.max(Math.abs(W1Encoder), Math.abs(W2Encoder)), Math.max(Math.abs(W2Encoder), Math.abs(W3Encoder)));
+        W1.setPower(power * W1Encoder/ proportion);
+        W2.setPower(power * W2Encoder/ proportion);
+        W3.setPower(power * W3Encoder/ proportion);
+        //wait until the motors finish or time expires
+        //noinspection StatementWithEmptyBody
+        while ((W1.isBusy() || W2.isBusy() || W3.isBusy()) && timer.milliseconds() < timeout) {
         }
-    }
-    public void driveBack(double time){
-        ElapsedTime runtime = new ElapsedTime();
-        runtime.reset();
-        while (runtime.milliseconds()<time){
-            W1.setPower(-1);
-            W2.setPower(-1);
-            W3.setPower(0);
+        stopDrive();
         }
+
+    public void rotate (double targetRotation, double timeout, double power){
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        double newAngle = Math.toRadians(targetRotation + 90);
+        double rotationInEncoderCounts = (newAngle / (2 * Math.PI)) * 1250;
+        int intRotationInEncoderCounts = (int)Math.round(rotationInEncoderCounts);
+        W1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W1.setTargetPosition(intRotationInEncoderCounts);
+        W2.setTargetPosition(intRotationInEncoderCounts);
+        W3.setTargetPosition(intRotationInEncoderCounts);
+        W1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        W2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        W3.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        W1.setPower(power);
+        W2.setPower(power);
+        W3.setPower(power);
+        while ((W1.isBusy() || W2.isBusy() || W3.isBusy()) && timer.milliseconds() < timeout) {
+        }
+        stopDrive();
     }
+
+    public void driveFront(double distance, double timeout, double power){
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        //reset encoders
+        W1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        double W1Target = .58;
+        double W2Target = - .58;
+        double W3Target = 0;
+        double W1Encoder = W1Target * distance;
+        double W2Encoder = W2Target * distance;
+        double W3Encoder = W3Target * distance;
+        int intW1Encoder = (int)Math.round(W1Encoder);
+        int intW2Encoder = (int)Math.round(W2Encoder);
+        int intW3Encoder = (int)Math.round(W3Encoder);
+
+        W1.setTargetPosition(intW1Encoder);
+        W2.setTargetPosition(intW2Encoder);
+        W3.setTargetPosition(intW3Encoder);
+        W1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        W2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        W3.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        double proportion = Math.max(Math.max(Math.abs(W1Target), Math.abs(W2Target)), Math.max(Math.abs(W2Target), Math.abs(W3Target)));
+        W1.setPower(power * W1Encoder/ proportion);
+        W2.setPower(power * W2Encoder/ proportion);
+        W3.setPower(power * W3Encoder/ proportion);
+        //wait until the motors finish or time expires
+        //noinspection StatementWithEmptyBody
+        while ((W1.isBusy() || W2.isBusy() || W3.isBusy()) && timer.milliseconds() < timeout) {
+        }
+        stopDrive();
+    }
+
     public void stopDrive(){
         W1.setPower(0);
         W2.setPower(0);
         W3.setPower(0);
+        intake.setPower(0);
     }
 
     public int getParkingPlace(){

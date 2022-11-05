@@ -24,7 +24,6 @@ public class DefinitelyLegalDriving extends LinearOpMode {
             }
         };
         if (opModeIsActive()) {
-            vampire.driveLeftSide(1000);
             vampire.stopDrive();
             sleep(5000);
         }

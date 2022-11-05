@@ -24,7 +24,6 @@ public class driveBackAuto extends LinearOpMode {
             }
         };
         if (opModeIsActive()) {
-            vampire.driveBack(1000);
             vampire.stopDrive();
             sleep(5000);
         }
