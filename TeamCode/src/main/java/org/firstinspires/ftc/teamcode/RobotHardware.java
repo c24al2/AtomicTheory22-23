@@ -200,9 +200,9 @@ public class RobotHardware {
         W2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         W3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        double W1Target = -.33;
-        double W2Target = -.33;
-        double W3Target = .67;
+        double W1Target = -.5;
+        double W2Target = -.5;
+        double W3Target = 1;
         double W1Encoder = W1Target * distance;
         double W2Encoder = W2Target * distance;
         double W3Encoder = W3Target * distance;
@@ -227,6 +227,44 @@ public class RobotHardware {
         }
         stopDrive();
         }
+
+    public void driveRightSideMillimeters(double distanceInMillimeters, double timeout, double power){
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+
+        double distance = distanceInMillimeters * 1.78288404788;
+        //reset encoders
+        W1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        double W1Target = -.5;
+        double W2Target = -.5;
+        double W3Target = 1;
+        double W1Encoder = W1Target * distance;
+        double W2Encoder = W2Target * distance;
+        double W3Encoder = W3Target * distance;
+        int intW1Encoder = (int)Math.round(W1Encoder);
+        int intW2Encoder = (int)Math.round(W2Encoder);
+        int intW3Encoder = (int)Math.round(W3Encoder);
+
+        W1.setTargetPosition(intW1Encoder);
+        W2.setTargetPosition(intW2Encoder);
+        W3.setTargetPosition(intW3Encoder);
+        W1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        W2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        W3.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        double proportion = Math.max(Math.max(Math.abs(W1Encoder), Math.abs(W2Encoder)), Math.max(Math.abs(W2Encoder), Math.abs(W3Encoder)));
+        W1.setPower(power * W1Encoder/ proportion);
+        W2.setPower(power * W2Encoder/ proportion);
+        W3.setPower(power * W3Encoder/ proportion);
+        //wait until the motors finish or time expires
+        //noinspection StatementWithEmptyBody
+        while ((W1.isBusy() || W2.isBusy() || W3.isBusy()) && timer.milliseconds() < timeout) {
+        }
+        stopDrive();
+    }
 
     public void rotate (double targetRotation, double timeout, double power){
         ElapsedTime timer = new ElapsedTime();
@@ -260,7 +298,45 @@ public class RobotHardware {
         W3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         double W1Target = .58;
-        double W2Target = - .58;
+        double W2Target = -.58;
+        double W3Target = 0;
+        double W1Encoder = W1Target * distance;
+        double W2Encoder = W2Target * distance;
+        double W3Encoder = W3Target * distance;
+        int intW1Encoder = (int)Math.round(W1Encoder);
+        int intW2Encoder = (int)Math.round(W2Encoder);
+        int intW3Encoder = (int)Math.round(W3Encoder);
+
+        W1.setTargetPosition(intW1Encoder);
+        W2.setTargetPosition(intW2Encoder);
+        W3.setTargetPosition(intW3Encoder);
+        W1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        W2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        W3.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        double proportion = Math.max(Math.max(Math.abs(W1Target), Math.abs(W2Target)), Math.max(Math.abs(W2Target), Math.abs(W3Target)));
+        W1.setPower(power * W1Encoder/ proportion);
+        W2.setPower(power * W2Encoder/ proportion);
+        W3.setPower(power * W3Encoder/ proportion);
+        //wait until the motors finish or time expires
+        //noinspection StatementWithEmptyBody
+        while ((W1.isBusy() || W2.isBusy() || W3.isBusy()) && timer.milliseconds() < timeout) {
+        }
+        stopDrive();
+    }
+
+    public void driveFrontByMillimeters(double distanceInMillimeters, double timeout, double power){
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        //reset encoders
+        double distance = distanceInMillimeters * 2.058575804;
+
+        W1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        double W1Target = 1;
+        double W2Target =-1;
         double W3Target = 0;
         double W1Encoder = W1Target * distance;
         double W2Encoder = W2Target * distance;

@@ -4,8 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Barcode Scan and Place Blue Hub")
-public class AutoBlueHubPlace extends LinearOpMode {
+@Autonomous(name="Barcode Scan Blue Millimeters")
+public class BarcodeAutoBlueMillimeters extends LinearOpMode {
     @Override
     public void runOpMode() {
         int zonePark;
@@ -22,52 +22,40 @@ public class AutoBlueHubPlace extends LinearOpMode {
                 }
             }
         };
-        sleep (4000);
+        sleep (5000);
         zonePark = vampire.getParkingPlace();
-        currentStep = "goingToPlace";
-        telemetry.addData("Current Task: ",currentStep);
-        telemetry.update();
-        vampire.driveRightSideMillimeters(-610,6000,0.7);
-        sleep(300);
-        vampire.driveFrontByMillimeters(610,3000,0.7);
-        sleep(300);
-        vampire.driveRightSideMillimeters(-305,4000,0.3);
-        sleep(300);
-        vampire.lift(3000,3000,0.7);
-        vampire.driveFrontByMillimeters(63,1000,0.3);
-        vampire.lift(-500,2000,0.7);
-        vampire.lift(100,1000,0.3);
-        vampire.driveFrontByMillimeters(-63,3000,0.7);
-
-
-
         if (zonePark == 1){
             currentStep = "zone1";
             telemetry.addData("Current Task: ",currentStep);
             telemetry.update();
-            vampire.driveRightSideMillimeters(305,5000,0.7);
+            vampire.driveRightSideMillimeters(610,10000,0.7);
             sleep(300);
+            vampire.driveFrontByMillimeters(610,3000,0.7);
+            sleep(1000);
         }
         else if (zonePark == 2){
             currentStep = "zone2";
             telemetry.addData("Current Task: ",currentStep);
             telemetry.update();
-            vampire.driveRightSideMillimeters(915,5000,0.7);
+            vampire.driveFrontByMillimeters(630,3000,0.7);
             sleep(100);
         }
         else if (zonePark == 3){
             currentStep = "zone3";
             telemetry.addData("Current Task: ",currentStep);
             telemetry.update();
-            vampire.driveRightSideMillimeters(1525,2000, .7);
+            vampire.driveRightSideMillimeters(610,2000, .7);
+            sleep(300);
+            vampire.driveFrontByMillimeters(610,3000,0.7);
             sleep(1000);
         }
         else if (zonePark == 0){
             currentStep = "failed :(";
-            vampire.driveRightSide(1525, 2000, .4);
+            vampire.driveRightSideMillimeters(610, 2000, 0.4);
             telemetry.addData("Current Task: ",currentStep);
             telemetry.update();
         }
     }
 
 }
+
