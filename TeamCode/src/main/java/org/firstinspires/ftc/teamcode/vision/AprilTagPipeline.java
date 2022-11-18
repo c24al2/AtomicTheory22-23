@@ -48,11 +48,17 @@ public class AprilTagPipeline extends OpenCvPipeline {
 
     @Override
     public Mat processFrame(Mat input) {
-        // Convert to grayscale
-        Imgproc.cvtColor(input, input, Imgproc.COLOR_RGBA2GRAY);
+        int x = (int) (0.2*input.width());
+        int y = (int) (0.6*input.height());
+        int width = (int) (0.6*input.width());
+        int height = (int) (0.4*input.height());
+        Mat croppedImage = input.submat(x,x+width,y,y+height);
 
-        // Run AprilTag detection on the grayscale image
-        ArrayList<AprilTagDetection> tags = AprilTagDetectorJNI.runAprilTagDetectorSimple(nativeApriltagPtr, input, tagSize, fx, fy, cx, cy);
+        // Convert croppedImage to grayscale
+        Imgproc.cvtColor(croppedImage, croppedImage, Imgproc.COLOR_RGBA2GRAY);
+
+        // Run AprilTag detection on the grayscale, cropped image
+        ArrayList<AprilTagDetection> tags = AprilTagDetectorJNI.runAprilTagDetectorSimple(nativeApriltagPtr, croppedImage, tagSize, fx, fy, cx, cy);
 
         // TODO: What if multiple AprilTags are found?
         for(AprilTagDetection tag : tags) {
@@ -64,6 +70,8 @@ public class AprilTagPipeline extends OpenCvPipeline {
                 parkingPosition = ParkingPosition.ZONE3;
             }
         }
+
+        croppedImage.release();  // Stops memory leak :)
 
         return input;
     }
