@@ -47,6 +47,7 @@ public class Chassis {
     protected DcMotor W3 = null;
     protected BNO055IMU imu = null;
     boolean slowMode = false;
+    boolean aPressedLastRound = false;
 
     /* Initialize standard Hardware interfaces */
     public void init(HardwareMap hardwareMap) {
@@ -92,8 +93,12 @@ public class Chassis {
         double StickPowerScalar = Math.sqrt(StickY * StickY + StickX * StickX);
         boolean areTriggersDown = Math.abs(rotation) > Constants.STICK_THRESH;
         boolean areSticksMoved = Math.sqrt((StickX * StickX) + (StickY * StickY)) > Constants.STICK_THRESH;
-        if (gamepad.a){
+        if (gamepad.a && !aPressedLastRound){
             slowMode = !slowMode;
+            aPressedLastRound = true;
+        }
+        if (!gamepad.a) {
+            aPressedLastRound = false;
         }
         if (areSticksMoved) {
             if (slowMode){

@@ -34,19 +34,16 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.vision.blueConePipeline;
-import org.opencv.core.Point;
+import org.firstinspires.ftc.teamcode.vision.ParkingPosition;
+import org.firstinspires.ftc.teamcode.vision.ParkingPositionPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
-
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class RobotHardware {
     /* Public OpMode members. */
@@ -58,8 +55,9 @@ public class RobotHardware {
     HardwareMap hardwareMap;
     Telemetry telemetry;
     private OpenCvWebcam webcam;
-    private blueConePipeline BlueConePipeline;
+    private ParkingPositionPipeline BlueConePipeline;
     public int parkingPlace;
+    private Servo clawClose;
 
 
     /* Constructor */
@@ -73,6 +71,7 @@ public class RobotHardware {
         W2 = hardwareMap.get(DcMotor.class, "fr");
         W3 = hardwareMap.get(DcMotor.class, "bl");
         intake = hardwareMap.get(DcMotor.class, "intake");
+        clawClose = hardwareMap.get(Servo.class, "clawClose");
         W1.setDirection(DcMotor.Direction.FORWARD);
         W2.setDirection(DcMotor.Direction.FORWARD);
         W3.setDirection(DcMotor.Direction.FORWARD);
@@ -111,7 +110,7 @@ public class RobotHardware {
         telemetry.update();
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        BlueConePipeline = new blueConePipeline();
+        BlueConePipeline = new ParkingPositionPipeline();
         webcam.setPipeline(BlueConePipeline);
         webcam.setMillisecondsPermissionTimeout(2500);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
@@ -127,9 +126,7 @@ public class RobotHardware {
                 // This will be called if the camera could not be opened
             }
         });
-        while(BlueConePipeline.ParkingPositionPurple == false &&
-        BlueConePipeline.ParkingPositionGreen == false &&
-        BlueConePipeline.ParkingPositionOrange == false){
+        while(BlueConePipeline.parkingPosition == ParkingPosition.UNKNOWN){
             telemetry.addData("camera ready?", "true");
             telemetry.addData("pipeline chosen", "Cone");
             telemetry.update();
@@ -189,7 +186,46 @@ public class RobotHardware {
         }
         stopDrive();
     }
+    public void servoSetZero(){
+        clawClose.setPosition(.77);
+    }
 
+    public void setQuadraticTrajectory(double quadraticA, double quadraticB, double rangeStart, double rangeEnd, double timeout, double power){
+        double CurrentXEval = rangeStart;
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        while (timer.milliseconds() < timeout) {
+            double range = rangeEnd - rangeStart;
+            double sensitivity = range * Constants.EPSILON/timeout;
+            while (CurrentXEval < rangeEnd){
+                ElapsedTime EpsilonTime = new ElapsedTime();
+                EpsilonTime.reset();
+                // build a quadratic out of quadraticA and quadraticB and evaluate the derivative at CurrentXEval
+                while(EpsilonTime.milliseconds() < Constants.EPSILON) {
+                    double CurrentDerivativeSlopeEval = 2 * quadraticA * CurrentXEval + quadraticB;
+                    double CurrentAngleFromSlope = Math.atan(CurrentDerivativeSlopeEval);
+                    double CurrentXofVector = Math.cos(CurrentAngleFromSlope);
+                    double CurrentYofVector = Math.sin(CurrentAngleFromSlope);
+                    double w = 0;
+                    double W1Power = -.33 * CurrentXofVector + .58 * CurrentYofVector + .33 * w;
+                    double W2Power = -.33 * CurrentXofVector - .58 * CurrentYofVector + .33 * w;
+                    double W3Power = .67 * CurrentXofVector + 0.33 * w;
+                    //keep the powers proportional and within a range of -1 to 1
+                    double motorMax = Math.max(Math.max(Math.abs(W1Power), Math.abs(W2Power)), Math.abs(W3Power));
+                    double proportion = Math.min(1, motorMax);
+                    W1.setPower(W1Power * power / proportion);
+                    W2.setPower(W2Power * power / proportion);
+                    W3.setPower(W3Power * power / proportion);
+                }
+                //take the slope of the tangent line (z_1) and rewrite as fractional form --> (z_1)/1
+                //z_1 is the Y value and 1 is the X value
+                // plug into the motor power calculation matrix
+                //set new motor powers
+                CurrentXEval = sensitivity + CurrentXEval;
+            }
+        }
+        stopDrive();
+    }
 
 
     public void driveRightSide(double distance, double timeout, double power){
@@ -371,13 +407,13 @@ public class RobotHardware {
     }
 
     public int getParkingPlace(){
-        if (BlueConePipeline.ParkingPositionPurple){
+        if (BlueConePipeline.parkingPosition == ParkingPosition.ZONE1){
             return 1;
         }
-        else if (BlueConePipeline.ParkingPositionGreen){
+        else if (BlueConePipeline.parkingPosition == ParkingPosition.ZONE2){
             return 2;
         }
-        else if (BlueConePipeline.ParkingPositionOrange){
+        else if (BlueConePipeline.parkingPosition == ParkingPosition.ZONE3){
             return 3;
         }
         // in case of camera failure returns 0
@@ -385,6 +421,7 @@ public class RobotHardware {
             return 0;
         }
     }
+
 
 
 

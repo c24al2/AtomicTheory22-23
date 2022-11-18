@@ -4,8 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Barcode Scan Blue Millimeters")
-public class BarcodeAutoBlueMillimeters extends LinearOpMode {
+@Autonomous(name="BarcodeScanAutoBlue")
+public class BarcodeScanAutoBlue extends LinearOpMode {
     @Override
     public void runOpMode() {
         int zonePark;
@@ -28,34 +28,33 @@ public class BarcodeAutoBlueMillimeters extends LinearOpMode {
             currentStep = "zone1";
             telemetry.addData("Current Task: ",currentStep);
             telemetry.update();
-            vampire.driveRightSideMillimeters(-610,10000,0.7);
+            vampire.driveRightSide(-1600,10000,0.7);
             sleep(300);
-            vampire.driveFrontByMillimeters(610,3000,0.7);
+            vampire.driveFront(1900,3000,0.7);
             sleep(1000);
         }
         else if (zonePark == 2){
             currentStep = "zone2";
             telemetry.addData("Current Task: ",currentStep);
             telemetry.update();
-            vampire.driveFrontByMillimeters(630,3000,0.7);
+            vampire.driveFront(1900,3000,0.7);
             sleep(100);
         }
         else if (zonePark == 3){
             currentStep = "zone3";
             telemetry.addData("Current Task: ",currentStep);
             telemetry.update();
-            vampire.driveRightSideMillimeters(610,2000, .7);
+            vampire.driveRightSide(1700,2000, .7);
             sleep(300);
-            vampire.driveFrontByMillimeters(610,3000,0.7);
+            vampire.driveFront(1900,3000,0.7);
             sleep(1000);
         }
         else if (zonePark == 0){
             currentStep = "failed :(";
-            vampire.driveRightSideMillimeters(610, 2000, 0.4);
+            vampire.driveRightSide(-2700, 2000, .4);
             telemetry.addData("Current Task: ",currentStep);
             telemetry.update();
         }
     }
 
 }
-

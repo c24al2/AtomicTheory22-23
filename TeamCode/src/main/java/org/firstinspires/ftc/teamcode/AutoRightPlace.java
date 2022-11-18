@@ -4,8 +4,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Barcode Scan and Place Blue Hub")
-public class AutoBlueHubPlace extends LinearOpMode {
+
+@Autonomous(name="Barcode Scan Right")
+public class AutoRightPlace extends LinearOpMode {
     @Override
     public void runOpMode() {
         int zonePark;
@@ -27,17 +28,20 @@ public class AutoBlueHubPlace extends LinearOpMode {
         currentStep = "goingToPlace";
         telemetry.addData("Current Task: ",currentStep);
         telemetry.update();
-        vampire.driveRightSideMillimeters(-610,6000,0.7);
+        vampire.lift(380,200,0.7);
+        vampire.servoSetZero();
+        vampire.driveRightSideMillimeters(-590,6000,0.7);
         sleep(300);
         vampire.driveFrontByMillimeters(610,3000,0.7);
         sleep(300);
-        vampire.driveRightSideMillimeters(-305,4000,0.3);
+        vampire.driveRightSideMillimeters(-260,4000,0.3);
         sleep(300);
-        vampire.lift(3000,3000,0.7);
+        vampire.lift(4000,3000,0.7);
         vampire.driveFrontByMillimeters(63,1000,0.3);
         vampire.lift(-500,2000,0.7);
         vampire.lift(100,1000,0.3);
         vampire.driveFrontByMillimeters(-63,3000,0.7);
+        vampire.lift(-2600,3000,0.7);
 
 
 
