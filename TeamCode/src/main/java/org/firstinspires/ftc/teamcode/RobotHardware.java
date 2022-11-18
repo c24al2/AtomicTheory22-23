@@ -38,7 +38,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.vision.ParkingPosition;
-import org.firstinspires.ftc.teamcode.vision.ParkingPositionPipeline;
+import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -55,7 +55,7 @@ public class RobotHardware {
     HardwareMap hardwareMap;
     Telemetry telemetry;
     private OpenCvWebcam webcam;
-    private ParkingPositionPipeline BlueConePipeline;
+    private AprilTagPipeline aprilTagPipeline;
     public int parkingPlace;
     private Servo clawClose;
 
@@ -110,8 +110,8 @@ public class RobotHardware {
         telemetry.update();
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        BlueConePipeline = new ParkingPositionPipeline();
-        webcam.setPipeline(BlueConePipeline);
+        aprilTagPipeline = new AprilTagPipeline();
+        webcam.setPipeline(aprilTagPipeline);
         webcam.setMillisecondsPermissionTimeout(2500);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
@@ -126,9 +126,9 @@ public class RobotHardware {
                 // This will be called if the camera could not be opened
             }
         });
-        while(BlueConePipeline.parkingPosition == ParkingPosition.UNKNOWN){
+        while(aprilTagPipeline.parkingPosition == ParkingPosition.UNKNOWN){
             telemetry.addData("camera ready?", "true");
-            telemetry.addData("pipeline chosen", "Cone");
+            telemetry.addData("pipeline chosen", "April Tag Pipeline");
             telemetry.update();
         }
     }
@@ -407,13 +407,13 @@ public class RobotHardware {
     }
 
     public int getParkingPlace(){
-        if (BlueConePipeline.parkingPosition == ParkingPosition.ZONE1){
+        if (aprilTagPipeline.parkingPosition == ParkingPosition.ZONE1){
             return 1;
         }
-        else if (BlueConePipeline.parkingPosition == ParkingPosition.ZONE2){
+        else if (aprilTagPipeline.parkingPosition == ParkingPosition.ZONE2){
             return 2;
         }
-        else if (BlueConePipeline.parkingPosition == ParkingPosition.ZONE3){
+        else if (aprilTagPipeline.parkingPosition == ParkingPosition.ZONE3){
             return 3;
         }
         // in case of camera failure returns 0
