@@ -406,20 +406,8 @@ public class RobotHardware {
         intake.setPower(0);
     }
 
-    public int getParkingPlace(){
-        if (aprilTagPipeline.parkingPosition == ParkingPosition.ZONE1){
-            return 1;
-        }
-        else if (aprilTagPipeline.parkingPosition == ParkingPosition.ZONE2){
-            return 2;
-        }
-        else if (aprilTagPipeline.parkingPosition == ParkingPosition.ZONE3){
-            return 3;
-        }
-        // in case of camera failure returns 0
-        else {
-            return 0;
-        }
+    public ParkingPosition getParkingPosition(){
+        return aprilTagPipeline.parkingPosition;
     }
 
 

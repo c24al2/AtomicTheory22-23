@@ -24,7 +24,7 @@ public class AprilTagPipeline extends OpenCvPipeline {
     private final double cy;  // The camera's vertical focal center (in pixels)
 
     // parkingPlace is only UNKNOWN until it sees an AprilTag. At that point, parkingPlace
-    // stores that last seen AprilTag that wasn't unknown
+    // stores that last seen AprilTag representing a parking position
     public ParkingPosition parkingPosition = ParkingPosition.UNKNOWN;
 
     // Constuctor - called when the pipeline is created

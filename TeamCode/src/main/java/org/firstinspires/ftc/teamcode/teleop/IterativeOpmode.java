@@ -27,44 +27,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.teleop;
 
-import static java.lang.Math.PI;
-import static java.lang.Math.sqrt;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Chassis;
 
-/**
- * This file contains an example of an iterative (Non-Linear) "OpMode".
- * An OpMode is a 'program' that rus in either the autonomous or the teleop period of an FTC match.
- * The names of OpModes appear on the menu of the FTC Driver Station.
- * When an selection is made from the menu, the corresponding OpMode
- * class is instantiated on the Robot Controller and executed.
- * <p>
- * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
- * It includes all the skeletal structure that all iterative OpModes contain.
- * <p>
- * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
- */
-
 @TeleOp(name = "Robot V1!", group = "Iterative Opmode")
-
-public class Iterative_Opmode_V_2 extends OpMode {
+public class IterativeOpmode extends OpMode {
     // Declare OpMode members.
     private final ElapsedTime runtime = new ElapsedTime();
     private final Chassis chassis = new Chassis();
@@ -72,6 +48,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
     private BNO055IMU imu = null;
     private Servo clawClose = null;
     private boolean driversKnowEndgame = false;
+    private boolean useEncoders = true;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -98,7 +75,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
         intake.setDirection(DcMotor.Direction.REVERSE);
         //set zero behaviors
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        telemetry.addData("Status", "Initialized");
+        telemetry.addData("Status: ", "Initialized");
         //Quality-of-life changes here
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
@@ -106,14 +83,8 @@ public class Iterative_Opmode_V_2 extends OpMode {
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
      */
-    public void goTo(int position,double power) {
-        intake.setTargetPosition(position);
-        intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        intake.setPower(power);
-    }
     @Override
-    public void init_loop() {
-    }
+    public void init_loop() {}
 
     /*
      * Code to run ONCE when the driver hits PLAY
@@ -122,7 +93,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
     public void start() {
         runtime.reset();
     }
-    boolean useEncoders = true;
+
     /*
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
      */
@@ -132,21 +103,16 @@ public class Iterative_Opmode_V_2 extends OpMode {
         double gunnerStickY = Math.abs(gamepad2.left_stick_y) < Constants.STICK_THRESH ? 0 : -gamepad2.left_stick_y;
         boolean isGunnerStickMoved = Math.abs(gunnerStickY) > Constants.STICK_THRESH;
 
-
-        telemetry.addData("Runtime", getRuntime());
-        if (runtime.milliseconds() > 83000 && !driversKnowEndgame) {
+        telemetry.addData("Runtime: ", getRuntime());
+        boolean isEndGame = runtime.milliseconds() > 83000;
+        telemetry.addData("Endgame:", isEndGame);
+        if (isEndGame && !driversKnowEndgame) {
             gamepad1.rumble(1000);
             gamepad2.rumble(1000);
-            if (runtime.milliseconds() > 85000) {
-                gamepad1.stopRumble();
-                gamepad2.stopRumble();
-            }
             driversKnowEndgame = true;
-            telemetry.addData("Endgame:", "Yes");
-        } else {
-            telemetry.addData("Endgame:", "No");
         }
-        //servo positions
+
+        // Servo positions
         if (gamepad2.left_bumper) {
             clawClose.setPosition(0.76);
         }
@@ -162,13 +128,13 @@ public class Iterative_Opmode_V_2 extends OpMode {
         if (gamepad2.a) {
             clawClose.setPosition(.46);
         }
-        //lift
+
+        // Lift
         if (isGunnerStickMoved) {
-                useEncoders = false;
-                intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            useEncoders = false;
+            intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             intake.setPower(-gamepad2.left_stick_y * 0.7);
-        }
-        else {
+        } else {
             intake.setPower(0);
         }
     }
