@@ -264,6 +264,9 @@ public class RobotHardware {
                 currentW1Velocity = W1.getVelocity();
                 currentW2Velocity = W2.getVelocity();
                 currentW3Velocity = W3.getVelocity();
+                telemetry.addData("W1 Position", currentW1Position);
+                telemetry.addData("W2 Position", currentW2Position);
+                telemetry.addData("W3 Position", currentW3Position);
                 double evaluationT = timer.seconds();
                 //use quadratic trajectory to generate parametric equations in t for X and Y separately
                 double parametrizedlookAheadXcoordinate = evaluationT + (trajectoryB * -1)/(2 * trajectoryA);
