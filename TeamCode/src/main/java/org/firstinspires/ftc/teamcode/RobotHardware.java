@@ -252,9 +252,6 @@ public class RobotHardware {
         W1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         W2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         W3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        W1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        W2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        W3.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
         while (timer.milliseconds() < timeout){
@@ -275,13 +272,13 @@ public class RobotHardware {
                 //  double parametrizedlookAheadXVelocity = 1;
                 //above values are our desired field positions in x and y
                 //converting to the goal encoder position values for each motor
-                double W1idealEncoderPosition = -.3333333333 * parametrizedlookAheadXcoordinate + .58 * parametrizedlookAheadYcoordinate + .33 * 0;
-                double W2idealEncoderPosition = -.3333333333 * parametrizedlookAheadXcoordinate - .58 * parametrizedlookAheadYcoordinate + .33 * 0;
-                double W3idealEncoderPosition = .6666666667 * parametrizedlookAheadXcoordinate + 0.33 * 0;
+                double W1idealEncoderPosition = -1.0/3 * parametrizedlookAheadXcoordinate + .58 * parametrizedlookAheadYcoordinate;
+                double W2idealEncoderPosition = -1.0/3 * parametrizedlookAheadXcoordinate - .58 * parametrizedlookAheadYcoordinate;
+                double W3idealEncoderPosition = 2.0/3 * parametrizedlookAheadXcoordinate;
 
-                double W1idealEncoderVelocity = -.33 + .58 * 2 * trajectoryA * evaluationT;
-                double W2idealEncoderVelocity = -.33 - .58 * 2 * trajectoryA * evaluationT;
-                double W3idealEncoderVelocity = .66;
+                double W1idealEncoderVelocity = -1.0/3 + .58 * 2 * trajectoryA * evaluationT;
+                double W2idealEncoderVelocity = -1.0/3 - .58 * 2 * trajectoryA * evaluationT;
+                double W3idealEncoderVelocity = 2.0/3;
 
                 double W1DeltaPosition = W1idealEncoderPosition-currentW1Position;
                 double W2DeltaPosition = W2idealEncoderPosition-currentW2Position;
@@ -292,29 +289,32 @@ public class RobotHardware {
                 double W3DeltaVelocity = W3idealEncoderVelocity - currentW3Velocity;
             // system test, if idealX= 100 and idealY = 200 was successful with a margin of error below .5% (for position) testing for velocity is more complicated ard requires field test
 
-                double W1FinalEncoderValueAfterPID = W1idealEncoderPosition + K_P_Position*(W1DeltaPosition) + K_I_Position*(W1DeltaPosition)*evaluationT + K_D_Position * (previousW1DeltaPosition - W1DeltaPosition) + K_P_Velocity * W1DeltaVelocity + K_I_Velocity * W1DeltaVelocity * evaluationT + K_D_Velocity * (previousW1DeltaVelocity - W1DeltaVelocity);
-                double W2FinalEncoderValueAfterPID = W2idealEncoderPosition + K_P_Position*(W2DeltaPosition) + K_I_Position*(W2DeltaPosition)*evaluationT + K_D_Position * (previousW2DeltaPosition - W2DeltaPosition) + K_P_Velocity * W2DeltaVelocity + K_I_Velocity * W2DeltaVelocity * evaluationT + K_D_Velocity * (previousW2DeltaVelocity - W2DeltaVelocity);
-                double W3FinalEncoderValueAfterPID = W3idealEncoderPosition + K_P_Position*(W3DeltaPosition) + K_I_Position*(W3DeltaPosition)*evaluationT + K_D_Position * (previousW3DeltaPosition - W3DeltaPosition) + K_P_Velocity * W3DeltaVelocity + K_I_Velocity * W3DeltaVelocity * evaluationT + K_D_Velocity * (previousW3DeltaVelocity - W3DeltaVelocity);
+                double W1FinalEncoderValueAfterPID = W1idealEncoderPosition + K_P_Position*(W1DeltaPosition) + K_I_Position*(W1DeltaPosition)*evaluationT + K_D_Position * (previousW1DeltaPosition - W1DeltaPosition);
+                double W2FinalEncoderValueAfterPID = W2idealEncoderPosition + K_P_Position*(W2DeltaPosition) + K_I_Position*(W2DeltaPosition)*evaluationT + K_D_Position * (previousW2DeltaPosition - W2DeltaPosition);
+                double W3FinalEncoderValueAfterPID = W3idealEncoderPosition + K_P_Position*(W3DeltaPosition) + K_I_Position*(W3DeltaPosition)*evaluationT + K_D_Position * (previousW3DeltaPosition - W3DeltaPosition);
+                double W1PIDVelocity = W1idealEncoderVelocity + K_P_Velocity * W1DeltaVelocity + K_I_Velocity * W1DeltaVelocity * evaluationT + K_D_Velocity * (previousW1DeltaVelocity - W1DeltaVelocity);
+                double W2PIDVelocity = W2idealEncoderVelocity + K_P_Velocity * W2DeltaVelocity + K_I_Velocity * W2DeltaVelocity * evaluationT + K_D_Velocity * (previousW2DeltaVelocity - W2DeltaVelocity);
+                double W3PIDVelocity = W3idealEncoderVelocity + K_P_Velocity * W3DeltaVelocity + K_I_Velocity * W3DeltaVelocity * evaluationT + K_D_Velocity * (previousW3DeltaVelocity - W3DeltaVelocity);
 
-
-            int intW1FinalEncoderValueAfterPID = (int)Math.round(W1FinalEncoderValueAfterPID);
+                int intW1FinalEncoderValueAfterPID = (int)Math.round(W1FinalEncoderValueAfterPID);
                 int intW2FinalEncoderValueAfterPID = (int)Math.round(W2FinalEncoderValueAfterPID);
                 int intW3FinalEncoderValueAfterPID = (int)Math.round(W3FinalEncoderValueAfterPID);
                 W1.setTargetPosition(intW1FinalEncoderValueAfterPID);
                 W2.setTargetPosition(intW2FinalEncoderValueAfterPID);
                 W3.setTargetPosition(intW3FinalEncoderValueAfterPID);
-                double proportion = Math.max(Math.max(Math.abs(intW1FinalEncoderValueAfterPID), Math.abs(intW2FinalEncoderValueAfterPID)), Math.max(Math.abs(intW2FinalEncoderValueAfterPID), Math.abs(intW3FinalEncoderValueAfterPID)));
-                 W1.setPower(intW1FinalEncoderValueAfterPID/ proportion);
-                 W2.setPower(intW2FinalEncoderValueAfterPID/ proportion);
-                 W3.setPower(intW3FinalEncoderValueAfterPID/ proportion);
+                W1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                W2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                W3.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                W1.setVelocity(W1PIDVelocity);
+                W2.setVelocity(W2PIDVelocity);
+                W3.setVelocity(W3PIDVelocity);
                 //set current values as the "previous" ones to prepare for next loop
                 previousW1DeltaPosition = W1DeltaPosition;
                 previousW2DeltaPosition = W2DeltaPosition;
                 previousW3DeltaPosition = W3DeltaPosition;
                 previousW1DeltaVelocity = W1DeltaVelocity;
-            previousW2DeltaVelocity = W2DeltaVelocity;
-            previousW3DeltaVelocity = W3DeltaVelocity;
-
+                previousW2DeltaVelocity = W2DeltaVelocity;
+                previousW3DeltaVelocity = W3DeltaVelocity;
         }
 
     }
