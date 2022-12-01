@@ -12,6 +12,6 @@ public class Constants {
     public static final double pickupFromLeftStabilize = 25;
     public static final int CAM_WIDTH = 1280;
     public static final int CAM_HEIGHT = 720;
-    public static final double EPSILON = 10;
+    public static final double EPSILON = 250;
 
 }

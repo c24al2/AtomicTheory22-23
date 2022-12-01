@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 //import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -47,10 +48,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class RobotHardware {
     /* Public OpMode members. */
-    public DcMotor W1;
-    public DcMotor W2;
-    public DcMotor W3;
-    public DcMotor intake;
+    public DcMotorEx W1;
+    public DcMotorEx W2;
+    public DcMotorEx W3;
+    public DcMotorEx intake;
     private BNO055IMU imu = null;
     HardwareMap hardwareMap;
     Telemetry telemetry;
@@ -67,10 +68,10 @@ public class RobotHardware {
         this.telemetry = telemetry;
 
         // Define and initialize motors
-        W1 = hardwareMap.get(DcMotor.class, "fl");
-        W2 = hardwareMap.get(DcMotor.class, "fr");
-        W3 = hardwareMap.get(DcMotor.class, "bl");
-        intake = hardwareMap.get(DcMotor.class, "intake");
+        W1 = hardwareMap.get(DcMotorEx.class, "fl");
+        W2 = hardwareMap.get(DcMotorEx.class, "fr");
+        W3 = hardwareMap.get(DcMotorEx.class, "bl");
+        intake = hardwareMap.get(DcMotorEx.class, "intake");
         clawClose = hardwareMap.get(Servo.class, "clawClose");
         W1.setDirection(DcMotor.Direction.FORWARD);
         W2.setDirection(DcMotor.Direction.FORWARD);
@@ -190,6 +191,9 @@ public class RobotHardware {
         clawClose.setPosition(.77);
     }
 
+
+// derive current X and current Y from the odometry given the starting position
+
     public void setQuadraticTrajectory(double quadraticA, double quadraticB, double rangeStart, double rangeEnd, double timeout, double power){
         double CurrentXEval = rangeStart;
         ElapsedTime timer = new ElapsedTime();
@@ -225,6 +229,69 @@ public class RobotHardware {
             }
         }
         stopDrive();
+    }
+    public void PIDQuadraticTrajectoryController(double trajectoryA, double trajectoryB, double trajectoryC, double timeout){
+
+        double K_P_Position = 0;
+        double K_I_Position = 0;
+        double K_D_Position = 0;
+        double currentW1Position;
+        double currentW2Position = 0;
+        double currentW3Position = 0;
+        double previousW1DeltaPosition = 0;
+        double previousW2DeltaPosition = 0;
+        double previousW3DeltaPosition = 0;
+        double previousParametrizedXcoordinate = (trajectoryB * -1)/(2 * trajectoryA);
+        double previousParametrizedYcoordinate = (4*trajectoryA*trajectoryC - trajectoryB*trajectoryB)/(4*trajectoryA);
+        W1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        W2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        W3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        while (timer.milliseconds() < timeout){
+                currentW1Position = W1.getCurrentPosition();
+                currentW2Position = W2.getCurrentPosition();
+                currentW3Position = W3.getCurrentPosition();
+                double evaluationT = timer.milliseconds();
+                //use quadratic trajectory to generate parametric equations in t for X and Y separately
+                double parametrizedlookAheadXcoordinate = evaluationT + (trajectoryB * -1)/(2 * trajectoryA);
+                double parametrizedlookAheadYcoordinate = trajectoryA * evaluationT * evaluationT + (4*trajectoryA*trajectoryC - trajectoryB*trajectoryB)/(4*trajectoryA);
+            //above values are our desired field positions in x and y
+                double idealpositionXdifference = parametrizedlookAheadXcoordinate - previousParametrizedXcoordinate;
+                double idealpositionYdifference = parametrizedlookAheadYcoordinate - previousParametrizedYcoordinate;
+                //converting to the goal encoder position values for each motor
+                double idealpositionsScalar = Math.sqrt(idealpositionYdifference*idealpositionYdifference + idealpositionXdifference*idealpositionXdifference);
+                double W1idealEncoderPosition = -.3333333333 * idealpositionXdifference + .58 * idealpositionYdifference + .33 * 0;
+                double W2idealEncoderPosition = -.3333333333 * idealpositionXdifference - .58 * idealpositionYdifference + .33 * 0;
+                double W3idealEncoderPosition = .6666666667 * idealpositionXdifference + 0.33 * 0;
+                double W1DeltaPosition = W1idealEncoderPosition-currentW1Position;
+                double W2DeltaPosition = W2idealEncoderPosition-currentW2Position;
+                double W3DeltaPosition = W3idealEncoderPosition-currentW3Position;
+            // system test, if idealX= 100 and idealY = 200 was successful with a margin of error below .5%
+                double W1FinalEncoderValueAfterPID = W1idealEncoderPosition + K_P_Position*(W1DeltaPosition) + K_I_Position*(W1DeltaPosition)*evaluationT + K_D_Position * (previousW1DeltaPosition - W1DeltaPosition);
+                double W2FinalEncoderValueAfterPID = W2idealEncoderPosition + K_P_Position*(W2DeltaPosition) + K_I_Position*(W2DeltaPosition)*evaluationT + K_D_Position * (previousW2DeltaPosition - W2DeltaPosition);
+                double W3FinalEncoderValueAfterPID = W3idealEncoderPosition + K_P_Position*(W3DeltaPosition) + K_I_Position*(W3DeltaPosition)*evaluationT + K_D_Position * (previousW3DeltaPosition - W3DeltaPosition);
+                int intW1FinalEncoderValueAfterPID = (int)Math.round(W1FinalEncoderValueAfterPID);
+                int intW2FinalEncoderValueAfterPID = (int)Math.round(W2FinalEncoderValueAfterPID);
+                int intW3FinalEncoderValueAfterPID = (int)Math.round(W3FinalEncoderValueAfterPID);
+                W1.setTargetPosition(intW1FinalEncoderValueAfterPID);
+                W2.setTargetPosition(intW2FinalEncoderValueAfterPID);
+                W3.setTargetPosition(intW3FinalEncoderValueAfterPID);
+                double proportion = Math.max(Math.max(Math.abs(intW1FinalEncoderValueAfterPID), Math.abs(intW2FinalEncoderValueAfterPID)), Math.max(Math.abs(intW2FinalEncoderValueAfterPID), Math.abs(intW3FinalEncoderValueAfterPID)));
+                 W1.setPower(intW1FinalEncoderValueAfterPID/ proportion);
+                 W2.setPower(intW2FinalEncoderValueAfterPID/ proportion);
+                 W3.setPower(intW3FinalEncoderValueAfterPID/ proportion);
+                //set current values as the "previous" ones to prepare for next loop
+                previousW1DeltaPosition = W1DeltaPosition;
+                previousW2DeltaPosition = W2DeltaPosition;
+                previousW3DeltaPosition = W3DeltaPosition;
+                previousParametrizedXcoordinate = parametrizedlookAheadXcoordinate;
+                previousParametrizedYcoordinate = parametrizedlookAheadYcoordinate;
+        }
+
     }
 
 
