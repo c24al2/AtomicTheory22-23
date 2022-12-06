@@ -153,8 +153,8 @@ public class RobotHardware {
     }
 
     public void PIDQuadraticTrajectoryController(double trajectoryA, double trajectoryB, double trajectoryC, double timeout){
-        PIDConstants positionPIDConstants = new PIDConstants(0, 0, 0);
-        PIDConstants velocityPIDConstants = new PIDConstants(0, 0, 0);
+        PIDConstants positionPIDConstants = new PIDConstants(1, 0, 0);
+        PIDConstants velocityPIDConstants = new PIDConstants(1, 0, 0);
 
         MotorPID W1PID = new MotorPID(W1, positionPIDConstants, velocityPIDConstants);
         MotorPID W2PID = new MotorPID(W2, positionPIDConstants, velocityPIDConstants);
