@@ -2,19 +2,20 @@ package org.firstinspires.ftc.teamcode.pid;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class MotorPID {
-    PIDConstants positionPIDConstants;
-    PIDConstants velocityPIDConstants;
+    PIDCoefficients positionPIDConstants;
+    PIDCoefficients velocityPIDConstants;
     DcMotorEx motor;
     Telemetry telemetry;
 
     double previousError = 0;
 
     //set the proportional, integral and derivate constants for both position and velocity
-    public MotorPID(DcMotorEx motor, PIDConstants positionPIDConstants, PIDConstants velocityPIDConstants, Telemetry telemetry) {
+    public MotorPID(DcMotorEx motor, PIDCoefficients positionPIDConstants, PIDCoefficients velocityPIDConstants, Telemetry telemetry) {
         this.positionPIDConstants = positionPIDConstants;
         this.velocityPIDConstants = velocityPIDConstants;
 
@@ -38,10 +39,10 @@ public class MotorPID {
     }
 
 
-    private int calculateFinalEncoderValue(PIDConstants pidConstants, double evaluationT, double currentEncoderValue, double idealEncoderValue) {
+    private int calculateFinalEncoderValue(PIDCoefficients pidConstants, double evaluationT, double currentEncoderValue, double idealEncoderValue) {
         double error = idealEncoderValue - currentEncoderValue;
         double integralSum = previousError + error;
-        double targetEncoderValue = idealEncoderValue + pidConstants.Kp*error + pidConstants.Ki*integralSum+ pidConstants.Kd*(previousError - error);
+        double targetEncoderValue = idealEncoderValue + pidConstants.p*error + pidConstants.i*integralSum+ pidConstants.d*(previousError - error);
         int intTargetEncoderValue = (int) Math.round(targetEncoderValue);
         previousError = error;
         return intTargetEncoderValue;

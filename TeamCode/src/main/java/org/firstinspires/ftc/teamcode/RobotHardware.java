@@ -34,19 +34,13 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.pid.MotorPID;
-import org.firstinspires.ftc.teamcode.pid.PIDConstants;
 import org.firstinspires.ftc.teamcode.vision.ParkingPosition;
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvWebcam;
-import com.qualcomm.robotcore.hardware.Servo;
 
 public class RobotHardware {
     /* Public OpMode members. */
@@ -146,8 +140,8 @@ public class RobotHardware {
         telemetry.addData("Starting", "Function");
         telemetry.update();
 
-        PIDConstants positionPIDConstants = new PIDConstants(1, 0, 0);
-        PIDConstants velocityPIDConstants = new PIDConstants(1, 0, 0);
+        PIDCoefficients positionPIDConstants = new PIDCoefficients(1, 0, 0);
+        PIDCoefficients velocityPIDConstants = new PIDCoefficients(1, 0, 0);
 
         MotorPID W1PID = new MotorPID(W1, positionPIDConstants, velocityPIDConstants, telemetry);
         MotorPID W2PID = new MotorPID(W2, positionPIDConstants, velocityPIDConstants, telemetry);
