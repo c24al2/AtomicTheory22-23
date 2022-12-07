@@ -20,20 +20,13 @@ public class AutoRightPlace extends LinearOpMode {
         ParkingPosition parkingPosition = vampire.getParkingPosition();
         setCurrentStep("Going to place");
 
-        vampire.lift(380,200,0.7);
-        vampire.servoSetZero();
+
         vampire.driveRightSideMillimeters(-590,6000,0.7);
         sleep(300);
         vampire.driveFrontByMillimeters(610,3000,0.7);
         sleep(300);
         vampire.driveRightSideMillimeters(-260,4000,0.3);
         sleep(300);
-        vampire.lift(4000,3000,0.7);
-        vampire.driveFrontByMillimeters(63,1000,0.3);
-        vampire.lift(-500,2000,0.7);
-        vampire.lift(100,1000,0.3);
-        vampire.driveFrontByMillimeters(-63,3000,0.7);
-        vampire.lift(-2600,3000,0.7);
 
         if (parkingPosition == ParkingPosition.ZONE1) {
             setCurrentStep("Going to Zone 1");

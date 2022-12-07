@@ -44,9 +44,9 @@ public class IterativeOpmode extends OpMode {
     // Declare OpMode members.
     private final ElapsedTime runtime = new ElapsedTime();
     private final Chassis chassis = new Chassis();
-    private DcMotor intake = null;
+//    private DcMotor intake = null;
     private BNO055IMU imu = null;
-    private Servo clawClose = null;
+//    private Servo clawClose = null;
     private boolean driversKnowEndgame = false;
     private boolean useEncoders = true;
 
@@ -60,8 +60,8 @@ public class IterativeOpmode extends OpMode {
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        intake = hardwareMap.get(DcMotor.class, "intake");
-        clawClose = hardwareMap.get(Servo.class, "clawClose");
+//        intake = hardwareMap.get(DcMotor.class, "intake");
+//        clawClose = hardwareMap.get(Servo.class, "clawClose");
 
         //initialize the imu
         imu = hardwareMap.get(BNO055IMU.class, "imu");
@@ -72,12 +72,12 @@ public class IterativeOpmode extends OpMode {
         parameters.loggingEnabled = false;
         imu.initialize(parameters);
         // Reverse the motor that runs backwards when connected directly to the battery
-        intake.setDirection(DcMotor.Direction.REVERSE);
-        //set zero behaviors
-        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        intake.setDirection(DcMotor.Direction.REVERSE);
+//        //set zero behaviors
+//        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         telemetry.addData("Status: ", "Initialized");
         //Quality-of-life changes here
-        intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     /*
@@ -113,30 +113,30 @@ public class IterativeOpmode extends OpMode {
         }
 
         // Servo positions
-        if (gamepad2.left_bumper) {
-            clawClose.setPosition(0.76);
-        }
-
-        if (gamepad2.b) {
-            clawClose.setPosition(0.77);
-        }
-
-        if (gamepad2.right_bumper) {
-            clawClose.setPosition(0.85);
-        }
-
-        if (gamepad2.a) {
-            clawClose.setPosition(.46);
-        }
-
-        // Lift
-        if (isGunnerStickMoved) {
-            useEncoders = false;
-            intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            intake.setPower(-gamepad2.left_stick_y * 0.7);
-        } else {
-            intake.setPower(0);
-        }
+//        if (gamepad2.left_bumper) {
+//            clawClose.setPosition(0.76);
+//        }
+//
+//        if (gamepad2.b) {
+//            clawClose.setPosition(0.77);
+//        }
+//
+//        if (gamepad2.right_bumper) {
+//            clawClose.setPosition(0.85);
+//        }
+//
+//        if (gamepad2.a) {
+//            clawClose.setPosition(.46);
+//        }
+//
+//        // Lift
+//        if (isGunnerStickMoved) {
+//            useEncoders = false;
+//            intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//            intake.setPower(-gamepad2.left_stick_y * 0.7);
+//        } else {
+//            intake.setPower(0);
+//        }
     }
 
 

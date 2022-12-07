@@ -14,8 +14,6 @@ public class DefinitelyLegalDriving extends LinearOpMode {
         setCurrentStep("Waiting for Start");
         waitForStart();
 
-        sleep(5000);
-        vampire.setQuadraticTrajectory(.5,1,0,2,5000,0.3);
         sleep(200);
     }
 

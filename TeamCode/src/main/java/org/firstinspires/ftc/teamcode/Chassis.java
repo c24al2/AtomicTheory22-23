@@ -52,9 +52,9 @@ public class Chassis {
     /* Initialize standard Hardware interfaces */
     public void init(HardwareMap hardwareMap) {
         // Define and initialize motors
-        W1 = hardwareMap.get(DcMotor.class, "fl");
-        W2 = hardwareMap.get(DcMotor.class, "fr");
-        W3 = hardwareMap.get(DcMotor.class, "bl");
+        W1 = hardwareMap.get(DcMotor.class, "fr");
+        W2 = hardwareMap.get(DcMotor.class, "fl");
+        W3 = hardwareMap.get(DcMotor.class, "back``");
 
         // Set direction of the motors
         W1.setDirection(DcMotor.Direction.FORWARD);

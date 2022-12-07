@@ -15,7 +15,7 @@ public class AutoBlueV1 extends LinearOpMode {
         waitForStart();
 
         vampire.driveRightSide(-2000,2000,0.5);
-        vampire.lift(3000,3000,0.5);
+
     }
 
     void setCurrentStep(String currentStep) {
