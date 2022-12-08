@@ -41,6 +41,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pid.MotorPID;
 import org.firstinspires.ftc.teamcode.vision.ParkingPosition;
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline;
+import java.util.ArrayList;
 
 public class RobotHardware {
     /* Public OpMode members. */
@@ -134,11 +135,27 @@ public class RobotHardware {
 //
 //    public void servoSetZero(){
 //        clawClose.setPosition(.77);
-//    }
 
-    public void PIDQuadraticTrajectoryController(double trajectoryA, double trajectoryB, double trajectoryC, double timeout){
+
+    // Generate the table describing the trajectory to follow
+
+
+    // at every step in your PID loop, you advance one time index in your traj[] array.
+
+    // to get x,y from traj, first find the index in the list where you are (given by the time), and then x = traj[1][i], y = traj[2][i]
+
+
+
+    public void PIDQuadraticTrajectoryController(double trajectoryA, double trajectoryB, double trajectoryC, double timeout, double x_final){
         telemetry.addData("Starting", "Function");
         telemetry.update();
+
+
+        // create three arrays (2d) that form one large array
+        //take 5 seconds (time the trajectory should take) cut that into 100 intervals
+        //populate the first array with a list of times in those intervals
+        //generate your x-list take your final x position and subtract your initial x poition and divide by the number of steps you want to have
+
 
         PIDCoefficients positionPIDConstants = new PIDCoefficients(1, 0, 0);
         PIDCoefficients velocityPIDConstants = new PIDCoefficients(1, 0, 0);
@@ -152,12 +169,37 @@ public class RobotHardware {
 
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
-        while (timer.milliseconds() < timeout){
-            double evaluationTime = timer.seconds();
-            double timeInEncoderPulses = evaluationTime * 2796;
 
-            double parametrizedLookAheadX = timeInEncoderPulses + (trajectoryB * -1)/(2 * trajectoryA);
-            double parametrizedLookAheadY = trajectoryA * timeInEncoderPulses * timeInEncoderPulses + (4*trajectoryA*trajectoryC - trajectoryB*trajectoryB)/(4*trajectoryA);
+        ArrayList<ArrayList<Double>> traj = new ArrayList<ArrayList<Double>>(3);
+        ArrayList<Double> times = new ArrayList<Double>();
+        traj.add(times);
+        ArrayList<Double> xcoords = new ArrayList<Double>();
+        traj.add(xcoords);
+        ArrayList<Double> ycoords = new ArrayList<Double>();
+        traj.add(ycoords);
+
+        double tf = timeout;
+        double x0 = 0;
+        double xf = x_final;
+        int numSteps = Constants.STEPNUMBER; // the number of steps that we should be taking (duration per step is set later)
+        for(int i = 0; i <= numSteps; i++) {
+            times.add(tf/numSteps*i); // time generation
+            xcoords.add((xf-x0)/numSteps*i + x0); // assume constant velocity
+            double yValue = trajectoryA * (xf/numSteps*i + x0)*(xf/numSteps*i + x0) + trajectoryB * (xf/numSteps*i + x0) + trajectoryC;
+            ycoords.add(yValue);
+        }
+        ElapsedTime internaltimer = new ElapsedTime();
+        double evaluationTime = 0;
+        int loopRuns = 0;
+        timer.reset();
+        while (timer.milliseconds() < timeout){
+            internaltimer.reset();
+            evaluationTime = evaluationTime + tf/numSteps;
+
+            //create the table for our arrays
+
+            double parametrizedLookAheadX = xcoords.get(loopRuns);
+            double parametrizedLookAheadY = ycoords.get(loopRuns);
 
             double W1IdealEncoderPosition = -1.0/3 * parametrizedLookAheadX + .58 * parametrizedLookAheadY;
             double W2IdealEncoderPosition = -1.0/3 * parametrizedLookAheadX - .58 * parametrizedLookAheadY;
@@ -167,8 +209,8 @@ public class RobotHardware {
             telemetry.addData("W2IdealEncoderPosition", W2IdealEncoderPosition);
             telemetry.addData("W3IdealEncoderPosition", W3IdealEncoderPosition);
 
-            double W1IdealEncoderVelocity = -1.0/3 + .58 * 2 * trajectoryA * timeInEncoderPulses;
-            double W2IdealEncoderVelocity = -1.0/3 - .58 * 2 * trajectoryA * timeInEncoderPulses;
+            double W1IdealEncoderVelocity = -1.0/3 + .58 * 2 * trajectoryA * evaluationTime;
+            double W2IdealEncoderVelocity = -1.0/3 - .58 * 2 * trajectoryA * evaluationTime;
             double W3IdealEncoderVelocity = 2.0/3;
 
             telemetry.addData("W1IdealEncoderVelocity", W1IdealEncoderVelocity);
@@ -176,9 +218,13 @@ public class RobotHardware {
             telemetry.addData("W3IdealEncoderVelocity", W3IdealEncoderVelocity);
             telemetry.update();
 
-            W1PID.step(timeInEncoderPulses, W1IdealEncoderPosition, W1IdealEncoderVelocity);
-            W2PID.step(timeInEncoderPulses, W2IdealEncoderPosition, W2IdealEncoderVelocity);
-            W3PID.step(timeInEncoderPulses, W3IdealEncoderPosition, W3IdealEncoderVelocity);
+            W1PID.step(evaluationTime, W1IdealEncoderPosition, W1IdealEncoderVelocity);
+            W2PID.step(evaluationTime, W2IdealEncoderPosition, W2IdealEncoderVelocity);
+            W3PID.step(evaluationTime, W3IdealEncoderPosition, W3IdealEncoderVelocity);
+            loopRuns = loopRuns + 1;
+            while(internaltimer.milliseconds() < tf/numSteps){
+                telemetry.addData("status", "waitingforStepComplete");
+            }
         }
     }
 
