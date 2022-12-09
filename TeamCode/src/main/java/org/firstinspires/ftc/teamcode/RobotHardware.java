@@ -147,10 +147,6 @@ public class RobotHardware {
 
 
     public void PIDQuadraticTrajectoryController(double trajectoryA, double trajectoryB, double trajectoryC, double timeout, double x_final){
-        telemetry.addData("Starting", "Function");
-        telemetry.update();
-
-
         // create three arrays (2d) that form one large array
         //take 5 seconds (time the trajectory should take) cut that into 100 intervals
         //populate the first array with a list of times in those intervals
@@ -164,40 +160,67 @@ public class RobotHardware {
         MotorPID W2PID = new MotorPID(W2, positionPIDConstants, velocityPIDConstants, telemetry);
         MotorPID W3PID = new MotorPID(W3, positionPIDConstants, velocityPIDConstants, telemetry);
 
-        telemetry.addData("Pre-while", "Pre-while");
-        telemetry.update();
-
-        ElapsedTime timer = new ElapsedTime();
-        timer.reset();
-
-        ArrayList<ArrayList<Double>> traj = new ArrayList<ArrayList<Double>>(3);
-        ArrayList<Double> times = new ArrayList<Double>();
-        traj.add(times);
-        ArrayList<Double> xcoords = new ArrayList<Double>();
-        traj.add(xcoords);
-        ArrayList<Double> ycoords = new ArrayList<Double>();
-        traj.add(ycoords);
+        ArrayList<Double> times = new ArrayList<>();
+        ArrayList<Double> xcoords = new ArrayList<>();
+        ArrayList<Double> ycoords = new ArrayList<>();
+        ArrayList<Double> yVelocities = new ArrayList<>();
+        ArrayList<Double> xVelocities = new ArrayList<>();
 
         double tf = timeout;
         double x0 = 0;
         double xf = x_final;
         int numSteps = Constants.STEPNUMBER; // the number of steps that we should be taking (duration per step is set later)
-        for(int i = 0; i <= numSteps; i++) {
-            times.add(tf/numSteps*i); // time generation
-            xcoords.add((xf-x0)/numSteps*i + x0); // assume constant velocity
-            double yValue = trajectoryA * (xf/numSteps*i + x0)*(xf/numSteps*i + x0) + trajectoryB * (xf/numSteps*i + x0) + trajectoryC;
+        for (int i = 0; i <= numSteps; i++) {
+            double time = tf/numSteps*i;
+            times.add(time); // time generation
+            // x(t) = (xf-x0) / tf * time
+            double xValue = (xf-x0)/numSteps*i;
+            xcoords.add(xValue); // assume constant velocity
+            double yValue = trajectoryA*xValue*xValue + trajectoryB*xValue + trajectoryC;
             ycoords.add(yValue);
+            if (i % (numSteps/10) == 0) {
+                telemetry.addData("Point", i);
+                telemetry.addData("times", times.get(i));
+                telemetry.addData("xcoords", xcoords.get(i));
+                telemetry.addData("ycoords", ycoords.get(i));
+                telemetry.addData("", "");
+            }
         }
+        double previousXcoordinate = 0;
+        double previousYcoordinate = 0;
+        for (int i = 0; i < numSteps; i++) {
+            double currentX = xcoords.get(i);
+            double currentY = ycoords.get(i);
+            double lookaheadX = xcoords.get(i+1);
+            double lookaheadY = ycoords.get(i+1);
+            double yVelocity = (lookaheadY - currentY)/(tf/numSteps);
+            double xVelocity = (lookaheadX - currentX)/(tf/numSteps);
+            yVelocities.add(yVelocity);
+            xVelocities.add(xVelocity);
+            if (i % (numSteps/10) == 0) {
+                telemetry.addData("yVelocity", yVelocities.get(i));
+                telemetry.addData("xVelocity", xVelocities.get(i));
+                telemetry.addData("", "");
+            }
+        }
+        yVelocities.add(0.0);
+        xVelocities.add(0.0);
+
+        telemetry.update();
+
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        while(timer.seconds() < 8){}
+
         ElapsedTime internaltimer = new ElapsedTime();
         double evaluationTime = 0;
         int loopRuns = 0;
         timer.reset();
-        while (timer.milliseconds() < timeout){
+        while (timer.seconds() < timeout){
             internaltimer.reset();
-            evaluationTime = evaluationTime + tf/numSteps;
+            evaluationTime = evaluationTime + tf/numSteps*loopRuns;
 
-            //create the table for our arrays
-
+            //xcoords and ycoords are in encoder counts
             double parametrizedLookAheadX = xcoords.get(loopRuns);
             double parametrizedLookAheadY = ycoords.get(loopRuns);
 
@@ -209,22 +232,23 @@ public class RobotHardware {
             telemetry.addData("W2IdealEncoderPosition", W2IdealEncoderPosition);
             telemetry.addData("W3IdealEncoderPosition", W3IdealEncoderPosition);
 
-            double W1IdealEncoderVelocity = -1.0/3 + .58 * 2 * trajectoryA * evaluationTime;
-            double W2IdealEncoderVelocity = -1.0/3 - .58 * 2 * trajectoryA * evaluationTime;
-            double W3IdealEncoderVelocity = 2.0/3;
+            double W1IdealEncoderVelocity = -1.0/3 * xVelocities.get(loopRuns) + .58 * yVelocities.get(loopRuns);
+            double W2IdealEncoderVelocity = -1.0/3 * xVelocities.get(loopRuns) - .58 * yVelocities.get(loopRuns);
+            double W3IdealEncoderVelocity = 2.0/3 * xVelocities.get(loopRuns);
 
             telemetry.addData("W1IdealEncoderVelocity", W1IdealEncoderVelocity);
             telemetry.addData("W2IdealEncoderVelocity", W2IdealEncoderVelocity);
             telemetry.addData("W3IdealEncoderVelocity", W3IdealEncoderVelocity);
-            telemetry.update();
 
             W1PID.step(evaluationTime, W1IdealEncoderPosition, W1IdealEncoderVelocity);
             W2PID.step(evaluationTime, W2IdealEncoderPosition, W2IdealEncoderVelocity);
             W3PID.step(evaluationTime, W3IdealEncoderPosition, W3IdealEncoderVelocity);
+
             loopRuns = loopRuns + 1;
-            while(internaltimer.milliseconds() < tf/numSteps){
-                telemetry.addData("status", "waitingforStepComplete");
-            }
+            telemetry.addData("status", "waitingforStepComplete" + internaltimer);
+            telemetry.update();
+
+            while(internaltimer.seconds() < tf/numSteps){}
         }
     }
 

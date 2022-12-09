@@ -27,15 +27,20 @@ public class MotorPID {
 
     //here is where one does the PID "step", where we actually assign the new target position and velocity values
     public void step(double evaluationT, double idealEncoderPosition, double idealEncoderVelocity) {
+        telemetry.addData("Beginning of step function", "yes");
         double currentPosition = this.motor.getCurrentPosition();
         int intTargetEncoderPosition = calculateFinalEncoderValue(this.positionPIDConstants, evaluationT, currentPosition, idealEncoderPosition);
-        this.motor.setTargetPosition(intTargetEncoderPosition);
-        this.motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        telemetry.addData("intTargetEncoderPosition", intTargetEncoderPosition);
     // for explanation on getVelocity compatibility as used here, please see:
     // https://docs.revrobotics.com/duo-control/programming/hello-robot-autonomous-robot/robot-nav-onbot-java/autonomous-navigation-onbot
         double currentVelocity = this.motor.getVelocity();
         int intTargetEncoderVelocity = calculateFinalEncoderValue(this.velocityPIDConstants, evaluationT, currentVelocity, idealEncoderVelocity);
+        telemetry.addData("intTargetEncoderVelocity", intTargetEncoderVelocity);
+
+        this.motor.setTargetPosition(intTargetEncoderPosition);
+        this.motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         this.motor.setVelocity(intTargetEncoderVelocity);
+        telemetry.addData("Beginning of step function", "yes");
     }
 
 
