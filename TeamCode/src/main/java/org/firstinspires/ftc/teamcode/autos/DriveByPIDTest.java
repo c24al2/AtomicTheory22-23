@@ -17,7 +17,7 @@ public class DriveByPIDTest extends LinearOpMode {
 
         sleep(2000);
         setCurrentStep("driving");
-        vampire.PIDQuadraticTrajectoryController(.000002,0,0,16, 60000);
+        vampire.PIDQuadraticTrajectoryController(.0002,0,0,3, 8000);
         setCurrentStep("done driving");
         sleep(2000);
     }
