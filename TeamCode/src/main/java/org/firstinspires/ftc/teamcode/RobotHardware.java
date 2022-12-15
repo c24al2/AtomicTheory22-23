@@ -36,11 +36,14 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.apache.commons.math3.fitting.PolynomialCurveFitter;
+import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pid.MotorPID;
 import org.firstinspires.ftc.teamcode.vision.ParkingPosition;
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline;
 import java.util.ArrayList;
+import java.util.List;
 
 public class RobotHardware {
     /* Public OpMode members. */
@@ -252,6 +255,8 @@ public class RobotHardware {
             while(internaltimer.seconds() < 0.15){}
         }
     }
+    // idea for the constant velocity motion:
+    // take the integral of the function
 
     public void driveRightSide(double distance, double timeout, double power){
         ElapsedTime timer = new ElapsedTime();
