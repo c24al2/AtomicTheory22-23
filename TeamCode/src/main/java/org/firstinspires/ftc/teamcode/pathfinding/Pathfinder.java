@@ -18,8 +18,14 @@ public class Pathfinder {
 
     // Uses a heuristic function to estimate the distance between a node and a goal
     private int heuristicCost(Node node, Node goal) {
+        int dx = node.getX() - goal.getX();
+        int dy = node.getY() - goal.getY();
+
         // Manhattan distance
-        return Math.abs(node.getX() - goal.getX()) + Math.abs(node.getY() - goal.getY());
+        // return Math.abs(dx) + Math.abs(dy);
+
+        // Euclidean distance
+        return dx*dx + dy*dy;
     }
 
     private int edgeWeight(Node start, Node goal) {
