@@ -34,11 +34,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.pathfinding.Node;
 import org.firstinspires.ftc.teamcode.pid.MotorPID;
 import org.firstinspires.ftc.teamcode.vision.ParkingPosition;
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline;
@@ -50,6 +52,8 @@ public class RobotHardware {
     public DcMotorEx W1;
     public DcMotorEx W2;
     public DcMotorEx W3;
+    public DcMotorEx intake;
+    public Servo intakeServo;
     private BNO055IMU imu;
     HardwareMap hardwareMap;
     Telemetry telemetry;
@@ -135,8 +139,9 @@ public class RobotHardware {
 //        stopDrive();
 //    }
 //
-//    public void servoSetZero(){
-//        clawClose.setPosition(.77);
+   public void servoSetZero() {
+       intakeServo.setPosition(.77);
+   }
 
 
     // Generate the table describing the trajectory to follow
@@ -145,7 +150,119 @@ public class RobotHardware {
     // at every step in your PID loop, you advance one time index in your traj[] array.
 
     // to get x,y from traj, first find the index in the list where you are (given by the time), and then x = traj[1][i], y = traj[2][i]
+    public void PIDAStarRevamp(List<Node> points){
+        // create three arrays (2d) that form one large array
+        //take 5 seconds (time the trajectory should take) cut that into 100 intervals
+        //populate the first array with a list of times in those intervals
+        //generate your x-list take your final x position and subtract your initial x poition and divide by the number of steps you want to have
+        double loopTime = 0.05;
+        double time = loopTime*points.size();
 
+
+        PIDCoefficients positionPIDConstants = new PIDCoefficients(1, 0, 0);
+        PIDCoefficients velocityPIDConstants = new PIDCoefficients(1, 0, 0);
+
+        MotorPID W1PID = new MotorPID(W1, positionPIDConstants, velocityPIDConstants, telemetry);
+        MotorPID W2PID = new MotorPID(W2, positionPIDConstants, velocityPIDConstants, telemetry);
+        MotorPID W3PID = new MotorPID(W3, positionPIDConstants, velocityPIDConstants, telemetry);
+
+        //create ArrayLists to hold the variables we want to keep track of
+        ArrayList<Double> times = new ArrayList<>();
+        ArrayList<Double> xcoords = new ArrayList<>();
+        ArrayList<Double> ycoords = new ArrayList<>();
+        ArrayList<Double> yVelocities = new ArrayList<>();
+        ArrayList<Double> xVelocities = new ArrayList<>();
+
+
+        // calculate the number of steps we should have based on the timeout and the runtime of the loop (usually under .15)
+        double numSteps = points.size();
+        for (int i = 0; i <= numSteps; i++) {
+            double currentTime = time/numSteps*i;
+            times.add(currentTime); // time generation
+            Node point = points.get(i);
+            double xValue = point.getXCM();
+            xcoords.add(xValue); // assume constant velocity
+            double yValue = point.getYCM();
+            ycoords.add(yValue);
+            // add telemetry so we know what trajectory the robot is trying to follow
+            if (i % (numSteps/10) == 0) {
+                telemetry.addData("Point", i);
+                telemetry.addData("times", times.get(i));
+                telemetry.addData("xcoords", xcoords.get(i));
+                telemetry.addData("ycoords", ycoords.get(i));
+                telemetry.addData("", "");
+            }
+        }
+
+
+        for (int i = 0; i < numSteps; i++) {
+            // take the lookahead and subtract the current, divide by time to find the magnitude of the velocity vector, named here simply as velocity
+            double currentX = xcoords.get(i);
+            double currentY = ycoords.get(i);
+            double lookaheadX = xcoords.get(i+1);
+            double lookaheadY = ycoords.get(i+1);
+            double yVelocity = (lookaheadY - currentY)/(time/numSteps);
+            double xVelocity = (lookaheadX - currentX)/(time/numSteps);
+            yVelocities.add(yVelocity);
+            xVelocities.add(xVelocity);
+            if (i % (numSteps/10) == 0) {
+                telemetry.addData("yVelocity", yVelocities.get(i));
+                telemetry.addData("xVelocity", xVelocities.get(i));
+            }
+        }
+        yVelocities.add(0.0);
+        xVelocities.add(0.0);
+
+        telemetry.update();
+
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        while(timer.seconds() < 8){}
+
+        double evaluationTime = 0;
+        // track what index you're looking at
+        int loopRuns = 0;
+        timer.reset();
+        while (timer.seconds() < time){
+            double startTime = timer.seconds();
+
+            evaluationTime = evaluationTime + time/numSteps*loopRuns;
+
+            //xcoords and ycoords are in encoder counts
+            double parametrizedLookAheadX = xcoords.get(loopRuns);
+            double parametrizedLookAheadY = ycoords.get(loopRuns);
+
+            // plug in generated x and y into the matrix for encoder positions
+            double W1IdealEncoderPosition = -1.0/3 * parametrizedLookAheadX + .58 * parametrizedLookAheadY;
+            double W2IdealEncoderPosition = -1.0/3 * parametrizedLookAheadX - .58 * parametrizedLookAheadY;
+            double W3IdealEncoderPosition = 2.0/3 * parametrizedLookAheadX;
+
+            telemetry.addData("W1IdealEncoderPosition", W1IdealEncoderPosition);
+            telemetry.addData("W2IdealEncoderPosition", W2IdealEncoderPosition);
+            telemetry.addData("W3IdealEncoderPosition", W3IdealEncoderPosition);
+
+            // plug in velocity values for velocity of each motor given by the matrix
+            double W1IdealEncoderVelocity = -1.0/3 * xVelocities.get(loopRuns) + .58 * yVelocities.get(loopRuns);
+            double W2IdealEncoderVelocity = -1.0/3 * xVelocities.get(loopRuns) - .58 * yVelocities.get(loopRuns);
+            double W3IdealEncoderVelocity = 2.0/3 * xVelocities.get(loopRuns);
+
+            telemetry.addData("W1IdealEncoderVelocity", W1IdealEncoderVelocity);
+            telemetry.addData("W2IdealEncoderVelocity", W2IdealEncoderVelocity);
+            telemetry.addData("W3IdealEncoderVelocity", W3IdealEncoderVelocity);
+
+            W1PID.step(evaluationTime, W1IdealEncoderPosition, W1IdealEncoderVelocity);
+            W2PID.step(evaluationTime, W2IdealEncoderPosition, W2IdealEncoderVelocity);
+            W3PID.step(evaluationTime, W3IdealEncoderPosition, W3IdealEncoderVelocity);
+
+            telemetry.addData("Finished while loop in: ", timer.seconds()-startTime);
+
+            telemetry.update();
+                    
+            while(timer.seconds() - startTime < loopTime){}
+
+            loopRuns = loopRuns + 1;
+        }
+    }
 
     public void PIDQuadraticTrajectoryController(double trajectoryA, double trajectoryB, double trajectoryC, double timeout, double x_final){
         // create three arrays (2d) that form one large array

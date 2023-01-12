@@ -44,9 +44,9 @@ public class IterativeOpmode extends OpMode {
     // Declare OpMode members.
     private final ElapsedTime runtime = new ElapsedTime();
     private final Chassis chassis = new Chassis();
-//    private DcMotor intake = null;
+    private DcMotor intake = null;
     private BNO055IMU imu = null;
-//    private Servo clawClose = null;
+    private Servo intakeServo = null;
     private boolean driversKnowEndgame = false;
     private boolean useEncoders = true;
 
@@ -113,30 +113,33 @@ public class IterativeOpmode extends OpMode {
         }
 
         // Servo positions
-//        if (gamepad2.left_bumper) {
-//            clawClose.setPosition(0.76);
-//        }
-//
-//        if (gamepad2.b) {
-//            clawClose.setPosition(0.77);
-//        }
-//
-//        if (gamepad2.right_bumper) {
-//            clawClose.setPosition(0.85);
-//        }
-//
-//        if (gamepad2.a) {
-//            clawClose.setPosition(.46);
-//        }
+        if (gamepad2.y) {
+            intakeServo.setPosition(1);
+        }
+
+        if (gamepad2.b) {
+           intakeServo.setPosition(0.25);
+        }
+
+        if (gamepad2.x) {
+            intakeServo.setPosition(0.50);
+        }
+
+        if (gamepad2.a) {
+            intakeServo.setPosition(.75);
+        }
+        if (gamepad1.a) {
+            intakeServo.setPosition(0.0);
+        }
 //
 //        // Lift
-//        if (isGunnerStickMoved) {
-//            useEncoders = false;
-//            intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//            intake.setPower(-gamepad2.left_stick_y * 0.7);
-//        } else {
-//            intake.setPower(0);
-//        }
+        if (isGunnerStickMoved) {
+            useEncoders = false;
+            intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            intake.setPower(-gamepad2.left_stick_y * 0.7);
+        } else {
+            intake.setPower(0);
+        }
     }
 
 

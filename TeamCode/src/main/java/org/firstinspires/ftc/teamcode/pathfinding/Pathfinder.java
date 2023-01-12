@@ -138,4 +138,7 @@ public class Pathfinder {
         // Fit the function to the path and return the fitted parameters
         return fitter.fit(obs.toList());
     }
-}
+
+    }
+
+
