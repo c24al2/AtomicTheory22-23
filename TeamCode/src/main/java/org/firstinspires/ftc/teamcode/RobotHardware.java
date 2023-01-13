@@ -155,6 +155,13 @@ public class RobotHardware {
         //take 5 seconds (time the trajectory should take) cut that into 100 intervals
         //populate the first array with a list of times in those intervals
         //generate your x-list take your final x position and subtract your initial x poition and divide by the number of steps you want to have
+        W1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        W2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        W3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        W3.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         double loopTime = 0.05;
         double time = loopTime*points.size();
 
@@ -170,8 +177,6 @@ public class RobotHardware {
         ArrayList<Double> times = new ArrayList<>();
         ArrayList<Double> xcoords = new ArrayList<>();
         ArrayList<Double> ycoords = new ArrayList<>();
-        ArrayList<Double> yVelocities = new ArrayList<>();
-        ArrayList<Double> xVelocities = new ArrayList<>();
 
 
         // calculate the number of steps we should have based on the timeout and the runtime of the loop (usually under .15)
@@ -180,9 +185,9 @@ public class RobotHardware {
             double currentTime = time/numSteps*i;
             times.add(currentTime); // time generation
             Node point = points.get(i);
-            double xValue = point.getXCM();
+            double xValue = point.getXCM() * 10;
             xcoords.add(xValue); // assume constant velocity
-            double yValue = point.getYCM();
+            double yValue = point.getYCM() * 10;
             ycoords.add(yValue);
             // add telemetry so we know what trajectory the robot is trying to follow
             if (i % (numSteps/10) == 0) {
@@ -194,72 +199,67 @@ public class RobotHardware {
             }
         }
 
-
-        for (int i = 0; i < numSteps; i++) {
-            // take the lookahead and subtract the current, divide by time to find the magnitude of the velocity vector, named here simply as velocity
-            double currentX = xcoords.get(i);
-            double currentY = ycoords.get(i);
-            double lookaheadX = xcoords.get(i+1);
-            double lookaheadY = ycoords.get(i+1);
-            double yVelocity = (lookaheadY - currentY)/(time/numSteps);
-            double xVelocity = (lookaheadX - currentX)/(time/numSteps);
-            yVelocities.add(yVelocity);
-            xVelocities.add(xVelocity);
-            if (i % (numSteps/10) == 0) {
-                telemetry.addData("yVelocity", yVelocities.get(i));
-                telemetry.addData("xVelocity", xVelocities.get(i));
-            }
-        }
-        yVelocities.add(0.0);
-        xVelocities.add(0.0);
-
         telemetry.update();
 
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
+        // stall time
         while(timer.seconds() < 8){}
-
         double evaluationTime = 0;
         // track what index you're looking at
         int loopRuns = 0;
         timer.reset();
+        double W1AStarPreviousIdealEncoderPosition = 0;
+        double W2AStarPreviousIdealEncoderPosition = 0;
+        double W3AStarPreviousIdealEncoderPosition = 0;
+        double W1IdealEncoderVelocity = 0;
+        double W2IdealEncoderVelocity = 0;
+        double W3IdealEncoderVelocity = 0;
         while (timer.seconds() < time){
             double startTime = timer.seconds();
 
             evaluationTime = evaluationTime + time/numSteps*loopRuns;
 
-            //xcoords and ycoords are in encoder counts
-            double parametrizedLookAheadX = xcoords.get(loopRuns);
-            double parametrizedLookAheadY = ycoords.get(loopRuns);
+            double m = (xcoords.get(loopRuns + 1) - xcoords.get(loopRuns))/(ycoords.get(loopRuns + 1) - xcoords.get(loopRuns));
+            double xAngle = Math.atan(m);
+            double thetaW1 = (2*Math.PI)/3 - xAngle;
+            double thetaW2 = (4*Math.PI)/3 - xAngle;
+            double thetaW3 = (2*Math.PI) - xAngle;
+            double x_i = Math.sqrt((xcoords.get(loopRuns + 1) - xcoords.get(loopRuns)) * (xcoords.get(loopRuns + 1) - xcoords.get(loopRuns)) + (ycoords.get(loopRuns + 1) - ycoords.get(loopRuns)) * (ycoords.get(loopRuns + 1) - ycoords.get(loopRuns)));
+            double W1EncoderScalar = x_i/Math.cos(thetaW1);
+            double W2EncoderScalar = x_i/Math.cos(thetaW2);
+            double W3EncoderScalar = x_i/Math.cos(thetaW3);
+            double W1AStarIdealEncoderPosition = W1EncoderScalar * 96 * Math.PI * 537.7;
+            double W2AStarIdealEncoderPosition = W2EncoderScalar * 96 * Math.PI * 537.7;
+            double W3AStarIdealEncoderPosition = W3EncoderScalar * 96 * Math.PI * 537.7;
 
-            // plug in generated x and y into the matrix for encoder positions
-            double W1IdealEncoderPosition = -1.0/3 * parametrizedLookAheadX + .58 * parametrizedLookAheadY;
-            double W2IdealEncoderPosition = -1.0/3 * parametrizedLookAheadX - .58 * parametrizedLookAheadY;
-            double W3IdealEncoderPosition = 2.0/3 * parametrizedLookAheadX;
+            telemetry.addData("W1IdealEncoderPosition", W1AStarIdealEncoderPosition);
+            telemetry.addData("W2IdealEncoderPosition", W2AStarIdealEncoderPosition);
+            telemetry.addData("W3IdealEncoderPosition", W3AStarIdealEncoderPosition);
 
-            telemetry.addData("W1IdealEncoderPosition", W1IdealEncoderPosition);
-            telemetry.addData("W2IdealEncoderPosition", W2IdealEncoderPosition);
-            telemetry.addData("W3IdealEncoderPosition", W3IdealEncoderPosition);
+                // take the lookahead and subtract the current, divide by time to find the magnitude of the velocity vector, named here simply as velocity
+                //must use already converted to encoder counts
+            W1IdealEncoderVelocity = (W1AStarIdealEncoderPosition - W1AStarPreviousIdealEncoderPosition)/(loopTime);
+            W2IdealEncoderVelocity = (W2AStarIdealEncoderPosition - W2AStarPreviousIdealEncoderPosition)/(loopTime);
+            W3IdealEncoderVelocity = (W3AStarIdealEncoderPosition - W3AStarPreviousIdealEncoderPosition)/(loopTime);
 
-            // plug in velocity values for velocity of each motor given by the matrix
-            double W1IdealEncoderVelocity = -1.0/3 * xVelocities.get(loopRuns) + .58 * yVelocities.get(loopRuns);
-            double W2IdealEncoderVelocity = -1.0/3 * xVelocities.get(loopRuns) - .58 * yVelocities.get(loopRuns);
-            double W3IdealEncoderVelocity = 2.0/3 * xVelocities.get(loopRuns);
+            // plug in velocity values for velocity of each motor given by the matri
 
             telemetry.addData("W1IdealEncoderVelocity", W1IdealEncoderVelocity);
             telemetry.addData("W2IdealEncoderVelocity", W2IdealEncoderVelocity);
             telemetry.addData("W3IdealEncoderVelocity", W3IdealEncoderVelocity);
 
-            W1PID.step(evaluationTime, W1IdealEncoderPosition, W1IdealEncoderVelocity);
-            W2PID.step(evaluationTime, W2IdealEncoderPosition, W2IdealEncoderVelocity);
-            W3PID.step(evaluationTime, W3IdealEncoderPosition, W3IdealEncoderVelocity);
+            W1PID.step(evaluationTime, W1AStarIdealEncoderPosition, W1IdealEncoderVelocity);
+            W2PID.step(evaluationTime, W2AStarIdealEncoderPosition, W2IdealEncoderVelocity);
+            W3PID.step(evaluationTime, W3AStarIdealEncoderPosition, W3IdealEncoderVelocity);
 
             telemetry.addData("Finished while loop in: ", timer.seconds()-startTime);
 
             telemetry.update();
-                    
+            W1AStarPreviousIdealEncoderPosition = W1AStarIdealEncoderPosition;
+            W2AStarPreviousIdealEncoderPosition = W2AStarIdealEncoderPosition;
+            W3AStarPreviousIdealEncoderPosition = W3AStarIdealEncoderPosition;
             while(timer.seconds() - startTime < loopTime){}
-
             loopRuns = loopRuns + 1;
         }
     }
