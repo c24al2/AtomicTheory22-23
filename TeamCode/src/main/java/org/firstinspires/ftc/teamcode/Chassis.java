@@ -34,17 +34,12 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.hardware.Servo;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Constants;
 
 public class Chassis {
     /* Public OpMode members. */
-    protected DcMotor W1 = null;
-    protected DcMotor W2 = null;
-    protected DcMotor W3 = null;
+    protected DcMotor fr = null;
+    protected DcMotor fl = null;
+    protected DcMotor back = null;
     protected BNO055IMU imu = null;
     boolean slowMode = false;
     boolean aPressedLastRound = false;
@@ -52,24 +47,24 @@ public class Chassis {
     /* Initialize standard Hardware interfaces */
     public void init(HardwareMap hardwareMap) {
         // Define and initialize motors
-        W1 = hardwareMap.get(DcMotor.class, "fr");
-        W2 = hardwareMap.get(DcMotor.class, "fl");
-        W3 = hardwareMap.get(DcMotor.class, "back``");
+        fr = hardwareMap.get(DcMotor.class, "fr");
+        fl = hardwareMap.get(DcMotor.class, "fl");
+        back = hardwareMap.get(DcMotor.class, "back``");
 
         // Set direction of the motors
-        W1.setDirection(DcMotor.Direction.FORWARD);
-        W2.setDirection(DcMotor.Direction.FORWARD);
-        W3.setDirection(DcMotor.Direction.FORWARD);
+        fr.setDirection(DcMotor.Direction.FORWARD);
+        fl.setDirection(DcMotor.Direction.FORWARD);
+        back.setDirection(DcMotor.Direction.FORWARD);
 
         // Set zero power behaviors for each motor
-        W1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        W2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        W3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Set all motors to zero power
-        W1.setPower(0);
-        W2.setPower(0);
-        W3.setPower(0);
+        fr.setPower(0);
+        fl.setPower(0);
+        back.setPower(0);
 
         // Initialize the IMU
         imu = hardwareMap.get(BNO055IMU.class, "imu");
@@ -110,9 +105,9 @@ public class Chassis {
                 //keep the powers proportional and within a range of -1 to 1
                 double motorMax = Math.max(Math.max(Math.abs(W1Power), Math.abs(W2Power)), Math.abs(W3Power));
                 double proportion = Math.min(1, motorMax);
-                W1.setPower(W1Power * StickPowerScalar *.5/ proportion);
-                W2.setPower(W2Power * StickPowerScalar *.5/ proportion);
-                W3.setPower(W3Power * StickPowerScalar *.5/ proportion);
+                fr.setPower(W1Power * StickPowerScalar *.5/ proportion);
+                fl.setPower(W2Power * StickPowerScalar *.5/ proportion);
+                back.setPower(W3Power * StickPowerScalar *.5/ proportion);
             }
             else {// create the speed vector
                 double w = rotation;
@@ -123,9 +118,9 @@ public class Chassis {
                 //keep the powers proportional and within a range of -1 to 1
                 double motorMax = Math.max(Math.max(Math.abs(W1Power), Math.abs(W2Power)), Math.abs(W3Power));
                 double proportion = Math.min(1, motorMax);
-                W1.setPower(W1Power * StickPowerScalar / proportion);
-                W2.setPower(W2Power * StickPowerScalar / proportion);
-                W3.setPower(W3Power * StickPowerScalar / proportion);
+                fr.setPower(W1Power * StickPowerScalar / proportion);
+                fl.setPower(W2Power * StickPowerScalar / proportion);
+                back.setPower(W3Power * StickPowerScalar / proportion);
             }
         }
         else if (areTriggersDown){
@@ -138,14 +133,14 @@ public class Chassis {
             double motorMax = Math.max(Math.max(Math.abs(W1Power), Math.abs(W2Power)), Math.abs(W3Power));
             double proportion = Math.min(1, motorMax);
             StickPowerScalar = .5;
-            W1.setPower(W1Power * StickPowerScalar / proportion);
-            W2.setPower(W2Power * StickPowerScalar / proportion);
-            W3.setPower(W3Power * StickPowerScalar / proportion);
+            fr.setPower(W1Power * StickPowerScalar / proportion);
+            fl.setPower(W2Power * StickPowerScalar / proportion);
+            back.setPower(W3Power * StickPowerScalar / proportion);
         }
         else {
-            W1.setPower(0);
-            W2.setPower(0);
-            W3.setPower(0);
+            fr.setPower(0);
+            fl.setPower(0);
+            back.setPower(0);
         }
     }
 }
