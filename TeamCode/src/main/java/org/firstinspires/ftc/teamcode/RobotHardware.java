@@ -37,8 +37,6 @@ import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.apache.commons.math3.fitting.PolynomialCurveFitter;
-import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pathfinding.Node;
 import org.firstinspires.ftc.teamcode.pid.MotorPID;
@@ -214,9 +212,9 @@ public class RobotHardware {
         double W1AStarPreviousIdealEncoderPosition = 0;
         double W2AStarPreviousIdealEncoderPosition = 0;
         double W3AStarPreviousIdealEncoderPosition = 0;
-        double W1IdealEncoderVelocity = 0;
-        double W2IdealEncoderVelocity = 0;
-        double W3IdealEncoderVelocity = 0;
+        double W1IdealEncoderVelocity;
+        double W2IdealEncoderVelocity;
+        double W3IdealEncoderVelocity;
         while (timer.seconds() < time){
             double startTime = timer.seconds();
 
@@ -231,9 +229,12 @@ public class RobotHardware {
             double W1EncoderScalar = x_i/Math.cos(thetaW1);
             double W2EncoderScalar = x_i/Math.cos(thetaW2);
             double W3EncoderScalar = x_i/Math.cos(thetaW3);
-            double W1AStarIdealEncoderPosition = W1EncoderScalar * 96 * Math.PI * 537.7;
-            double W2AStarIdealEncoderPosition = W2EncoderScalar * 96 * Math.PI * 537.7;
-            double W3AStarIdealEncoderPosition = W3EncoderScalar * 96 * Math.PI * 537.7;
+            double W1AStarIdealEncoderPositionChange = W1EncoderScalar * 96 * Math.PI * 537.7;
+            double W2AStarIdealEncoderPositionChange = W2EncoderScalar * 96 * Math.PI * 537.7;
+            double W3AStarIdealEncoderPositionChange = W3EncoderScalar * 96 * Math.PI * 537.7;
+            double W1AStarIdealEncoderPosition = W1AStarIdealEncoderPositionChange + W1AStarPreviousIdealEncoderPosition;
+            double W2AStarIdealEncoderPosition = W2AStarIdealEncoderPositionChange + W2AStarPreviousIdealEncoderPosition;
+            double W3AStarIdealEncoderPosition = W3AStarIdealEncoderPositionChange + W3AStarPreviousIdealEncoderPosition;
 
             telemetry.addData("W1IdealEncoderPosition", W1AStarIdealEncoderPosition);
             telemetry.addData("W2IdealEncoderPosition", W2AStarIdealEncoderPosition);
@@ -241,9 +242,9 @@ public class RobotHardware {
 
                 // take the lookahead and subtract the current, divide by time to find the magnitude of the velocity vector, named here simply as velocity
                 //must use already converted to encoder counts
-            W1IdealEncoderVelocity = (W1AStarIdealEncoderPosition - W1AStarPreviousIdealEncoderPosition)/(loopTime);
-            W2IdealEncoderVelocity = (W2AStarIdealEncoderPosition - W2AStarPreviousIdealEncoderPosition)/(loopTime);
-            W3IdealEncoderVelocity = (W3AStarIdealEncoderPosition - W3AStarPreviousIdealEncoderPosition)/(loopTime);
+            W1IdealEncoderVelocity = (W1AStarIdealEncoderPositionChange)/(loopTime);
+            W2IdealEncoderVelocity = (W2AStarIdealEncoderPositionChange)/(loopTime);
+            W3IdealEncoderVelocity = (W3AStarIdealEncoderPositionChange)/(loopTime);
 
             // plug in velocity values for velocity of each motor given by the matri
 
@@ -266,6 +267,7 @@ public class RobotHardware {
         }
     }
 
+    @Deprecated
     public void PIDQuadraticTrajectoryController(double trajectoryA, double trajectoryB, double trajectoryC, double timeout, double x_final){
         // create three arrays (2d) that form one large array
         //take 5 seconds (time the trajectory should take) cut that into 100 intervals
