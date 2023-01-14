@@ -49,7 +49,7 @@ public class Chassis {
         // Define and initialize motors
         fr = hardwareMap.get(DcMotor.class, "fr");
         fl = hardwareMap.get(DcMotor.class, "fl");
-        back = hardwareMap.get(DcMotor.class, "back``");
+        back = hardwareMap.get(DcMotor.class, "back");
 
         // Set direction of the motors
         fr.setDirection(DcMotor.Direction.FORWARD);

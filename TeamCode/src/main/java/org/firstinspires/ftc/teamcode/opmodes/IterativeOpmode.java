@@ -56,7 +56,8 @@ public class IterativeOpmode extends OpMode {
     @Override
     public void init() {
         chassis.init(hardwareMap);
-
+        intake = hardwareMap.get(DcMotor.class, "intake");
+        intakeServo = hardwareMap.get(Servo.class, "intakeServo");
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
@@ -113,11 +114,11 @@ public class IterativeOpmode extends OpMode {
         }
 
         // Servo positions
-        if (gamepad2.y) {
+        if (gamepad2.right_stick_button) {
             intakeServo.setPosition(1);
         }
 
-        if (gamepad2.b) {
+        if (gamepad2.y) {
            intakeServo.setPosition(0.25);
         }
 
@@ -125,10 +126,10 @@ public class IterativeOpmode extends OpMode {
             intakeServo.setPosition(0.50);
         }
 
-        if (gamepad2.a) {
+        if (gamepad2.y) {
             intakeServo.setPosition(.75);
         }
-        if (gamepad1.a) {
+        if (gamepad1.x) {
             intakeServo.setPosition(0.0);
         }
 //

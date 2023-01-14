@@ -69,7 +69,7 @@ public class RobotHardware {
         // Define and initialize motors
         W1 = hardwareMap.get(DcMotorEx.class, "fr");
         W2 = hardwareMap.get(DcMotorEx.class, "fl");
-        W3 = hardwareMap.get(DcMotorEx.class, "b");
+        W3 = hardwareMap.get(DcMotorEx.class, "back");
         W1.setDirection(DcMotor.Direction.FORWARD);
         W2.setDirection(DcMotor.Direction.FORWARD);
         W3.setDirection(DcMotor.Direction.FORWARD);
@@ -180,8 +180,8 @@ public class RobotHardware {
 
 
         // calculate the number of steps we should have based on the timeout and the runtime of the loop (usually under .15)
-        double numSteps = points.size();
-        for (int i = 0; i <= numSteps; i++) {
+        double numSteps = points.size() - 1;
+        for (int i = 0; i <= points.size()-1; i++) {
             double currentTime = time/numSteps*i;
             times.add(currentTime); // time generation
             Node point = points.get(i);
@@ -198,6 +198,8 @@ public class RobotHardware {
                 telemetry.addData("", "");
             }
         }
+        xcoords.add(xcoords.get(points.size() - 1));
+        ycoords.add(ycoords.get(points.size() - 1));
 
         telemetry.update();
 
