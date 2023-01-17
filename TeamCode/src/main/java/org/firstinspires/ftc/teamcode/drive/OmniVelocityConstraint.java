@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.kinematics.Kinematics;
-import com.acmerobotics.roadrunner.kinematics.MecanumKinematics;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.UnsatisfiableConstraint;
 
@@ -14,12 +13,12 @@ import java.util.List;
 
 public class OmniVelocityConstraint implements TrajectoryVelocityConstraint {
     private final double maxWheelVel;
-    private final List<Pose2d> omniWheelPositions;
+    private final List<Pose2d> wheelPositions;
 
 
-    public OmniVelocityConstraint(double maxWheelVel, List<Pose2d> omniWheelPositions) {
+    public OmniVelocityConstraint(double maxWheelVel, List<Pose2d> wheelPositions) {
         this.maxWheelVel = maxWheelVel;
-        this.omniWheelPositions = omniWheelPositions;
+        this.wheelPositions = wheelPositions;
     }
 
     /**
@@ -32,9 +31,9 @@ public class OmniVelocityConstraint implements TrajectoryVelocityConstraint {
      */
     @Override
     public double get(double s, @NonNull Pose2d pose, @NonNull Pose2d deriv, @NonNull Pose2d baseRobotVel) {
-        List<Double> baseWheelVelocities = OmniKinematics.robotToWheelVelocities(baseRobotVel, omniWheelPositions);
+        List<Double> baseWheelVelocities = OmniKinematics.robotToWheelVelocities(baseRobotVel, wheelPositions);
 
-        List<Double> destination = new ArrayList<>(omniWheelPositions.size());
+        List<Double> destination = new ArrayList<>(wheelPositions.size());
 
         for (double wheelVelocity : baseWheelVelocities) {
             destination.add(Math.abs(wheelVelocity));
@@ -46,11 +45,11 @@ public class OmniVelocityConstraint implements TrajectoryVelocityConstraint {
             throw new UnsatisfiableConstraint();
         } else {
             Pose2d robotDeriv = Kinematics.fieldToRobotVelocity(pose, deriv);
-            List<Double> derivWheelVelocities = OmniKinematics.robotToWheelVelocities(robotDeriv, omniWheelPositions);
+            List<Double> derivWheelVelocities = OmniKinematics.robotToWheelVelocities(robotDeriv, wheelPositions);
 
-            List<Double> destination2 = new ArrayList<>(omniWheelPositions.size());
+            List<Double> destination2 = new ArrayList<>(wheelPositions.size());
 
-            for (int i = 0; i < omniWheelPositions.size(); i++) {
+            for (int i = 0; i < wheelPositions.size(); i++) {
                 double firstNum = baseWheelVelocities.get(i);
                 double secondNum = derivWheelVelocities.get(i);
 

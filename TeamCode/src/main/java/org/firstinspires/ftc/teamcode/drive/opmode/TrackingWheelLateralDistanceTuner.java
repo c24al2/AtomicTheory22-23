@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.drive.OdometryLocalizer;
-import org.firstinspires.ftc.teamcode.drive.OmniDrive;
+import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
 
 /**
  * Opmode designed to assist the user in tuning the `StandardTrackingWheelLocalizer`'s
@@ -68,7 +68,7 @@ public class TrackingWheelLateralDistanceTuner extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        OmniDrive drive = new OmniDrive(hardwareMap);
+        SampleOmniDrive drive = new SampleOmniDrive(hardwareMap);
 
         if (!(drive.getLocalizer() instanceof OdometryLocalizer)) {
             RobotLog.setGlobalErrorMsg("StandardTrackingWheelLocalizer is not being set in the "
