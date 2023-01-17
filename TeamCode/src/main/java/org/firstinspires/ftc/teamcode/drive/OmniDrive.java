@@ -15,8 +15,8 @@ import java.util.List;
 
 public abstract class OmniDrive extends Drive {
     static class OmniLocalizer implements Localizer {
-        private OmniDrive drive;
-        private boolean useExternalHeading;
+        private final OmniDrive drive;
+        private final boolean useExternalHeading;
         private Pose2d poseEstimate;
         private Pose2d poseVelocity;
         private List<Double> lastWheelPositions;
