@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class OmniDrive extends Drive {
-
     static class OmniLocalizer implements Localizer {
         private OmniDrive drive;
         private boolean useExternalHeading;
