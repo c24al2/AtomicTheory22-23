@@ -12,8 +12,8 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.system.Misc;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
+import org.firstinspires.ftc.teamcode.drive.OdometryLocalizer;
+import org.firstinspires.ftc.teamcode.drive.OmniDrive;
 
 /**
  * This routine determines the effective forward offset for the lateral tracking wheel.
@@ -45,9 +45,9 @@ public class TrackingWheelForwardOffsetTuner extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        OmniDrive drive = new OmniDrive(hardwareMap);
 
-        if (!(drive.getLocalizer() instanceof StandardTrackingWheelLocalizer)) {
+        if (!(drive.getLocalizer() instanceof OdometryLocalizer)) {
             RobotLog.setGlobalErrorMsg("StandardTrackingWheelLocalizer is not being set in the "
                     + "drive class. Ensure that \"setLocalizer(new StandardTrackingWheelLocalizer"
                     + "(hardwareMap));\" is called in SampleMecanumDrive.java");
@@ -83,16 +83,15 @@ public class TrackingWheelForwardOffsetTuner extends LinearOpMode {
                 drive.update();
             }
 
-            double forwardOffset = StandardTrackingWheelLocalizer.FORWARD_OFFSET +
-                    drive.getPoseEstimate().getY() / headingAccumulator;
-            forwardOffsetStats.add(forwardOffset);
+            double changeInForwardOffset = drive.getPoseEstimate().getY() / headingAccumulator;
+            forwardOffsetStats.add(changeInForwardOffset);
 
             sleep(DELAY);
         }
 
         telemetry.clearAll();
         telemetry.addLine("Tuning complete");
-        telemetry.addLine(Misc.formatInvariant("Effective forward offset = %.2f (SE = %.3f)",
+        telemetry.addLine(Misc.formatInvariant("Effective change in forward offset (try to get to 0) = %.2f (SE = %.3f)",
                 forwardOffsetStats.getMean(),
                 forwardOffsetStats.getStandardDeviation() / Math.sqrt(NUM_TRIALS)));
         telemetry.update();
