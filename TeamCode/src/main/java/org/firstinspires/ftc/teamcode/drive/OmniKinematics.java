@@ -46,7 +46,7 @@ public class OmniKinematics {
         RealMatrix wheelVelocitiesMatrix = hMatrix.multiply(robotVelMatrix);
 
         List<Double> wheelVelocities = new ArrayList<>(wheelPositions.size());
-        for (double wheelVelocity : wheelVelocitiesMatrix.getColumn(1)) {
+        for (double wheelVelocity : wheelVelocitiesMatrix.getColumn(0)) {
             wheelVelocities.add(wheelVelocity);
         }
         return wheelVelocities;
@@ -83,9 +83,9 @@ public class OmniKinematics {
         RealMatrix robotVelMatrix = inverseHMatrix.multiply(wheelVelocitiesMatrix);
 
         return new Pose2d(
-                robotVelMatrix.getEntry(2, 1),
-                robotVelMatrix.getEntry(3, 1),
-                robotVelMatrix.getEntry(1, 1)
+                robotVelMatrix.getEntry(1, 0),
+                robotVelMatrix.getEntry(2, 0),
+                robotVelMatrix.getEntry(0, 0)
         );
     }
 }
