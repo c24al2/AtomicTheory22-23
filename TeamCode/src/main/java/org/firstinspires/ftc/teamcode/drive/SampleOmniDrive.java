@@ -46,9 +46,9 @@ import java.util.List;
 
 public class SampleOmniDrive extends OmniDrive {
     private static final List<Pose2d> WHEEL_POSITIONS = Arrays.asList(
-            new Pose2d(7.5*Math.sin(Math.toRadians(30)), 7.5*Math.cos(Math.toRadians(30)), Math.toRadians(-30)),  // Front left
-            new Pose2d(-7.5, 0, Math.toRadians(90)), // Back wheel
-            new Pose2d(7.5*Math.sin(Math.toRadians(30)), -7.5*Math.cos(Math.toRadians(30)), Math.toRadians(210)) // Front right
+            new Pose2d(7.5*Math.sin(Math.toRadians(30)), 7.5*Math.cos(Math.toRadians(30)), Math.toRadians(150)),  // Front left
+            new Pose2d(-7.5, 0, Math.toRadians(270)), // Back wheel
+            new Pose2d(7.5*Math.sin(Math.toRadians(30)), -7.5*Math.cos(Math.toRadians(30)), Math.toRadians(30)) // Front right
     );
 
     private static final boolean USE_EXTERNAL_HEADING = true;
