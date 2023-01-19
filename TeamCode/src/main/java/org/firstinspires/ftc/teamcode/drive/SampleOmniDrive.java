@@ -13,9 +13,9 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.drive.DriveSignal;
-import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.acmerobotics.roadrunner.followers.HolonomicPIDVAFollower;
 import com.acmerobotics.roadrunner.followers.TrajectoryFollower;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Config
 public class SampleOmniDrive extends OmniDrive {
     private static final List<Pose2d> WHEEL_POSITIONS = Arrays.asList(
             new Pose2d(7.5*Math.sin(Math.toRadians(30)), 7.5*Math.cos(Math.toRadians(30)), Math.toRadians(150)),  // Front left

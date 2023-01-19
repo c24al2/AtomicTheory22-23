@@ -14,24 +14,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class OmniDrive extends Drive {
-    static class OmniLocalizer implements Localizer {
-        private final OmniDrive drive;
-        private final boolean useExternalHeading;
-        private Pose2d poseEstimate;
+    public class OmniLocalizer implements Localizer {
+        private OmniDrive drive;
+        private boolean useExternalHeading;
+
+        private Pose2d _poseEstimate;
         private Pose2d poseVelocity;
         private List<Double> lastWheelPositions;
-        private double lastExtHeading;
+        private double lastExtHeading = Double.NaN;
 
-        /**
-         * Default localizer for omni drives based on the drive encoders and (optionally) a heading sensor.
-         *
-         * @param drive drive
-         * @param useExternalHeading use external heading provided by an external sensor (e.g., IMU, gyroscope)
-         */
         public OmniLocalizer(OmniDrive drive, boolean useExternalHeading) {
             this.drive = drive;
             this.useExternalHeading = useExternalHeading;
-            this.poseEstimate = new Pose2d();
+
+            this._poseEstimate = new Pose2d();
             this.poseVelocity = null;
             this.lastWheelPositions = new ArrayList<>();
             this.lastExtHeading = Double.NaN;
@@ -40,17 +36,17 @@ public abstract class OmniDrive extends Drive {
         @NonNull
         @Override
         public Pose2d getPoseEstimate() {
-            return poseEstimate;
+            return this._poseEstimate;
         }
 
         @Override
-        public void setPoseEstimate(@NonNull Pose2d poseEstimate) {
-            this.lastWheelPositions = new ArrayList<>();
-            this.lastExtHeading = Double.NaN;
+        public void setPoseEstimate(@NonNull Pose2d value) {
+            lastWheelPositions = new ArrayList<>();
+            lastExtHeading = Double.NaN;
             if (useExternalHeading) {
-                drive.setExternalHeading(poseEstimate.getHeading());
+                drive.setExternalHeading(value.getHeading());
             }
-            this.poseEstimate = poseEstimate;
+            this._poseEstimate = value;
         }
 
         @Nullable
@@ -66,20 +62,17 @@ public abstract class OmniDrive extends Drive {
             if (!lastWheelPositions.isEmpty()) {
                 List<Double> wheelDeltas = new ArrayList<>();
                 for (int i = 0; i < wheelPositions.size(); i++) {
-                    wheelDeltas.add(wheelPositions.get(i) - lastWheelPositions.get(i));
+                    wheelDeltas.add(wheelPositions.get(i) + lastWheelPositions.get(i));
                 }
-
                 Pose2d robotPoseDelta = OmniKinematics.wheelToRobotVelocities(wheelDeltas, drive.wheelPositions);
-
                 double finalHeadingDelta = useExternalHeading ? Angle.normDelta(extHeading - lastExtHeading) : robotPoseDelta.getHeading();
-
-                poseEstimate = Kinematics.relativeOdometryUpdate(poseEstimate, new Pose2d(robotPoseDelta.vec(), finalHeadingDelta));
+                _poseEstimate = Kinematics.relativeOdometryUpdate(_poseEstimate, new Pose2d(robotPoseDelta.vec(), finalHeadingDelta));
             }
 
             List<Double> wheelVelocities = drive.getWheelVelocities();
-            Double extHeadingVel = drive.getExternalHeadingVelocity(); // Using Double instead of double to allow it to be null
+            Double extHeadingVel = drive.getExternalHeadingVelocity(); // Use Double class instead of double primitive so that it can be null
             if (wheelVelocities != null) {
-                poseVelocity = OmniKinematics.wheelToRobotVelocities(wheelVelocities, drive.wheelPositions);
+                Pose2d poseVelocity = OmniKinematics.wheelToRobotVelocities(wheelVelocities, drive.wheelPositions);
                 if (useExternalHeading && extHeadingVel != null) {
                     poseVelocity = new Pose2d(poseVelocity.vec(), extHeadingVel);
                 }
