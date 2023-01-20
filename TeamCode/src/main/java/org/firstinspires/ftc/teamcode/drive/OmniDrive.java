@@ -44,7 +44,7 @@ public abstract class OmniDrive extends Drive {
         setMotorPowers(powers.get(0), powers.get(1), powers.get(2));
     }
 
-    // TODO: Look at this function
+    // TODO: Look at this function's implementation in MecanumDrive
     @Override
     public void setDrivePower(@NonNull Pose2d drivePower) {
         List<Double> powers = OmniKinematics.robotToWheelVelocities(drivePower, wheelPoses);

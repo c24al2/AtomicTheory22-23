@@ -66,9 +66,13 @@ public class SampleOmniDrive extends OmniDrive {
     private static final TrajectoryVelocityConstraint VEL_CONSTRAINT = getVelocityConstraint(MAX_VEL, MAX_ANG_VEL, WHEEL_POSITIONS);
     private static final TrajectoryAccelerationConstraint ACCEL_CONSTRAINT = getAccelerationConstraint(MAX_ACCEL);
 
-    private final DcMotorEx leftMotor;
-    private final DcMotorEx backMotor;
-    private final DcMotorEx rightMotor;
+    // TODO: Make motors private again
+//    private final DcMotorEx leftMotor;
+//    private final DcMotorEx backMotor;
+//    private final DcMotorEx rightMotor;
+    public final DcMotorEx leftMotor;
+    public final DcMotorEx backMotor;
+    public final DcMotorEx rightMotor;
     private final List<DcMotorEx> motors;
 
     private final BNO055IMU imu;
