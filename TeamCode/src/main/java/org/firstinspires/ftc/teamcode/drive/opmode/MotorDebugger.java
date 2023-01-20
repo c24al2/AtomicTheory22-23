@@ -80,12 +80,12 @@ public class MotorDebugger extends LinearOpMode {
             telemetry.addData("Left Motor Position: ", drive.leftMotor.getCurrentPosition());
             telemetry.addData("Back Motor Position: ", drive.backMotor.getCurrentPosition());
             telemetry.addData("Right Motor Position: ", drive.rightMotor.getCurrentPosition());
-            telemetry.addData("Motor Positions: ", drive.getWheelPositions());
+            telemetry.addData("Motor Positions (Left, Back Right): ", drive.getWheelPositions());
             telemetry.addLine();
             telemetry.addData("Left Motor Velocity: ", drive.leftMotor.getVelocity());
             telemetry.addData("Back Motor Velocity: ", drive.backMotor.getVelocity());
             telemetry.addData("Right Motor Velocity: ", drive.rightMotor.getVelocity());
-            telemetry.addData("Motor Velocities: ", drive.getWheelVelocities());
+            telemetry.addData("Motor Velocities (Left, Back Right): ", drive.getWheelVelocities());
 
             telemetry.update();
         }
