@@ -28,7 +28,6 @@ public class OmniKinematics {
             double[] rowData = {wheelPosition.getX() * sin - wheelPosition.getY() * cos, cos, sin};
             hMatrix.setRow(i, rowData);
         }
-        hMatrix = hMatrix.scalarMultiply((1 / WHEEL_RADIUS));
         return hMatrix;
     }
 

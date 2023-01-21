@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OmniLocalizer implements Localizer {
-    private OmniDrive drive;
+    private final OmniDrive drive;
     private final List<Pose2d> wheelPoses;
-    private boolean useExternalHeading;
+    private final boolean useExternalHeading;
 
     private Pose2d _poseEstimate;
     private Pose2d poseVelocity;
