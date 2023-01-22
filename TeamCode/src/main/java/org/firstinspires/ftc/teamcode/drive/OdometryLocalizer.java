@@ -14,26 +14,26 @@ import java.util.List;
 
 @Config
 public class OdometryLocalizer extends ThreeTrackingWheelLocalizer {
-    private final static List<Pose2d> WHEEL_POSITIONS = Arrays.asList(
-            new Pose2d(0, 2, 0), // left
-            new Pose2d(0, -2, 0), // right
-            new Pose2d(2, 0, Math.toRadians(90)) // front
+    private final static List<Pose2d> WHEEL_POSES = Arrays.asList(
+            new Pose2d(0, 2, Math.toRadians(0)), // front
+            new Pose2d(0, -2, Math.toRadians(30)), // left
+            new Pose2d(2, 0, Math.toRadians(330)) // right
     );
 
     public static double TICKS_PER_REV = 0;
     public static double WHEEL_RADIUS = 2; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    private Encoder leftEncoder;
-    private Encoder rightEncoder;
-    private Encoder backEncoder;
+    private final Encoder frontEncoder;
+    private final Encoder leftEncoder;
+    private final Encoder rightEncoder;
 
     public OdometryLocalizer(HardwareMap hardwareMap) {
-        super(WHEEL_POSITIONS);
+        super(WHEEL_POSES);
 
-        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "le"));
-        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "re"));
-        backEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "be"));
+        frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "bm"));
+        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "rm"));
+        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "lm"));
 
         // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
     }
@@ -46,9 +46,9 @@ public class OdometryLocalizer extends ThreeTrackingWheelLocalizer {
     @Override
     public List<Double> getWheelPositions() {
         return Arrays.asList(
+                encoderTicksToInches(frontEncoder.getCurrentPosition()),
                 encoderTicksToInches(leftEncoder.getCurrentPosition()),
-                encoderTicksToInches(rightEncoder.getCurrentPosition()),
-                encoderTicksToInches(backEncoder.getCurrentPosition())
+                encoderTicksToInches(rightEncoder.getCurrentPosition())
         );
     }
 
@@ -60,9 +60,9 @@ public class OdometryLocalizer extends ThreeTrackingWheelLocalizer {
         //  compensation method
 
         return Arrays.asList(
+                encoderTicksToInches(frontEncoder.getRawVelocity()),
                 encoderTicksToInches(leftEncoder.getRawVelocity()),
-                encoderTicksToInches(rightEncoder.getRawVelocity()),
-                encoderTicksToInches(backEncoder.getRawVelocity())
+                encoderTicksToInches(rightEncoder.getRawVelocity())
         );
     }
 }
