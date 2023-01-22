@@ -11,27 +11,26 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.ArrayList;
 
 public class ParkingPositionPipeline extends OpenCvPipeline {
-    enum ParkingPosition {
-        UNKNOWN,
+    public enum ParkingPosition {
+        NO_TAGS_SEEN,
         ZONE1,
         ZONE2,
         ZONE3,
     }
 
-    public static final double TAG_SIZE = 0.038;  // Units are meters
-    public static final String TAG_FAMILY = "tag25h9";  // Chose 25h9 tags because they have the largest data bits but still have a relatively high hemming distance
-    public static final float DECIMATION = 1.0f;  // Increasing decimation speeds up tag finding, but might reduce accuracy/reliability
-    public static final int THREADS = 2;  // Number of threads to use to scan for the AprilTag
-    public static final double FX = 1.39747644e+03;  // The camera's horizontal focal length in pixels (don't change unless using new camera)
-    public static final double FY = 1.39191699e+03 ;  // The camera's vertical focal length in pixels (don't change unless using new camera)
-    public static final double CX = 9.64795834e+02;  // The camera's horizontal focal center in pixels (don't change unless using new camera)
-    public static final double CY = 5.09429377e+02;  // The camera's vertical focal center in pixels (don't change unless using new camera)
+    // parkingPosition stores that LAST SEEN AprilTag representing a parking position
+    public ParkingPosition parkingPosition = ParkingPosition.NO_TAGS_SEEN;
 
-    // parkingPlace is only UNKNOWN until it sees an AprilTag. At that point, parkingPlace
-    // stores that last seen AprilTag representing a parking position
-    public ParkingPosition parkingPosition;
+    private static final double TAG_SIZE = 0.038;  // Units are meters
+    private static final String TAG_FAMILY = "tag25h9";  // Chose 25h9 tags because they have the largest data bits but still have a relatively high hemming distance
+    private static final float DECIMATION = 1.0f;  // Increasing decimation speeds up tag finding, but might reduce accuracy/reliability
+    private static final int THREADS = 3;  // Number of threads to use to scan for the AprilTag
+    private static final double FX = 1.39747644e+03;  // The camera's horizontal focal length in pixels (don't change unless using new camera)
+    private static final double FY = 1.39191699e+03 ;  // The camera's vertical focal length in pixels (don't change unless using new camera)
+    private static final double CX = 9.64795834e+02;  // The camera's horizontal focal center in pixels (don't change unless using new camera)
+    private static final double CY = 5.09429377e+02;  // The camera's vertical focal center in pixels (don't change unless using new camera)
 
-    // Set in the constructor. Very technical with how it works, so please ignore if possible :)
+    // Set in the constructor. Very technical (in short, stores pointer to underlying C object), so ignore if possible :) Shouldn't have to be touched
     private long nativeApriltagPtr;
 
     // Constuctor - called when the pipeline is created
