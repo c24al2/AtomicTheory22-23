@@ -44,9 +44,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+// TODO: What fields should be static and which should be final
 @Config
 public class SampleOmniDrive extends OmniDrive {
-    private static final List<Pose2d> WHEEL_POSITIONS = Arrays.asList(
+    private static final List<Pose2d> WHEEL_POSES = Arrays.asList(
             new Pose2d(7.5*Math.sin(Math.toRadians(30)), 7.5*Math.cos(Math.toRadians(30)), Math.toRadians(150)),  // Front left
             new Pose2d(-7.5, 0, Math.toRadians(270)), // Back wheel
             new Pose2d(7.5*Math.sin(Math.toRadians(30)), -7.5*Math.cos(Math.toRadians(30)), Math.toRadians(30)) // Front right
@@ -63,7 +64,7 @@ public class SampleOmniDrive extends OmniDrive {
 
     private final TrajectorySequenceRunner trajectorySequenceRunner;
 
-    private static final TrajectoryVelocityConstraint VEL_CONSTRAINT = getVelocityConstraint(MAX_VEL, MAX_ANG_VEL, WHEEL_POSITIONS);
+    private static final TrajectoryVelocityConstraint VEL_CONSTRAINT = getVelocityConstraint(MAX_VEL, MAX_ANG_VEL, WHEEL_POSES);
     private static final TrajectoryAccelerationConstraint ACCEL_CONSTRAINT = getAccelerationConstraint(MAX_ACCEL);
 
     // TODO: Make motors private again
@@ -79,7 +80,7 @@ public class SampleOmniDrive extends OmniDrive {
     private final VoltageSensor batteryVoltageSensor;
 
     public SampleOmniDrive(HardwareMap hardwareMap) {
-        super(kV, kA, kStatic, WHEEL_POSITIONS, USE_EXTERNAL_HEADING);
+        super(kV, kA, kStatic, WHEEL_POSES, USE_EXTERNAL_HEADING);
 
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
 
@@ -248,8 +249,7 @@ public class SampleOmniDrive extends OmniDrive {
     public void setWeightedDrivePower(Pose2d drivePower) {
         Pose2d vel = drivePower;
 
-        if (Math.abs(drivePower.getX()) + Math.abs(drivePower.getY())
-                + Math.abs(drivePower.getHeading()) > 1) {
+        if (Math.abs(drivePower.getX()) + Math.abs(drivePower.getY()) + Math.abs(drivePower.getHeading()) > 1) {
             // re-normalize the powers according to the weights
             double denom = VX_WEIGHT * Math.abs(drivePower.getX())
                     + VY_WEIGHT * Math.abs(drivePower.getY())
