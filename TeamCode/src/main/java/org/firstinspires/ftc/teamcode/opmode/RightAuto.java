@@ -47,20 +47,20 @@ public class RightAuto extends LinearOpMode {
         // Takes 3.82s
         TrajectorySequence placePreloadedCone = drive.trajectorySequenceBuilder(START_POSE)
 //                .addTemporalMarker(() -> lift.raiseTo(GROUND_JUNCTION))
-                .addDisplacementMarker(() -> liftandServo.intakeFullStep(DriveConstants.GROUNDJUNCTION))
+                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.GROUNDJUNCTION))
                 .lineToSplineHeading(new Pose2d(-60, -20, Math.toRadians(90)))
                 .splineTo(new Vector2d(-35, -12), 0)
                 .splineTo(PLACE_PRELOADED_CONE_POSE.vec(), PLACE_PRELOADED_CONE_POSE.getHeading())
 //                .addTemporalMarker(() -> lift.raiseTo(HIGH_JUNCTION))
-                .addDisplacementMarker(() -> liftandServo.intakeFullStep(DriveConstants.HIGHJUNCTION))
+                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.HIGHJUNCTION))
 //              .addTemporalMarker(() -> lift.release())
-                .addDisplacementMarker(() -> liftandServo.clawOpen())
+                .addTemporalMarker(() -> liftandServo.clawOpen())
                 .build();
 
         // Takes 3.13s
         TrajectorySequence driveFromPlacedPreloadedConePoseToStack = drive.trajectorySequenceBuilder(PLACE_PRELOADED_CONE_POSE)
      //         .addTemporalMarker(() -> lift.raiseTo(PICKUP_CONE_1))
-                .addDisplacementMarker(() -> liftandServo.intakeFullStep(DriveConstants.PICKUP_CONE_1))
+                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.PICKUP_CONE_1))
                 .setReversed(true)
                 .splineTo(new Vector2d(-12, -15), Math.toRadians(90))
                 .setReversed(false)
@@ -71,22 +71,22 @@ public class RightAuto extends LinearOpMode {
         // Takes 2.87s
         TrajectorySequence pickUpConeAndPlace = drive.trajectorySequenceBuilder(PICKUP_CONE_FROM_STACK_POSE)
 //                .addTemporalMarker(() -> lift.closeClaw())
-                .addDisplacementMarker(() -> liftandServo.clawClose())
-                .addDisplacementMarker(() -> liftandServo.intakeFullStep(DriveConstants.MEDIUMJUNCTION))
+                .addTemporalMarker(() -> liftandServo.clawClose())
+                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.MEDIUMJUNCTION))
                 .waitSeconds(0.1)
                 .setReversed(true)
                 .splineToSplineHeading(PLACE_STACK_CONE_POSE, PLACE_STACK_CONE_POSE.getHeading())
 //                .addTemporalMarker(() -> lift.raise(HIGH_JUNCTION))
-                .addDisplacementMarker(() -> liftandServo.intakeFullStep(DriveConstants.HIGHJUNCTION))
+                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.HIGHJUNCTION))
 //                .addTemporalMarker(() -> lift.openClaw())
-                .addDisplacementMarker(() -> liftandServo.clawOpen())
+                .addTemporalMarker(() -> liftandServo.clawOpen())
                 .waitSeconds(0.2)
                 .build();
 
         // Takes 2.57s
         TrajectorySequence driveFromPlacedConePoseToStack = drive.trajectorySequenceBuilder(PLACE_STACK_CONE_POSE)
 //                .addTemporalMarker(0.2, () -> lift.raiseTo(PICKUP_CONE))
-                .addDisplacementMarker(() -> liftandServo.intakeFullStep(DriveConstants.PICKUP_CONE_2))
+                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.PICKUP_CONE_2))
                 .setReversed(true)
                 .splineToSplineHeading(PICKUP_CONE_FROM_STACK_POSE, PICKUP_CONE_FROM_STACK_POSE.getHeading())
                 .build();
