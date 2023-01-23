@@ -1,0 +1,61 @@
+Index: TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drive/DriveConstants.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.firstinspires.ftc.teamcode.drive;\n\nimport com.acmerobotics.dashboard.config.Config;\nimport com.qualcomm.robotcore.hardware.PIDFCoefficients;\n\n/*\n * Constants shared between multiple drive types.\n *\n * TODO: Tune or adjust the following constants to fit your robot. Note that the non-final\n * fields may also be edited through the dashboard (connect to the robot's WiFi network and\n * navigate to https://192.168.49.1:8080/dash). Make sure to save the values here after you\n * adjust them in the dashboard; **config variable changes don't persist between app restarts**.\n *\n * These are not the only parameters; some are located in the localizer classes, drive base classes,\n * and op modes themselves.\n */\n@Config\npublic class DriveConstants {\n\n    /*\n     * These are motor constants that should be listed online for your motors.\n     */\n    public static final double TICKS_PER_REV = 537.7;\n    public static final double MAX_RPM = 312;\n\n    /*\n     * Set RUN_USING_ENCODER to true to enable built-in hub velocity control using drive encoders.\n     * Set this flag to false if drive encoders are not present and an alternative localization\n     * method is in use (e.g., tracking wheels).\n     *\n     * If using the built-in motor velocity PID, update MOTOR_VELO_PID with the tuned coefficients\n     * from DriveVelocityPIDTuner.\n     */\n    public static final boolean RUN_USING_ENCODER = false;\n    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0, getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));\n\n    /*\n     * These are physical constants that can be determined from your robot (including the track\n     * width; it will be tune empirically later although a rough estimate is important). Users are\n     * free to chose whichever linear distance unit they would like so long as it is consistently\n     * used. The default values were selected with inches in mind. Road runner uses radians for\n     * angular distances although most angular parameters are wrapped in Math.toRadians() for\n     * convenience. Make sure to exclude any gear ratio included in MOTOR_CONFIG from GEAR_RATIO.\n     */\n    public static double WHEEL_RADIUS = 1.8897637795; // in\n    public static double GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed\n\n    /*\n     * These are the feedforward parameters used to model the drive motor behavior. If you are using\n     * the built-in velocity PID, *these values are fine as is*. However, if you do not have drive\n     * motor encoders or have elected not to use them for velocity control, these values should be\n     * empirically tuned.\n     */\n    public static double kV = 1.0 / rpmToVelocity(MAX_RPM);\n    public static double kA = 0;\n    public static double kStatic = 0;\n\n    /*\n     * These values are used to generate the trajectories for you robot. To ensure proper operation,\n     * the constraints should never exceed ~80% of the robot's actual capabilities. While Road\n     * Runner is designed to enable faster autonomous motion, it is a good idea for testing to start\n     * small and gradually increase them later after everything is working. All distance units are\n     * inches.\n     */\n    public static double MAX_VEL = 30;\n    public static double MAX_ACCEL = 30;\n    public static double MAX_ANG_VEL = Math.toRadians(60);\n    public static double MAX_ANG_ACCEL = Math.toRadians(60);\n\n\n    public static double encoderTicksToInches(double ticks) {\n        return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;\n    }\n\n    public static double rpmToVelocity(double rpm) {\n        return rpm * GEAR_RATIO * 2 * Math.PI * WHEEL_RADIUS / 60.0;\n    }\n\n    public static double getMotorVelocityF(double ticksPerSecond) {\n        // see https://docs.google.com/document/d/1tyWrXDfMidwYyP_5H4mZyVgaEswhOC35gvdmP-V-5hA/edit#heading=h.61g9ixenznbx\n        return 32767 / ticksPerSecond;\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drive/DriveConstants.java b/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drive/DriveConstants.java
+--- a/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drive/DriveConstants.java	(revision 8d3338f2e0c021849358d965d6feff44084196b1)
++++ b/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drive/DriveConstants.java	(date 1674168344548)
+@@ -43,7 +43,7 @@
+      * convenience. Make sure to exclude any gear ratio included in MOTOR_CONFIG from GEAR_RATIO.
+      */
+     public static double WHEEL_RADIUS = 1.8897637795; // in
+-    public static double GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed
++    public static double GEAR_RATIO = 19.2; // output (wheel) speed / input (motor) speed
+ 
+     /*
+      * These are the feedforward parameters used to model the drive motor behavior. If you are using
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ExternalStorageConfigurationManager\" enabled=\"true\" />\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_11\" default=\"true\" project-jdk-name=\"Android Studio default JDK\" project-jdk-type=\"JavaSDK\">\n    <output url=\"file://$PROJECT_DIR$/build/classes\" />\n  </component>\n  <component name=\"ProjectType\">\n    <option name=\"id\" value=\"Android\" />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision 8d3338f2e0c021849358d965d6feff44084196b1)
++++ b/.idea/misc.xml	(date 1674167322192)
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="ExternalStorageConfigurationManager" enabled="true" />
+-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="11" project-jdk-type="JavaSDK">
+     <output url="file://$PROJECT_DIR$/build/classes" />
+   </component>
+   <component name="ProjectType">
+Index: TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drive/OdometryLocalizer.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.firstinspires.ftc.teamcode.drive;\n\nimport androidx.annotation.NonNull;\n\nimport com.acmerobotics.dashboard.config.Config;\nimport com.acmerobotics.roadrunner.geometry.Pose2d;\nimport com.acmerobotics.roadrunner.localization.ThreeTrackingWheelLocalizer;\nimport com.qualcomm.robotcore.hardware.DcMotorEx;\nimport com.qualcomm.robotcore.hardware.HardwareMap;\nimport org.firstinspires.ftc.teamcode.util.Encoder;\n\nimport java.util.Arrays;\nimport java.util.List;\n\n@Config\npublic class OdometryLocalizer extends ThreeTrackingWheelLocalizer {\n    private final static List<Pose2d> WHEEL_POSITIONS = Arrays.asList(\n            new Pose2d(0, 2, 0), // left\n            new Pose2d(0, -2, 0), // right\n            new Pose2d(2, 0, Math.toRadians(90)) // front\n    );\n\n    public static double TICKS_PER_REV = 0;\n    public static double WHEEL_RADIUS = 2; // in\n    public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed\n\n    private Encoder leftEncoder;\n    private Encoder rightEncoder;\n    private Encoder backEncoder;\n\n    public OdometryLocalizer(HardwareMap hardwareMap) {\n        super(WHEEL_POSITIONS);\n\n        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, \"le\"));\n        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, \"re\"));\n        backEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, \"be\"));\n\n        // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)\n    }\n\n    public static double encoderTicksToInches(double ticks) {\n        return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;\n    }\n\n    @NonNull\n    @Override\n    public List<Double> getWheelPositions() {\n        return Arrays.asList(\n                encoderTicksToInches(leftEncoder.getCurrentPosition()),\n                encoderTicksToInches(rightEncoder.getCurrentPosition()),\n                encoderTicksToInches(backEncoder.getCurrentPosition())\n        );\n    }\n\n    @NonNull\n    @Override\n    public List<Double> getWheelVelocities() {\n        // TODO: If your encoder velocity can exceed 32767 counts / second (such as the REV Through Bore and other\n        //  competing magnetic encoders), change Encoder.getRawVelocity() to Encoder.getCorrectedVelocity() to enable a\n        //  compensation method\n\n        return Arrays.asList(\n                encoderTicksToInches(leftEncoder.getRawVelocity()),\n                encoderTicksToInches(rightEncoder.getRawVelocity()),\n                encoderTicksToInches(backEncoder.getRawVelocity())\n        );\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drive/OdometryLocalizer.java b/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drive/OdometryLocalizer.java
+--- a/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drive/OdometryLocalizer.java	(revision 8d3338f2e0c021849358d965d6feff44084196b1)
++++ b/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drive/OdometryLocalizer.java	(date 1674167508841)
+@@ -20,9 +20,9 @@
+             new Pose2d(2, 0, Math.toRadians(90)) // front
+     );
+ 
+-    public static double TICKS_PER_REV = 0;
+-    public static double WHEEL_RADIUS = 2; // in
+-    public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
++    public static double TICKS_PER_REV = 537.7;
++    public static double WHEEL_RADIUS = 1.88; // in
++    public static double GEAR_RATIO = 1/19.2; // output (wheel) speed / input (encoder) speed
+ 
+     private Encoder leftEncoder;
+     private Encoder rightEncoder;

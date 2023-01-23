@@ -21,7 +21,7 @@ public class ParkingPositionPipeline extends OpenCvPipeline {
     // parkingPosition stores that LAST SEEN AprilTag representing a parking position
     public ParkingPosition parkingPosition = ParkingPosition.NO_TAGS_SEEN;
 
-    private static final double TAG_SIZE = 0.038;  // Units are meters
+    private static final double TAG_SIZE = 0.035;  // Units are meters
     private static final String TAG_FAMILY = "tag25h9";  // Chose 25h9 tags because they have the largest data bits but still have a relatively high hemming distance
     private static final float DECIMATION = 1.0f;  // Increasing decimation speeds up tag finding, but might reduce accuracy/reliability
     private static final int THREADS = 3;  // Number of threads to use to scan for the AprilTag

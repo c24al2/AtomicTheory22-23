@@ -6,7 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.drive.Lift;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.drive.IntakeandLiftPID;
 import org.firstinspires.ftc.teamcode.drive.PoseStorage;
 import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
 
@@ -15,7 +16,7 @@ public class Drive extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         SampleOmniDrive drive = new SampleOmniDrive(hardwareMap);
-        Lift liftandServo = new Lift(hardwareMap);
+        IntakeandLiftPID liftandServo = new IntakeandLiftPID(hardwareMap);
 
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -45,15 +46,29 @@ public class Drive extends LinearOpMode {
             );
 
             drive.update();
+
+            liftandServo.run(gamepad2);
+
+            if (gamepad2.x){
+                liftandServo.clawClose();
+            }
+            if (gamepad2.y){
+                liftandServo.clawOpen();
+            }
+            if (gamepad2.dpad_up){
+                liftandServo.intakeFullStep(liftandServo.distanceToEncoders(DriveConstants.HIGHJUNCTION));
+            }
+            if (gamepad2.dpad_down){
+                liftandServo.intakeFullStep(liftandServo.distanceToEncoders(DriveConstants.GROUNDJUNCTION));
+            }
+            if (gamepad2.dpad_left){
+                liftandServo.intakeFullStep(liftandServo.distanceToEncoders(DriveConstants.MEDIUMJUNCTION));
+            }
+            if (gamepad2.dpad_right){
+                liftandServo.intakeFullStep(liftandServo.distanceToEncoders(DriveConstants.LOWJUNCTION));
+            }
         }
 
-        if (gamepad2.x){
-            liftandServo.clawClose();
-        }
-        if (gamepad2.y){
-            liftandServo.clawOpen();
-        }
 
-        liftandServo.run(gamepad2);
     }
 }

@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 @Config
-public class Lift {
+public class IntakeandLiftPID {
     public ElapsedTime timer;
     public static PIDFCoefficients coeffs = new PIDFCoefficients(.009, 0, 0.0002, 0);
     public double currentVelocity = 0;
@@ -32,7 +32,7 @@ public class Lift {
 
     MotionProfile profile;
 
-    public Lift(HardwareMap hardwareMap) {
+    public IntakeandLiftPID(HardwareMap hardwareMap) {
         timer = new ElapsedTime();
         intake = hardwareMap.get(DcMotorEx.class, "intake");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
@@ -44,10 +44,10 @@ public class Lift {
     }
 
     public void clawOpen(){
-        clawServo.setPosition(0);
+        clawServo.setPosition(-1.0);
     }
     public void clawClose(){
-        clawServo.setPosition(0.5);
+        clawServo.setPosition(1.0);
     }
 
     public MotionProfile generateProfile(int targetTicks){
@@ -69,6 +69,13 @@ public class Lift {
         intake.setTargetPosition(targetTicks);
         intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         intake.setPower(0.7);
+    }
+
+    public int distanceToEncoders(double distance){
+        double encoderRatio = DriveConstants.LIFT_ENCODER_RES/2 * Math.PI * DriveConstants.SPOOL_RADIUS;
+        double encoderConverted = distance*encoderRatio;
+        int intEncoder = (int) encoderConverted;
+        return intEncoder;
     }
 
     MotionProfile generateMotionProfile(double ticks) {
@@ -107,23 +114,8 @@ public class Lift {
     }
 
     public void run(Gamepad gamepad) {
-        if (gamepad.a) {
             // Ability for manual control, which resets the motor's encoder value when done
-            if (onEncoders) {
-                onEncoders = false;
                 intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            }
             intake.setPower(-gamepad.left_stick_y * 0.7);
-        } else {
-            if (!onEncoders) {
-                // Resetting the encoder value
-                intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                targetPosition = 0;
-                onEncoders = true;
-            }
-            targetPosition -= gamepad.left_stick_y * 80;
-            targetPosition = Range.clip(targetPosition, 0, 4000);
-            intakeLiftEasy((int) targetPosition);
         }
     }
-}
