@@ -126,7 +126,7 @@ public class IntakeandLiftPID{
     }
 
     public void run(Gamepad gamepad) {
-        if (gamepad.x) {
+        if (gamepad.a) {
             // Ability for manual control, which resets the motor's encoder value when done
             if (onEncoders) {
                 onEncoders = false;

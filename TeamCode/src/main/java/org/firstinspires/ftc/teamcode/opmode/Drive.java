@@ -6,14 +6,17 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.drive.IntakeandLiftPID;
 import org.firstinspires.ftc.teamcode.drive.PoseStorage;
 import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
+import org.firstinspires.ftc.teamcode.drive.IntakeandLiftPID;
 
 @TeleOp
 public class Drive extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         SampleOmniDrive drive = new SampleOmniDrive(hardwareMap);
+        IntakeandLiftPID liftandServo = new IntakeandLiftPID(hardwareMap);
 
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -44,5 +47,14 @@ public class Drive extends LinearOpMode {
 
             drive.update();
         }
+
+        if (gamepad2.x){
+            liftandServo.clawClose();
+        }
+        if (gamepad2.y){
+            liftandServo.clawOpen();
+        }
+
+        liftandServo.run(gamepad2);
     }
 }
