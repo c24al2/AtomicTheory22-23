@@ -18,48 +18,32 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 @Config
-public class IntakeandLiftPID{
-    public ElapsedTime timer = new ElapsedTime();
+public class IntakeandLiftPID {
+    public ElapsedTime timer;
     public static PIDFCoefficients coeffs = new PIDFCoefficients(.009, 0, 0.0002, 0);
     public double currentVelocity = 0;
     public double targetVelocity = 0;
     public double velocityError = 0;
-    public double p = coeffs.p;
-    public double i = coeffs.i;
-    public double d = coeffs.d;
-    public double f = coeffs.f;
-    double lastP;
-    double lastI;
-    double lastD;
-    double lastF;
     boolean onEncoders = true;
 
     public DcMotorEx intake;
     public Servo clawServo;
     public static double maxVelocity = 133000;
     public static double maxAcceleration = 2000;
-    // Jerk isn't used if it's 0, but it might end up being necessary
-    public static double maxJerk = 0;
+    public static double maxJerk = 0;  // Jerk isn't used if it's 0, but it might end up being necessary
     float targetPosition = 0;
 
     MotionProfile profile;
 
     public IntakeandLiftPID(HardwareMap hardwareMap) {
+        timer = new ElapsedTime();
         intake = hardwareMap.get(DcMotorEx.class, "intake");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
-        intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
         coeffs = intake.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
-        p = coeffs.p;
-        i = coeffs.i;
-        d = coeffs.d;
-        f = coeffs.f;
-        lastP = p;
-        lastI = i;
-        lastD = d;
-        lastF = f;
     }
 
     public void clawOpen(){
