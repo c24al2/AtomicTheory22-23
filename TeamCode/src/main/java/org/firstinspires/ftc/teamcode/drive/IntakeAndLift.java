@@ -52,6 +52,7 @@ import com.qualcomm.robotcore.util.Range;
 
 public class IntakeAndLift {
     public DcMotorEx intake;
+    public Servo clawServo;
     float targetPosition = 0;
     boolean onEncoders = true;
 
@@ -90,6 +91,13 @@ public class IntakeAndLift {
         intake.setTargetPosition(position);
         intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         intake.setPower(power);
+    }
+
+    public void clawOpen(){
+        clawServo.setPosition(0);
+    }
+    public void clawClose(){
+        clawServo.setPosition(0.5);
     }
 
     PIDCoefficients coeffs = new PIDCoefficients(0, 0, 0);
