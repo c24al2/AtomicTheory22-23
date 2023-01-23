@@ -82,7 +82,7 @@ public class IntakeandLiftPID{
 
     public void intakeLiftEasy(int targetTicks) {
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        intake.setTargetPosition(intake.getCurrentPosition() + targetTicks);
+        intake.setTargetPosition(targetTicks);
         intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         intake.setPower(0.7);
     }
