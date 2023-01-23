@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 @Config
 public class IntakeandLiftPID{
@@ -31,6 +32,7 @@ public class IntakeandLiftPID{
     double lastI;
     double lastD;
     double lastF;
+    boolean onEncoders = true;
 
     public DcMotorEx intake;
     public Servo clawServo;
@@ -38,7 +40,7 @@ public class IntakeandLiftPID{
     public static double maxAcceleration = 2000;
     // Jerk isn't used if it's 0, but it might end up being necessary
     public static double maxJerk = 0;
-    boolean hasSpun = false;
+    float targetPosition = 0;
 
     MotionProfile profile;
 
@@ -48,6 +50,7 @@ public class IntakeandLiftPID{
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intake.setDirection(DcMotorSimple.Direction.FORWARD);
         coeffs = intake.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
         p = coeffs.p;
         i = coeffs.i;
@@ -119,6 +122,27 @@ public class IntakeandLiftPID{
             timer.reset();
             this.profile = generateMotionProfile(intake.getCurrentPosition());
             return true;
+        }
+    }
+
+    public void run(Gamepad gamepad) {
+        if (gamepad.x) {
+            // Ability for manual control, which resets the motor's encoder value when done
+            if (onEncoders) {
+                onEncoders = false;
+                intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
+            intake.setPower(-gamepad.left_stick_y * 0.7);
+        } else {
+            if (!onEncoders) {
+                // Resetting the encoder value
+                intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                targetPosition = 0;
+                onEncoders = true;
+            }
+            targetPosition -= gamepad.left_stick_y * 80;
+            targetPosition = Range.clip(targetPosition, 0, 4000);
+            intakeLiftEasy((int) targetPosition);
         }
     }
 }
