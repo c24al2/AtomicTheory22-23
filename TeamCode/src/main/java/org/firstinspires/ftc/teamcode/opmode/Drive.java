@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.drive.PoseStorage;
 import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
 
 @TeleOp
@@ -15,6 +16,8 @@ public class Drive extends LinearOpMode {
         SampleOmniDrive drive = new SampleOmniDrive(hardwareMap);
 
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        drive.setPoseEstimate(PoseStorage.currentPose);
 
         waitForStart();
 
