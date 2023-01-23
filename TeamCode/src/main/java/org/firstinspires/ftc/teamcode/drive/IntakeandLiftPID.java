@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -19,8 +20,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class IntakeandLiftPID{
     public ElapsedTime timer = new ElapsedTime();
     public static PIDFCoefficients coeffs = new PIDFCoefficients(.009, 0, 0.0002, 0);
-    static PIDFCoefficients lastCoeffs = coeffs;
-
     public double currentVelocity = 0;
     public double targetVelocity = 0;
     public double velocityError = 0;
@@ -34,6 +33,7 @@ public class IntakeandLiftPID{
     double lastF;
 
     public DcMotorEx intake;
+    public Servo clawServo;
     public static double maxVelocity = 133000;
     public static double maxAcceleration = 2000;
     // Jerk isn't used if it's 0, but it might end up being necessary
@@ -44,6 +44,7 @@ public class IntakeandLiftPID{
 
     public void init(HardwareMap hardwareMap) {
         intake = hardwareMap.get(DcMotorEx.class, "intake");
+        clawServo = hardwareMap.get(Servo.class, "clawServo");
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -58,6 +59,12 @@ public class IntakeandLiftPID{
         lastF = f;
     }
 
+    public void clawOpen(){
+        clawServo.setPosition(0);
+    }
+    public void clawClose(){
+        clawServo.setPosition(0.5);
+    }
 
     public MotionProfile generateProfile(int targetTicks){
         MotionProfile newProfile = generateMotionProfile(targetTicks);
