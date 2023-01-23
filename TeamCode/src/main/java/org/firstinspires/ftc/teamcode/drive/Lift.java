@@ -1,9 +1,6 @@
 package org.firstinspires.ftc.teamcode.drive;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.control.PIDCoefficients;
-import com.acmerobotics.roadrunner.control.PIDFController;
 import com.acmerobotics.roadrunner.profile.MotionProfile;
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
@@ -18,7 +15,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 @Config
-public class IntakeandLiftPID {
+public class Lift {
     public ElapsedTime timer;
     public static PIDFCoefficients coeffs = new PIDFCoefficients(.009, 0, 0.0002, 0);
     public double currentVelocity = 0;
@@ -35,7 +32,7 @@ public class IntakeandLiftPID {
 
     MotionProfile profile;
 
-    public IntakeandLiftPID(HardwareMap hardwareMap) {
+    public Lift(HardwareMap hardwareMap) {
         timer = new ElapsedTime();
         intake = hardwareMap.get(DcMotorEx.class, "intake");
         clawServo = hardwareMap.get(Servo.class, "clawServo");

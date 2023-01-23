@@ -9,13 +9,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.drive.IntakeandLiftPID;
 import org.firstinspires.ftc.teamcode.drive.PoseStorage;
 import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.vision.CameraController;
 import org.firstinspires.ftc.teamcode.vision.ParkingPositionPipeline;
-import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 
 @Config
 @Autonomous
