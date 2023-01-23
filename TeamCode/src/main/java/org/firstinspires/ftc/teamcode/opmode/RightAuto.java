@@ -9,11 +9,13 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.drive.IntakeandLiftPID;
 import org.firstinspires.ftc.teamcode.drive.PoseStorage;
 import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.vision.CameraController;
 import org.firstinspires.ftc.teamcode.vision.ParkingPositionPipeline;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 
 @Config
 @Autonomous
@@ -39,23 +41,29 @@ public class RightAuto extends LinearOpMode {
         cameraController.stopStreaming(); // Reduce resource usage by not processing any more camera
 
         SampleOmniDrive drive = new SampleOmniDrive(hardwareMap);
+        IntakeandLiftPID liftandServo = new IntakeandLiftPID(hardwareMap);
         drive.setPoseEstimate(START_POSE);
 
         // Takes 3.82s
         TrajectorySequence placePreloadedCone = drive.trajectorySequenceBuilder(START_POSE)
-//                .addTemporalMarker(() -> lift.raiseTo(HIGH_JUNCTION))
+//                .addTemporalMarker(() -> lift.raiseTo(GROUND_JUNCTION))
+                .addDisplacementMarker(() -> liftandServo.intakeFullStep(DriveConstants.GROUNDJUNCTION))
                 .lineToSplineHeading(new Pose2d(-60, -20, Math.toRadians(90)))
                 .splineTo(new Vector2d(-35, -12), 0)
                 .splineTo(PLACE_PRELOADED_CONE_POSE.vec(), PLACE_PRELOADED_CONE_POSE.getHeading())
-//                .addTemporalMarker(() -> lift.release())
+//                .addTemporalMarker(() -> lift.raiseTo(HIGH_JUNCTION))
+                .addDisplacementMarker(() -> liftandServo.intakeFullStep(DriveConstants.HIGHJUNCTION))
+//              .addTemporalMarker(() -> lift.release())
+                .addDisplacementMarker(() -> liftandServo.clawOpen())
                 .build();
 
         // Takes 3.13s
         TrajectorySequence driveFromPlacedPreloadedConePoseToStack = drive.trajectorySequenceBuilder(PLACE_PRELOADED_CONE_POSE)
+     //         .addTemporalMarker(() -> lift.raiseTo(PICKUP_CONE_1))
+                .addDisplacementMarker(() -> liftandServo.intakeFullStep(DriveConstants.PICKUP_CONE_1))
                 .setReversed(true)
                 .splineTo(new Vector2d(-12, -15), Math.toRadians(90))
                 .setReversed(false)
-//                .addTemporalMarker(() -> lift.raiseTo(PICKUP_CONE))
                 .splineTo(PICKUP_CONE_FROM_STACK_POSE.vec(), PICKUP_CONE_FROM_STACK_POSE.getHeading())
                 .build();
 
@@ -63,17 +71,22 @@ public class RightAuto extends LinearOpMode {
         // Takes 2.87s
         TrajectorySequence pickUpConeAndPlace = drive.trajectorySequenceBuilder(PICKUP_CONE_FROM_STACK_POSE)
 //                .addTemporalMarker(() -> lift.closeClaw())
-//                .addTemporalMarker(() -> lift.raise(HIGH_JUNCTION))
+                .addDisplacementMarker(() -> liftandServo.clawClose())
+                .addDisplacementMarker(() -> liftandServo.intakeFullStep(DriveConstants.MEDIUMJUNCTION))
                 .waitSeconds(0.1)
                 .setReversed(true)
                 .splineToSplineHeading(PLACE_STACK_CONE_POSE, PLACE_STACK_CONE_POSE.getHeading())
+//                .addTemporalMarker(() -> lift.raise(HIGH_JUNCTION))
+                .addDisplacementMarker(() -> liftandServo.intakeFullStep(DriveConstants.HIGHJUNCTION))
 //                .addTemporalMarker(() -> lift.openClaw())
+                .addDisplacementMarker(() -> liftandServo.clawOpen())
                 .waitSeconds(0.2)
                 .build();
 
         // Takes 2.57s
         TrajectorySequence driveFromPlacedConePoseToStack = drive.trajectorySequenceBuilder(PLACE_STACK_CONE_POSE)
 //                .addTemporalMarker(0.2, () -> lift.raiseTo(PICKUP_CONE))
+                .addDisplacementMarker(() -> liftandServo.intakeFullStep(DriveConstants.PICKUP_CONE_2))
                 .setReversed(true)
                 .splineToSplineHeading(PICKUP_CONE_FROM_STACK_POSE, PICKUP_CONE_FROM_STACK_POSE.getHeading())
                 .build();

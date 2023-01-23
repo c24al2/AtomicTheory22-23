@@ -42,7 +42,7 @@ public class IntakeandLiftPID{
 
     MotionProfile profile;
 
-    public void init(HardwareMap hardwareMap) {
+    public IntakeandLiftPID(HardwareMap hardwareMap) {
         intake = hardwareMap.get(DcMotorEx.class, "intake");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

@@ -82,8 +82,13 @@ public class DriveConstants {
         // see https://docs.google.com/document/d/1tyWrXDfMidwYyP_5H4mZyVgaEswhOC35gvdmP-V-5hA/edit#heading=h.61g9ixenznbx
         return 32767 / ticksPerSecond;
     }
-    public static double HIGHJUNCTION = 5000;
-    public static double MEDIUMJUNCTION = 3000;
-    public static double LOWJUNCTION = 1000;
-    public static double GROUNDJUNCTION = 200;
+    public static int HIGHJUNCTION = 5000;
+    public static int MEDIUMJUNCTION = 3000;
+    public static int LOWJUNCTION = 1000;
+    public static int GROUNDJUNCTION = 200;
+    public static int PICKUP_CONE_1 = 800;
+    public static int PICKUP_CONE_2 = 700;
+    public static int PICKUP_CONE_3 = 600;
+    public static int PICKUP_CONE_4 = 500;
+    public static int PICKUP_CONE_5 = 400;
 }
