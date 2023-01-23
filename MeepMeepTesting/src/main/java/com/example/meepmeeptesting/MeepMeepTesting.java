@@ -19,16 +19,9 @@ public class MeepMeepTesting {
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(42.43, 42.43, Math.toRadians(367.9), Math.toRadians(180), 13)
                 .followTrajectorySequence(drive ->
-                                drive.trajectorySequenceBuilder(PICKUP_CONE_FROM_STACK_POSE)
-//                .addTemporalMarker(() -> liftandServo.clawClose())
-//                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.MEDIUMJUNCTION))
-                                        .waitSeconds(0.1)
-                                        .setReversed(true)
-                                        .splineToSplineHeading(PLACE_STACK_CONE_POSE, PLACE_STACK_CONE_POSE.getHeading())
-//                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.HIGHJUNCTION))
-//                .addTemporalMarker(() -> liftandServo.clawOpen())
-                                        .waitSeconds(0.2)
-                                        .build()
+                        drive.trajectorySequenceBuilder(START_POSE)
+                                .splineTo(new Vector2d(-36, -36), Math.toRadians(0))
+                                .build()
                 );
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_POWERPLAY_OFFICIAL)

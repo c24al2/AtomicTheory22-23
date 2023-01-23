@@ -83,7 +83,7 @@ public class RightAuto extends LinearOpMode {
 
         switch (aprilTagPipeline.parkingPosition) {
             case ZONE1:
-                // TODO: Optimize Zone1 parking
+                // TODO: Optimize Zone1 parking (it's probably going to crash into one or both poles at this point)
                 driveFromPlacedConePoseToParkingPosition = drive.trajectorySequenceBuilder(PLACE_STACK_CONE_POSE)
                         .lineToSplineHeading(new Pose2d(-12, -24, Math.toRadians(90)))
                         .splineTo(new Vector2d(-32, -12), Math.toRadians(180))
@@ -112,8 +112,8 @@ public class RightAuto extends LinearOpMode {
         drive.followTrajectorySequence(pickUpConeAndPlace);
         drive.followTrajectorySequence(driveFromPlacedConePoseToStack);
         drive.followTrajectorySequence(pickUpConeAndPlace);
-        drive.followTrajectorySequence(driveFromPlacedConePoseToStack);
-        drive.followTrajectorySequence(pickUpConeAndPlace);
+//        drive.followTrajectorySequence(driveFromPlacedConePoseToStack);
+//        drive.followTrajectorySequence(pickUpConeAndPlace);
 //        drive.followTrajectorySequence(driveFromPlacedConePoseToStack);
 //        drive.followTrajectorySequence(pickUpConeAndPlace);
 
