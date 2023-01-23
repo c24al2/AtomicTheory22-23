@@ -52,7 +52,7 @@ public class CameraController {
         });
     }
 
-    public void setPipeline(OpenCvPipeline pipeline) {
+    public void setPipeline(ParkingPositionPipeline pipeline) {
         camera.setPipeline(pipeline);
     }
 
