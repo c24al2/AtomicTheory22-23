@@ -105,8 +105,8 @@ public class IntakeAndLift {
     // TODO: Tune PID Coefficients for the goToWithPID fxn
     public void goToWithPID(int position, double velocity){
         while (position - intake.getCurrentPosition() > 10) {
-            PIDFController intakeController = new PIDFController(coeffs, kV, kA, kStatic);
             intake.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+            PIDFController intakeController = new PIDFController(coeffs, kV, kA, kStatic);
             intakeController.setTargetPosition(position);
             intakeController.setTargetVelocity(velocity);
             double measuredPosition = intake.getCurrentPosition();
