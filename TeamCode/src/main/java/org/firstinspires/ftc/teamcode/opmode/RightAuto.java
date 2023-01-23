@@ -21,72 +21,63 @@ import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 @Autonomous
 public class RightAuto extends LinearOpMode {
     // These can be changed using FTC Dashboard!
-    public static Pose2d START_POSE = new Pose2d(-60, -35, Math.toRadians(0));
-    public static Pose2d PLACE_PRELOADED_CONE_POSE = new Pose2d(-7, -20, Math.toRadians(-35.5));
-    public static Pose2d PICKUP_CONE_FROM_STACK_POSE = new Pose2d(-12, -63, Math.toRadians(-90));
-    public static Pose2d PLACE_STACK_CONE_POSE = new Pose2d(-7, -28, Math.toRadians(35.5));
+    public static Pose2d START_POSE = new Pose2d(-62.8, -35, Math.toRadians(0));
+    public static Pose2d PLACE_PRELOADED_CONE_POSE = new Pose2d(-1, -17, Math.toRadians(-46));
+    public static Pose2d PICKUP_CONE_FROM_STACK_POSE = new Pose2d(-8, -64, Math.toRadians(-90));
+    public static Pose2d PLACE_STACK_CONE_POSE = new Pose2d(-1, -31, Math.toRadians(46));
 
     @Override
     public void runOpMode() throws InterruptedException {
         FtcDashboard dashboard = FtcDashboard.getInstance();
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
 
-        CameraController cameraController = new CameraController(hardwareMap);
+//        CameraController cameraController = new CameraController(hardwareMap);
         ParkingPositionPipeline aprilTagPipeline = new ParkingPositionPipeline();
-        cameraController.setPipeline(aprilTagPipeline);
+//        cameraController.setPipeline(aprilTagPipeline);
 
         telemetry.addData("Parking Position", aprilTagPipeline.parkingPosition);
         telemetry.update();
 
-        cameraController.stopStreaming(); // Reduce resource usage by not processing any more camera
+//        cameraController.stopStreaming(); // Reduce resource usage by not processing any more camera
 
         SampleOmniDrive drive = new SampleOmniDrive(hardwareMap);
-        IntakeandLiftPID liftandServo = new IntakeandLiftPID(hardwareMap);
+//        IntakeandLiftPID liftandServo = new IntakeandLiftPID(hardwareMap);
         drive.setPoseEstimate(START_POSE);
 
-        // Takes 3.82s
         TrajectorySequence placePreloadedCone = drive.trajectorySequenceBuilder(START_POSE)
-//                .addTemporalMarker(() -> lift.raiseTo(GROUND_JUNCTION))
-                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.GROUNDJUNCTION))
-                .lineToSplineHeading(new Pose2d(-60, -20, Math.toRadians(90)))
-                .splineTo(new Vector2d(-35, -12), 0)
+//                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.GROUNDJUNCTION))
+                .waitSeconds(0.1)
+                .lineToSplineHeading(new Pose2d(-60, -20, 0))
+                .splineToConstantHeading(new Vector2d(-35, -12), 0)
+                .splineTo(new Vector2d(-22, -12), 0)
                 .splineTo(PLACE_PRELOADED_CONE_POSE.vec(), PLACE_PRELOADED_CONE_POSE.getHeading())
-//                .addTemporalMarker(() -> lift.raiseTo(HIGH_JUNCTION))
-                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.HIGHJUNCTION))
-//              .addTemporalMarker(() -> lift.release())
-                .addTemporalMarker(() -> liftandServo.clawOpen())
+//                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.HIGHJUNCTION))
+//                .addTemporalMarker(() -> liftandServo.clawOpen())
                 .build();
 
-        // Takes 3.13s
         TrajectorySequence driveFromPlacedPreloadedConePoseToStack = drive.trajectorySequenceBuilder(PLACE_PRELOADED_CONE_POSE)
-     //         .addTemporalMarker(() -> lift.raiseTo(PICKUP_CONE_1))
-                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.PICKUP_CONE_1))
+//                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.PICKUP_CONE_1))
                 .setReversed(true)
-                .splineTo(new Vector2d(-12, -15), Math.toRadians(90))
+                .splineTo(new Vector2d(-8, -12), Math.toRadians(90))
                 .setReversed(false)
                 .splineTo(PICKUP_CONE_FROM_STACK_POSE.vec(), PICKUP_CONE_FROM_STACK_POSE.getHeading())
                 .build();
 
         // The claw should ALWAYS be at right height before this trajectory is run
-        // Takes 2.87s
         TrajectorySequence pickUpConeAndPlace = drive.trajectorySequenceBuilder(PICKUP_CONE_FROM_STACK_POSE)
-//                .addTemporalMarker(() -> lift.closeClaw())
-                .addTemporalMarker(() -> liftandServo.clawClose())
-                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.MEDIUMJUNCTION))
+//                .addTemporalMarker(() -> liftandServo.clawClose())
+//                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.MEDIUMJUNCTION))
                 .waitSeconds(0.1)
                 .setReversed(true)
                 .splineToSplineHeading(PLACE_STACK_CONE_POSE, PLACE_STACK_CONE_POSE.getHeading())
-//                .addTemporalMarker(() -> lift.raise(HIGH_JUNCTION))
-                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.HIGHJUNCTION))
-//                .addTemporalMarker(() -> lift.openClaw())
-                .addTemporalMarker(() -> liftandServo.clawOpen())
+//                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.HIGHJUNCTION))
+//                .addTemporalMarker(() -> liftandServo.clawOpen())
                 .waitSeconds(0.2)
                 .build();
 
         // Takes 2.57s
         TrajectorySequence driveFromPlacedConePoseToStack = drive.trajectorySequenceBuilder(PLACE_STACK_CONE_POSE)
-//                .addTemporalMarker(0.2, () -> lift.raiseTo(PICKUP_CONE))
-                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.PICKUP_CONE_2))
+//                .addTemporalMarker(() -> liftandServo.intakeFullStep(DriveConstants.PICKUP_CONE_2))
                 .setReversed(true)
                 .splineToSplineHeading(PICKUP_CONE_FROM_STACK_POSE, PICKUP_CONE_FROM_STACK_POSE.getHeading())
                 .build();
@@ -126,8 +117,8 @@ public class RightAuto extends LinearOpMode {
         drive.followTrajectorySequence(pickUpConeAndPlace);
         drive.followTrajectorySequence(driveFromPlacedConePoseToStack);
         drive.followTrajectorySequence(pickUpConeAndPlace);
-        drive.followTrajectorySequence(driveFromPlacedConePoseToStack);
-        drive.followTrajectorySequence(pickUpConeAndPlace);
+//        drive.followTrajectorySequence(driveFromPlacedConePoseToStack);
+//        drive.followTrajectorySequence(pickUpConeAndPlace);
 
         drive.followTrajectorySequence(driveFromPlacedConePoseToParkingPosition);
 
