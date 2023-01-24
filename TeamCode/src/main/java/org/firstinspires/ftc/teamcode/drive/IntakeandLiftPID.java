@@ -67,7 +67,7 @@ public class IntakeandLiftPID {
 
     public void update(){
         MotionState state = storedProfile.get(timer.time());
-        while (storedProfile.end().getX() < state.getX() && state.getX() < storedProfile.start().getX() || storedProfile.start().getX() < state.getX() && state.getX() < storedProfile.end().getX()){
+        if (storedProfile.end().getX() < state.getX() && state.getX() < storedProfile.start().getX() || storedProfile.start().getX() < state.getX() && state.getX() < storedProfile.end().getX()){
             followMotionProfile(storedProfile);
         }
     }
