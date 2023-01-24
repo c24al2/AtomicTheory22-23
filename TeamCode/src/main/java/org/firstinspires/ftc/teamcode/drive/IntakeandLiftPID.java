@@ -30,7 +30,7 @@ public class IntakeandLiftPID {
     public static double maxJerk = 0;  // Jerk isn't used if it's 0, but it might end up being necessary
     float targetPosition = 0;
 
-    MotionProfile profile;
+    public MotionProfile storedProfile;
 
     public IntakeandLiftPID(HardwareMap hardwareMap) {
         timer = new ElapsedTime();
@@ -58,9 +58,18 @@ public class IntakeandLiftPID {
         return followMotionProfile(profile1);
     }
 
-    public void intakeFullStep(int targetTicks){
+    public MotionProfile intakeFullStep(int targetTicks){
         MotionProfile activeProfile = generateProfile(targetTicks);
         intakeLift(activeProfile);
+        storedProfile = activeProfile;
+        return storedProfile;
+    }
+
+    public void update(){
+        MotionState state = storedProfile.get(timer.time());
+        while (storedProfile.end().getX() < state.getX() && state.getX() < storedProfile.start().getX() || storedProfile.start().getX() < state.getX() && state.getX() < storedProfile.end().getX()){
+            followMotionProfile(storedProfile);
+        }
     }
 
 
@@ -92,11 +101,11 @@ public class IntakeandLiftPID {
                 maxJerk);
     }
 
-    boolean followMotionProfile(MotionProfile profile){
+    boolean followMotionProfile(MotionProfile profile2){
         // specify coefficients/gains
         // create the controller
-        MotionState state = profile.get(timer.time());
-        if (profile.end().getX() < state.getX() && state.getX() < profile.start().getX() || profile.start().getX() < state.getX() && state.getX() < profile.end().getX()) {
+        MotionState state = profile2.get(timer.time());
+        if (profile2.end().getX() < state.getX() && state.getX() < profile2.start().getX() || profile2.start().getX() < state.getX() && state.getX() < profile2.end().getX()) {
             currentVelocity = intake.getVelocity();
             targetVelocity = state.getV();
             velocityError = state.getV() - intake.getVelocity();
@@ -108,7 +117,7 @@ public class IntakeandLiftPID {
         } else {
             intake.setPower(0);
             timer.reset();
-            this.profile = generateMotionProfile(intake.getCurrentPosition());
+            this.storedProfile = generateMotionProfile(intake.getCurrentPosition());
             return true;
         }
     }
