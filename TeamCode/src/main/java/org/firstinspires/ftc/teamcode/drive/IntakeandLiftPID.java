@@ -21,14 +21,12 @@ public class IntakeandLiftPID {
     public double currentVelocity = 0;
     public double targetVelocity = 0;
     public double velocityError = 0;
-    boolean onEncoders = true;
 
     public DcMotorEx intake;
     public Servo clawServo;
     public static double maxVelocity = 133000;
     public static double maxAcceleration = 2000;
     public static double maxJerk = 0;  // Jerk isn't used if it's 0, but it might end up being necessary
-    float targetPosition = 0;
 
     public MotionProfile storedProfile;
 
@@ -124,7 +122,7 @@ public class IntakeandLiftPID {
 
     public void run(Gamepad gamepad) {
             // Ability for manual control, which resets the motor's encoder value when done
-                intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             intake.setPower(-gamepad.left_stick_y * 0.7);
         }
     }
