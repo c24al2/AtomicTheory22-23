@@ -40,7 +40,7 @@ public class IntakeandLiftPID {
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
-        coeffs = intake.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        intake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coeffs);
     }
 
     public void clawOpen(){
