@@ -7,8 +7,6 @@ import com.acmerobotics.roadrunner.profile.MotionState;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -47,7 +45,8 @@ public class IntakeandLiftPID {
 
     public DcMotorEx intake;
     public Servo clawServo;
-    public MotionProfile storedProfile;
+
+    private MotionProfile storedProfile;
 
     public IntakeandLiftPID(HardwareMap hardwareMap) {
         timer = new ElapsedTime();
