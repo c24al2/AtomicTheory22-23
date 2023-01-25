@@ -25,6 +25,8 @@ public class IntakeandLiftPID {
     public static double MAX_ACCEL = 2000;
     public static double MAX_JERK = 0;  // Jerk isn't used if it's 0, but it might end up being necessary
 
+    public static double POWER_WEIGHT = 0.8;
+
     //Junction Positions listed in inches, later converted to encoder ticks
     public static double HIGHJUNCTION = 33.5;
     public static double MEDIUMJUNCTION = 23.5;
@@ -86,6 +88,7 @@ public class IntakeandLiftPID {
 
     public void followMotionProfile() {
         MotionState state = storedProfile.get(timer.time());
+
         currentVelocity = intake.getVelocity();
         targetVelocity = state.getV();
         velocityError = targetVelocity - currentVelocity;
@@ -94,9 +97,8 @@ public class IntakeandLiftPID {
         intake.setVelocity(state.getV());
     }
 
-    public void run(Gamepad gamepad) {
-        // Ability for manual control, which resets the motor's encoder value when done
+    public void setIntakePower(double power) {
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intake.setPower(-gamepad.left_stick_y * 0.7);
+        intake.setPower(power * POWER_WEIGHT);
     }
 }

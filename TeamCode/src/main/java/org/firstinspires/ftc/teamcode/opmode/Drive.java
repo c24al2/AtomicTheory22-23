@@ -46,7 +46,7 @@ public class Drive extends LinearOpMode {
 
             drive.update();
 
-            liftandServo.run(gamepad2);
+            liftandServo.setIntakePower(-gamepad2.left_stick_y);
 
             if (gamepad2.x){
                 liftandServo.clawClose();
@@ -57,22 +57,30 @@ public class Drive extends LinearOpMode {
             // TODO: Add this code back later (it's more complex than these lines)
             // Calling followMotionProfile will only do one step along the motion profile
             // Basically as it's written it won't raise the lift all the way
-//            if (gamepad2.dpad_up){
-//                liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(DriveConstants.HIGHJUNCTION));
-//                liftandServo.followMotionProfile();
-//            }
-//            if (gamepad2.dpad_down){
-//                liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(DriveConstants.GROUNDJUNCTION));
-//                liftandServo.followMotionProfile();
-//            }
-//            if (gamepad2.dpad_left){
-//                liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(DriveConstants.MEDIUMJUNCTION));
-//                liftandServo.followMotionProfile();
-//            }
-//            if (gamepad2.dpad_right){
-//                liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(DriveConstants.LOWJUNCTION));
-//                liftandServo.followMotionProfile();
-//            }
+            if (gamepad2.dpad_up) {
+                liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(IntakeandLiftPID.HIGHJUNCTION));
+                while (true) {
+                    liftandServo.followMotionProfile();
+                }
+            }
+            if (gamepad2.dpad_down) {
+                liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(IntakeandLiftPID.GROUNDJUNCTION));
+                while (true) {
+                    liftandServo.followMotionProfile();
+                }
+            }
+            if (gamepad2.dpad_left) {
+                liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(IntakeandLiftPID.MEDIUMJUNCTION));
+                while (true) {
+                    liftandServo.followMotionProfile();
+                }
+            }
+            if (gamepad2.dpad_right) {
+                liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(IntakeandLiftPID.LOWJUNCTION));
+                while (true) {
+                    liftandServo.followMotionProfile();
+                }
+            }
         }
 
 
