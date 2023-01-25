@@ -20,7 +20,8 @@ public class Drive extends LinearOpMode {
 
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        drive.setPoseEstimate(PoseStorage.currentPose);
+//        drive.setPoseEstimate(PoseStorage.currentPose);
+        drive.setPoseEstimate(new Pose2d(36, -62.8, Math.toRadians(90)));
 
         waitForStart();
 
@@ -33,7 +34,7 @@ public class Drive extends LinearOpMode {
             Vector2d input = new Vector2d(
                     -gamepad1.left_stick_y,
                     -gamepad1.left_stick_x
-            ).rotated(-poseEstimate.getHeading());
+            );//.rotated(-poseEstimate.getHeading());
 
             // Pass in the rotated input + right stick value for rotation
             // Rotation is not part of the rotated input thus must be passed in separately
@@ -55,18 +56,18 @@ public class Drive extends LinearOpMode {
             if (gamepad2.y){
                 liftandServo.clawOpen();
             }
-            if (gamepad2.dpad_up){
-                liftandServo.intakeFullStep(liftandServo.distanceToEncoders(DriveConstants.HIGHJUNCTION));
-            }
-            if (gamepad2.dpad_down){
-                liftandServo.intakeFullStep(liftandServo.distanceToEncoders(DriveConstants.GROUNDJUNCTION));
-            }
-            if (gamepad2.dpad_left){
-                liftandServo.intakeFullStep(liftandServo.distanceToEncoders(DriveConstants.MEDIUMJUNCTION));
-            }
-            if (gamepad2.dpad_right){
-                liftandServo.intakeFullStep(liftandServo.distanceToEncoders(DriveConstants.LOWJUNCTION));
-            }
+//            if (gamepad2.dpad_up){
+//                liftandServo.intakeFullStep(liftandServo.distanceToEncoders(DriveConstants.HIGHJUNCTION));
+//            }
+//            if (gamepad2.dpad_down){
+//                liftandServo.intakeFullStep(liftandServo.distanceToEncoders(DriveConstants.GROUNDJUNCTION));
+//            }
+//            if (gamepad2.dpad_left){
+//                liftandServo.intakeFullStep(liftandServo.distanceToEncoders(DriveConstants.MEDIUMJUNCTION));
+//            }
+//            if (gamepad2.dpad_right){
+//                liftandServo.intakeFullStep(liftandServo.distanceToEncoders(DriveConstants.LOWJUNCTION));
+//            }
         }
 
 

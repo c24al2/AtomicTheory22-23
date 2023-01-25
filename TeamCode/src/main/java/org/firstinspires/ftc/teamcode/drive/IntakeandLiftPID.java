@@ -35,10 +35,10 @@ public class IntakeandLiftPID {
         intake = hardwareMap.get(DcMotorEx.class, "intake");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
         intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coeffs);
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
-        intake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coeffs);
     }
 
     public void clawOpen(){
@@ -47,26 +47,6 @@ public class IntakeandLiftPID {
     public void clawClose(){
         clawServo.setPosition(1.0);
     }
-
-    public MotionProfile generateProfile(int targetTicks){
-        MotionProfile newProfile = generateMotionProfile(targetTicks);
-        return newProfile;
-    }
-    public boolean intakeLift(MotionProfile profile1) {
-        return followMotionProfile(profile1);
-    }
-
-    public MotionProfile intakeFullStep(int targetTicks){
-        MotionProfile activeProfile = generateProfile(targetTicks);
-        intakeLift(activeProfile);
-        storedProfile = activeProfile;
-        return storedProfile;
-    }
-
-    public void update(){
-        followMotionProfile(storedProfile);
-    }
-
 
     public void intakeLiftEasy(int targetTicks) {
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -82,25 +62,28 @@ public class IntakeandLiftPID {
         return intEncoder;
     }
 
-    MotionProfile generateMotionProfile(double ticks) {
+    public void generateMotionProfile(double ticks) {
         if (ticks == 0){
-            return null;
+            storedProfile = null;
         }
 
         // Based on 60RPM motor, adjust if different
-        return MotionProfileGenerator.generateSimpleMotionProfile(
+        storedProfile = MotionProfileGenerator.generateSimpleMotionProfile(
                 new MotionState(intake.getCurrentPosition(), 1600, 0),
                 new MotionState(ticks, 0, 0),
                 maxVelocity,
                 maxAcceleration,
-                maxJerk);
+                maxJerk
+        );
+
+        timer.reset();
     }
 
-    boolean followMotionProfile(MotionProfile profile2){
+    boolean followMotionProfile(){
         // specify coefficients/gains
         // create the controller
-        MotionState state = profile2.get(timer.time());
-        if (profile2.end().getX() < state.getX() && state.getX() < profile2.start().getX() || profile2.start().getX() < state.getX() && state.getX() < profile2.end().getX()) {
+        MotionState state = storedProfile.get(timer.time());
+        if (storedProfile.end().getX() < state.getX() && state.getX() < storedProfile.start().getX() || storedProfile.start().getX() < state.getX() && state.getX() < storedProfile.end().getX()) {
             currentVelocity = intake.getVelocity();
             targetVelocity = state.getV();
             velocityError = targetVelocity - currentVelocity;
@@ -112,7 +95,7 @@ public class IntakeandLiftPID {
         } else {
             intake.setPower(0);
             timer.reset();
-            this.storedProfile = generateMotionProfile(intake.getCurrentPosition());
+            generateMotionProfile(intake.getCurrentPosition());
             return true;
         }
     }
