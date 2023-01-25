@@ -60,7 +60,7 @@ public class SampleOmniDrive extends OmniDrive {
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
-    public static double OMEGA_WEIGHT = 1;
+    public static double OMEGA_WEIGHT = 0.5;
 
     private final TrajectorySequenceRunner trajectorySequenceRunner;
 
