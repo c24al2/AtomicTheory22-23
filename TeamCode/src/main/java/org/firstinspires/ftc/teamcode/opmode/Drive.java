@@ -17,8 +17,11 @@ public class Drive extends LinearOpMode {
         SampleOmniDrive drive = new SampleOmniDrive(hardwareMap);
         IntakeandLiftPID liftandServo = new IntakeandLiftPID(hardwareMap);
 
-//        drive.setPoseEstimate(PoseStorage.currentPose);
-        drive.setPoseEstimate(new Pose2d(36, -62.8, Math.toRadians(90)));
+        // TODO: Remove, this is for debugging purposes
+//        Pose2d startPose = PoseStorage.currentPose;
+        Pose2d startPose = new Pose2d(36, -62.8, Math.toRadians(90));
+
+        drive.setPoseEstimate(startPose);
 
         waitForStart();
 
@@ -27,11 +30,9 @@ public class Drive extends LinearOpMode {
             Pose2d poseEstimate = drive.getPoseEstimate();
 
             // Create a vector from the gamepad x/y inputs
-            // Then, rotate that vector by the inverse of that heading
-            Vector2d input = new Vector2d(
-                    -gamepad1.left_stick_y,
-                    -gamepad1.left_stick_x
-            ).rotated(-poseEstimate.getHeading());
+            Vector2d input = new Vector2d(-gamepad1.left_stick_y, -gamepad1.left_stick_x);
+            // Then, rotate that vector by the inverse of the robots' DELTA heading
+            input = input.rotated(-(poseEstimate.getHeading() - startPose.getHeading()));
 
             // Pass in the rotated input + right stick value for rotation
             // Rotation is not part of the rotated input thus must be passed in separately
