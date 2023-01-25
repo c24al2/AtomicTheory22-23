@@ -80,7 +80,7 @@ public class IntakeandLiftPID {
         timer.reset();
     }
 
-    void followMotionProfile(){
+    public void followMotionProfile(){
         // specify coefficients/gains
         // create the controller
         MotionState state = storedProfile.get(timer.time());

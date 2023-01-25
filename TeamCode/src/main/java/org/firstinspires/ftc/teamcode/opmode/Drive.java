@@ -56,18 +56,22 @@ public class Drive extends LinearOpMode {
             if (gamepad2.y){
                 liftandServo.clawOpen();
             }
-//            if (gamepad2.dpad_up){
-//                liftandServo.intakeFullStep(liftandServo.distanceToEncoders(DriveConstants.HIGHJUNCTION));
-//            }
-//            if (gamepad2.dpad_down){
-//                liftandServo.intakeFullStep(liftandServo.distanceToEncoders(DriveConstants.GROUNDJUNCTION));
-//            }
-//            if (gamepad2.dpad_left){
-//                liftandServo.intakeFullStep(liftandServo.distanceToEncoders(DriveConstants.MEDIUMJUNCTION));
-//            }
-//            if (gamepad2.dpad_right){
-//                liftandServo.intakeFullStep(liftandServo.distanceToEncoders(DriveConstants.LOWJUNCTION));
-//            }
+            if (gamepad2.dpad_up){
+                liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(DriveConstants.HIGHJUNCTION));
+                liftandServo.followMotionProfile();
+            }
+            if (gamepad2.dpad_down){
+                liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(DriveConstants.GROUNDJUNCTION));
+                liftandServo.followMotionProfile();
+            }
+            if (gamepad2.dpad_left){
+                liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(DriveConstants.MEDIUMJUNCTION));
+                liftandServo.followMotionProfile();
+            }
+            if (gamepad2.dpad_right){
+                liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(DriveConstants.LOWJUNCTION));
+                liftandServo.followMotionProfile();
+            }
         }
 
 
