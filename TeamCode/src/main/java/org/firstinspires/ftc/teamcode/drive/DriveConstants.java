@@ -69,13 +69,6 @@ public class DriveConstants {
     public static double MAX_ANG_VEL = Math.toRadians(360);
     public static double MAX_ANG_ACCEL = Math.toRadians(180);
 
-    public static double LIFT_ENCODER_RES = 384.5;
-
-    //TO DO: TUNE SPOOL RADIUS FROM FILE
-    public static double SPOOL_RADIUS = .75;
-
-
-
     public static double encoderTicksToInches(double ticks) {
         return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;
     }
@@ -88,14 +81,4 @@ public class DriveConstants {
         // see https://docs.google.com/document/d/1tyWrXDfMidwYyP_5H4mZyVgaEswhOC35gvdmP-V-5hA/edit#heading=h.61g9ixenznbx
         return 32767 / ticksPerSecond;
     }
-    //Junction Positions listed in inches, later converted to encoder ticks
-    public static double HIGHJUNCTION = 33.5;
-    public static double MEDIUMJUNCTION = 23.5;
-    public static double LOWJUNCTION = 13.5;
-    public static double GROUNDJUNCTION = 0.563;
-    public static double PICKUP_CONE_1 = 5*1.22;
-    public static double PICKUP_CONE_2 = 4*1.22;
-    public static double PICKUP_CONE_3 = 3*1.22;
-    public static double PICKUP_CONE_4 = 2*1.22;
-    public static double PICKUP_CONE_5 = 1.22;
 }

@@ -15,18 +15,36 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
 public class IntakeandLiftPID {
+    public static double TICKS_PER_REV = 384.5;
+    // TODO: TUNE SPOOL RADIUS FROM FILE
+    public static double SPOOL_RADIUS = .75;
+
+    public static PIDFCoefficients INTAKE_PID = new PIDFCoefficients(.009, 0, 0.0002, 0);
+
+    public static double MAX_VEL = 133000;
+    public static double MAX_ACCEL = 2000;
+    public static double MAX_JERK = 0;  // Jerk isn't used if it's 0, but it might end up being necessary
+
+    //Junction Positions listed in inches, later converted to encoder ticks
+    public static double HIGHJUNCTION = 33.5;
+    public static double MEDIUMJUNCTION = 23.5;
+    public static double LOWJUNCTION = 13.5;
+    public static double GROUNDJUNCTION = 0.563;
+    public static double PICKUP_CONE_1 = 5*1.22;
+    public static double PICKUP_CONE_2 = 4*1.22;
+    public static double PICKUP_CONE_3 = 3*1.22;
+    public static double PICKUP_CONE_4 = 2*1.22;
+    public static double PICKUP_CONE_5 = 1.22;
+
+    // TODO: Make private when we don't need them to be public anymore
     public ElapsedTime timer;
-    public static PIDFCoefficients coeffs = new PIDFCoefficients(.009, 0, 0.0002, 0);
+    // TODO: Remove telemetry variables
     public double currentVelocity = 0;
     public double targetVelocity = 0;
     public double velocityError = 0;
 
     public DcMotorEx intake;
     public Servo clawServo;
-    public static double maxVelocity = 133000;
-    public static double maxAcceleration = 2000;
-    public static double maxJerk = 0;  // Jerk isn't used if it's 0, but it might end up being necessary
-
     public MotionProfile storedProfile;
 
     public IntakeandLiftPID(HardwareMap hardwareMap) {
@@ -36,9 +54,8 @@ public class IntakeandLiftPID {
 
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        intake.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, coeffs);
+        intake.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, INTAKE_PID);
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intake.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
     public void clawOpen(){
@@ -49,7 +66,7 @@ public class IntakeandLiftPID {
     }
 
     public int distanceToEncoders(double distance){
-        double encoderRatio = DriveConstants.LIFT_ENCODER_RES/2 * Math.PI * DriveConstants.SPOOL_RADIUS;
+        double encoderRatio = TICKS_PER_REV/2 * Math.PI * SPOOL_RADIUS;
         double encoderConverted = distance*encoderRatio;
         int intEncoder = (int) encoderConverted;
         return intEncoder;
@@ -57,26 +74,22 @@ public class IntakeandLiftPID {
 
     public void generateMotionProfile(double ticks) {
         storedProfile = MotionProfileGenerator.generateSimpleMotionProfile(
-                new MotionState(intake.getCurrentPosition(), 1600, 0),
+                new MotionState(intake.getCurrentPosition(), intake.getVelocity(), 0),
                 new MotionState(ticks, 0, 0),
-                maxVelocity,
-                maxAcceleration,
-                maxJerk
+                MAX_VEL,
+                MAX_ACCEL,
+                MAX_JERK
         );
 
         timer.reset();
     }
 
-    public void followMotionProfile(){
-        // specify coefficients/gains
-        // create the controller
+    public void followMotionProfile() {
         MotionState state = storedProfile.get(timer.time());
         currentVelocity = intake.getVelocity();
         targetVelocity = state.getV();
         velocityError = targetVelocity - currentVelocity;
-        // in each iteration of the control loop
-        // measure the position or output variable
-        // apply the correction to the input variable
+
         intake.setTargetPosition((int) state.getX());
         intake.setVelocity(state.getV());
     }
