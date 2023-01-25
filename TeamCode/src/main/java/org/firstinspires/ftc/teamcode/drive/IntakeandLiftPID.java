@@ -79,25 +79,15 @@ public class IntakeandLiftPID {
         timer.reset();
     }
 
-    boolean followMotionProfile(){
-        // specify coefficients/gains
-        // create the controller
+    void followMotionProfile(){
         MotionState state = storedProfile.get(timer.time());
-        if (storedProfile.end().getX() < state.getX() && state.getX() < storedProfile.start().getX() || storedProfile.start().getX() < state.getX() && state.getX() < storedProfile.end().getX()) {
-            currentVelocity = intake.getVelocity();
-            targetVelocity = state.getV();
-            velocityError = targetVelocity - currentVelocity;
-            // in each iteration of the control loop
-            // measure the position or output variable
-            // apply the correction to the input variable
-            intake.setVelocity(state.getV());
-            return false;
-        } else {
-            intake.setPower(0);
-            timer.reset();
-            generateMotionProfile(intake.getCurrentPosition());
-            return true;
-        }
+        currentVelocity = intake.getVelocity();
+        targetVelocity = state.getV();
+        velocityError = targetVelocity - currentVelocity;
+        // in each iteration of the control loop
+        // measure the position or output variable
+        // apply the correction to the input variable
+        intake.setVelocity(state.getV());
     }
 
     public void run(Gamepad gamepad) {
