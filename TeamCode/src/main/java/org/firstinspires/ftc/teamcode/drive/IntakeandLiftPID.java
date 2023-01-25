@@ -34,9 +34,10 @@ public class IntakeandLiftPID {
         timer = new ElapsedTime();
         intake = hardwareMap.get(DcMotorEx.class, "intake");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
-        intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        intake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coeffs);
+
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        intake.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, coeffs);
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
     }
@@ -80,6 +81,8 @@ public class IntakeandLiftPID {
     }
 
     void followMotionProfile(){
+        // specify coefficients/gains
+        // create the controller
         MotionState state = storedProfile.get(timer.time());
         currentVelocity = intake.getVelocity();
         targetVelocity = state.getV();
@@ -87,6 +90,7 @@ public class IntakeandLiftPID {
         // in each iteration of the control loop
         // measure the position or output variable
         // apply the correction to the input variable
+        intake.setTargetPosition((int) state.getX());
         intake.setVelocity(state.getV());
     }
 
