@@ -12,7 +12,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 @Config
 public class IntakeandLiftPID {
@@ -49,13 +48,6 @@ public class IntakeandLiftPID {
         clawServo.setPosition(1.0);
     }
 
-    public void intakeLiftEasy(int targetTicks) {
-        intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        intake.setTargetPosition(targetTicks);
-        intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        intake.setPower(0.7);
-    }
-
     public int distanceToEncoders(double distance){
         double encoderRatio = DriveConstants.LIFT_ENCODER_RES/2 * Math.PI * DriveConstants.SPOOL_RADIUS;
         double encoderConverted = distance*encoderRatio;
@@ -64,11 +56,6 @@ public class IntakeandLiftPID {
     }
 
     public void generateMotionProfile(double ticks) {
-        if (ticks == 0){
-            storedProfile = null;
-        }
-
-        // Based on 60RPM motor, adjust if different
         storedProfile = MotionProfileGenerator.generateSimpleMotionProfile(
                 new MotionState(intake.getCurrentPosition(), 1600, 0),
                 new MotionState(ticks, 0, 0),
@@ -95,8 +82,8 @@ public class IntakeandLiftPID {
     }
 
     public void run(Gamepad gamepad) {
-            // Ability for manual control, which resets the motor's encoder value when done
-            intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            intake.setPower(-gamepad.left_stick_y * 0.7);
-        }
+        // Ability for manual control, which resets the motor's encoder value when done
+        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intake.setPower(-gamepad.left_stick_y * 0.7);
     }
+}
