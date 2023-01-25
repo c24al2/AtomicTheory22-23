@@ -55,7 +55,7 @@ public class IntakeandLiftPID {
 
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        intake.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, INTAKE_PID);
+//        intake.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, INTAKE_PID);
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
@@ -93,6 +93,7 @@ public class IntakeandLiftPID {
         velocityError = targetVelocity - currentVelocity;
 
         intake.setTargetPosition((int) state.getX());
+        intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         intake.setVelocity(state.getV());
     }
 
