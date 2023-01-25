@@ -106,7 +106,7 @@ public class IntakeandLiftPID {
         if (profile2.end().getX() < state.getX() && state.getX() < profile2.start().getX() || profile2.start().getX() < state.getX() && state.getX() < profile2.end().getX()) {
             currentVelocity = intake.getVelocity();
             targetVelocity = state.getV();
-            velocityError = state.getV() - intake.getVelocity();
+            velocityError = targetVelocity - currentVelocity;
             // in each iteration of the control loop
             // measure the position or output variable
             // apply the correction to the input variable
