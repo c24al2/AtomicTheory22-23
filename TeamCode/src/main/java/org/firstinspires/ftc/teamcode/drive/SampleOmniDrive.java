@@ -48,15 +48,15 @@ import java.util.List;
 @Config
 public class SampleOmniDrive extends OmniDrive {
     private static final List<Pose2d> WHEEL_POSES = Arrays.asList(
-            new Pose2d(7.2*Math.sin(Math.toRadians(30)), 7.2*Math.cos(Math.toRadians(30)), Math.toRadians(150)),  // Front left
-            new Pose2d(-7.2, 0, Math.toRadians(270)), // Back wheel
-            new Pose2d(7.2*Math.sin(Math.toRadians(30)), -7.2*Math.cos(Math.toRadians(30)), Math.toRadians(30)) // Front right
+            new Pose2d(7.8*Math.sin(Math.toRadians(30)), 7.8*Math.cos(Math.toRadians(30)), Math.toRadians(150)),  // Front left
+            new Pose2d(-7.6, 0, Math.toRadians(270)), // Back wheel
+            new Pose2d(7.8*Math.sin(Math.toRadians(30)), -7.8*Math.cos(Math.toRadians(30)), Math.toRadians(30)) // Front right
     );
 
     private static final boolean USE_EXTERNAL_HEADING = true;
 
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(6, 0, 0.1);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(6, 0, 0.1);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 1);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(8, 0, 1);
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
