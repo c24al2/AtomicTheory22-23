@@ -12,6 +12,10 @@ import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
 
 @TeleOp
 public class Drive extends LinearOpMode {
+    private static double SLOW_MODE_SCALAR = 0.6;
+
+    private boolean driverSlowMode = false;
+
     @Override
     public void runOpMode() throws InterruptedException {
         SampleOmniDrive drive = new SampleOmniDrive(hardwareMap);
@@ -26,25 +30,28 @@ public class Drive extends LinearOpMode {
         waitForStart();
 
         while (!isStopRequested()) {
+            // Enable toggling driver slow mode when press a
+            if (gamepad1.a) {
+                driverSlowMode = !driverSlowMode;
+            }
+
             // Read pose
             Pose2d poseEstimate = drive.getPoseEstimate();
 
             // Create a vector from the gamepad x/y inputs
-            Vector2d input = new Vector2d(-gamepad1.left_stick_y, -gamepad1.left_stick_x);
+            Vector2d translationalInput = new Vector2d(-gamepad1.left_stick_y, -gamepad1.left_stick_x);
             // Then, rotate that vector by the inverse of the robots' DELTA heading
-            input = input.rotated(-(poseEstimate.getHeading() - startPose.getHeading()));
+            // AKA driver lock. Disabling this line will disable driver lock
+            translationalInput = translationalInput.rotated(-(poseEstimate.getHeading() - startPose.getHeading()));
+
+            Pose2d input = new Pose2d(translationalInput, -gamepad1.right_stick_x);
+            if (driverSlowMode) {
+                input = input.times(SLOW_MODE_SCALAR);
+            }
 
             // Pass in the rotated input + right stick value for rotation
             // Rotation is not part of the rotated input thus must be passed in separately
-            drive.setWeightedDrivePower(
-                    new Pose2d(
-                            input.getX(),
-                            input.getY(),
-                            -gamepad1.right_stick_x
-                    )
-            );
-
-            drive.update();
+            drive.setWeightedDrivePower(input);
 
             liftandServo.setIntakePower(-gamepad2.left_stick_y);
 
@@ -81,6 +88,8 @@ public class Drive extends LinearOpMode {
                     liftandServo.followMotionProfile();
                 }
             }
+
+            drive.update();
         }
 
 
