@@ -5,6 +5,7 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.drive.IntakeandLiftPID;
 import org.firstinspires.ftc.teamcode.drive.PoseStorage;
@@ -15,6 +16,8 @@ public class Drive extends LinearOpMode {
     private static double SLOW_MODE_SCALAR = 0.6;
 
     private boolean driverSlowMode = false;
+    private Gamepad previousGamepad1 = new Gamepad();
+    private Gamepad previousGamepad2 = new Gamepad();
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -31,7 +34,7 @@ public class Drive extends LinearOpMode {
 
         while (!isStopRequested()) {
             // Enable toggling driver slow mode when press a
-            if (gamepad1.a) {
+            if (!previousGamepad1.a && previousGamepad1.a) {
                 driverSlowMode = !driverSlowMode;
             }
 
@@ -90,8 +93,9 @@ public class Drive extends LinearOpMode {
             }
 
             drive.update();
+
+            previousGamepad1.copy(gamepad1);
+            previousGamepad2.copy(gamepad2);
         }
-
-
     }
 }
