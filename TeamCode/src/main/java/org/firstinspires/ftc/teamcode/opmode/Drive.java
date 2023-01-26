@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
 
 @TeleOp
 public class Drive extends LinearOpMode {
-    private static double SLOW_MODE_SCALAR = 0.6;
+    private static double SLOW_MODE_SCALAR = 0.4;
 
     private boolean driverSlowMode = false;
     private Gamepad previousGamepad1 = new Gamepad();
