@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.drive.opmode;
+package org.firstinspires.ftc.teamcode.opmode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -33,7 +33,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
  *
  */
 @Config
-@TeleOp(group = "drive")
+@TeleOp
 public class MotorDebugger extends LinearOpMode {
     public static double MOTOR_POWER = 1;
 
