@@ -62,7 +62,9 @@ public class Drive extends OpMode {
         // Rotation is not part of the rotated input thus must be passed in separately
         drive.setWeightedDrivePower(input);
 
-        liftandServo.setIntakePower(-gamepad2.left_stick_y);
+//        if (Math.abs(gamepad2.left_stick_y) > 0.2) {
+//            liftandServo.setIntakePower(-gamepad2.left_stick_y);
+//        }
 
         if (gamepad2.x){
             liftandServo.clawClose();
@@ -70,22 +72,27 @@ public class Drive extends OpMode {
         if (gamepad2.y){
             liftandServo.clawOpen();
         }
-        // TODO: Add this code back later (it's more complex than these lines)
-        // Calling followMotionProfile will only do one step along the motion profile
-        // Basically as it's written it won't raise the lift all the way
-        if (gamepad2.dpad_up) {
+
+        if (!previousGamepad2.dpad_up && gamepad2.dpad_up) {
             liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(IntakeandLiftPID.HIGHJUNCTION));
         }
-        if (gamepad2.dpad_down) {
+
+        if (!previousGamepad2.dpad_down && gamepad2.dpad_down) {
             liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(IntakeandLiftPID.GROUNDJUNCTION));
         }
-        if (gamepad2.dpad_left) {
+
+        if (!previousGamepad2.dpad_left && gamepad2.dpad_left) {
             liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(IntakeandLiftPID.MEDIUMJUNCTION));
 
         }
-        if (gamepad2.dpad_right) {
+        if (!previousGamepad2.dpad_right && gamepad2.dpad_right) {
             liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(IntakeandLiftPID.LOWJUNCTION));
         }
+
+        telemetry.addData("Current Position", liftandServo.currentPosition);
+        telemetry.addData("Current Velocity", liftandServo.currentVelocity);
+        telemetry.addData("Target Position", liftandServo.targetPosition);
+        telemetry.addData("Target Velocity", liftandServo.targetVelocity);
 
         drive.update();
         liftandServo.followMotionProfile();
