@@ -52,23 +52,20 @@ public class MotorDebugger extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        telemetry.clearAll();
-        telemetry.setDisplayFormat(Telemetry.DisplayFormat.HTML);
-
         while (!isStopRequested()) {
             telemetry.addLine("Press each button to turn on its respective motor");
 
-            if(gamepad1.x) {
+            if (gamepad1.x) {
                 drive.setMotorPowers(MOTOR_POWER, 0, 0);
                 telemetry.addLine("Running Motor: Left");
-            } else if(gamepad1.b) {
+            } else if (gamepad1.b) {
                 drive.setMotorPowers(0, 0, MOTOR_POWER);
                 telemetry.addLine("Running Motor: Right");
-            } else if(gamepad1.a) {
+            } else if (gamepad1.a) {
                 drive.setMotorPowers(0, MOTOR_POWER, 0);
                 telemetry.addLine("Running Motor: Back");
-            } else if(gamepad1.y) {
-                intakeandLiftPID.intake.setPower(1);
+            } else if (gamepad1.y) {
+                intakeandLiftPID.setIntakePower(0.2);
                 telemetry.addLine("Running Motor: Intake");
             } else {
                 drive.setMotorPowers(0, 0, 0);
