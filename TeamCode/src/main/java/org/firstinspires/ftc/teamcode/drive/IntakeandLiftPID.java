@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
@@ -14,27 +15,25 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Config
 public class IntakeandLiftPID {
     public static double TICKS_PER_REV = 384.5;
-    // TODO: TUNE SPOOL RADIUS FROM FILE
     public static double SPOOL_RADIUS = .75;
 
     public static PIDFCoefficients INTAKE_PID = new PIDFCoefficients(.009, 0, 0.0002, 0);
 
-    public static double MAX_VEL = 133000;
-    public static double MAX_ACCEL = 2000;
+    public static double MAX_VEL = 62000;
+    public static double MAX_ACCEL = 1000;
     public static double MAX_JERK = 0;  // Jerk isn't used if it's 0, but it might end up being necessary
-
     public static double POWER_WEIGHT = 0.8;
 
     //Junction Positions listed in inches, later converted to encoder ticks
-    public static double HIGHJUNCTION = 33.5;
-    public static double MEDIUMJUNCTION = 23.5;
-    public static double LOWJUNCTION = 13.5;
+    public static double HIGHJUNCTION = 4.5;
+    public static double MEDIUMJUNCTION = 3.45;
+    public static double LOWJUNCTION = 2.2;
     public static double GROUNDJUNCTION = 0.563;
-    public static double PICKUP_CONE_1 = 5*1.22;
-    public static double PICKUP_CONE_2 = 4*1.22;
-    public static double PICKUP_CONE_3 = 3*1.22;
-    public static double PICKUP_CONE_4 = 2*1.22;
-    public static double PICKUP_CONE_5 = 1.22;
+    public static double PICKUP_CONE_1 = 0.65;
+    public static double PICKUP_CONE_2 = 0.55;
+    public static double PICKUP_CONE_3 = 0.45;
+    public static double PICKUP_CONE_4 = 0.35;
+    public static double PICKUP_CONE_5 = 0.25;
 
     // TODO: Make private when we don't need them to be public anymore
     public ElapsedTime timer;
@@ -54,16 +53,16 @@ public class IntakeandLiftPID {
         clawServo = hardwareMap.get(Servo.class, "clawServo");
 
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        intake.setDirection(DcMotor.Direction.REVERSE);
 //        intake.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, INTAKE_PID);
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void clawOpen(){
-        clawServo.setPosition(-1.0);
+        clawServo.setPosition(1.0);
     }
     public void clawClose(){
-        clawServo.setPosition(1.0);
+        clawServo.setPosition(0.8);
     }
 
     public int distanceToEncoders(double distance){
@@ -86,6 +85,8 @@ public class IntakeandLiftPID {
     }
 
     public void followMotionProfile() {
+        if (storedProfile == null) return;
+
         MotionState state = storedProfile.get(timer.time());
 
         currentVelocity = intake.getVelocity();
