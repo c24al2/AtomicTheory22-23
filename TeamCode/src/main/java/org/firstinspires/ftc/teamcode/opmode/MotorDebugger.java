@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.drive.IntakeandLiftPID;
 import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
 
 /**
@@ -42,6 +43,7 @@ public class MotorDebugger extends LinearOpMode {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
         SampleOmniDrive drive = new SampleOmniDrive(hardwareMap);
+        IntakeandLiftPID intakeandLiftPID = new IntakeandLiftPID(hardwareMap);
 
         telemetry.addLine("Press play to begin the debugging opmode");
         telemetry.update();
@@ -55,12 +57,6 @@ public class MotorDebugger extends LinearOpMode {
 
         while (!isStopRequested()) {
             telemetry.addLine("Press each button to turn on its respective motor");
-            telemetry.addLine();
-            telemetry.addLine("<font face=\"monospace\">Xbox/PS4 Button - Motor</font>");
-            telemetry.addLine("<font face=\"monospace\">&nbsp;&nbsp;X / ▢&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Left Motor</font>");
-            telemetry.addLine("<font face=\"monospace\">&nbsp;&nbsp;B / O&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Back Motor</font>");
-            telemetry.addLine("<font face=\"monospace\">&nbsp;&nbsp;A / X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Right Motor</font>");
-            telemetry.addLine();
 
             if(gamepad1.x) {
                 drive.setMotorPowers(MOTOR_POWER, 0, 0);
@@ -71,6 +67,9 @@ public class MotorDebugger extends LinearOpMode {
             } else if(gamepad1.a) {
                 drive.setMotorPowers(0, MOTOR_POWER, 0);
                 telemetry.addLine("Running Motor: Back");
+            } else if(gamepad1.y) {
+                intakeandLiftPID.intake.setPower(1);
+                telemetry.addLine("Running Motor: Intake");
             } else {
                 drive.setMotorPowers(0, 0, 0);
                 telemetry.addLine("Running Motor: None");
@@ -80,12 +79,12 @@ public class MotorDebugger extends LinearOpMode {
             telemetry.addData("Left Motor Position: ", drive.leftMotor.getCurrentPosition());
             telemetry.addData("Back Motor Position: ", drive.backMotor.getCurrentPosition());
             telemetry.addData("Right Motor Position: ", drive.rightMotor.getCurrentPosition());
-            telemetry.addData("Motor Positions (Left, Back Right): ", drive.getWheelPositions());
+            telemetry.addData("Intake Motor Position: ", intakeandLiftPID.intake.getCurrentPosition());
             telemetry.addLine();
             telemetry.addData("Left Motor Velocity: ", drive.leftMotor.getVelocity());
             telemetry.addData("Back Motor Velocity: ", drive.backMotor.getVelocity());
             telemetry.addData("Right Motor Velocity: ", drive.rightMotor.getVelocity());
-            telemetry.addData("Motor Velocities (Left, Back Right): ", drive.getWheelVelocities());
+            telemetry.addData("Intake Motor Velocity: ", intakeandLiftPID.intake.getVelocity());
 
             telemetry.update();
         }
