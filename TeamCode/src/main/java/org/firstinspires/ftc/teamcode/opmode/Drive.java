@@ -69,30 +69,19 @@ public class Drive extends LinearOpMode {
             // Basically as it's written it won't raise the lift all the way
             if (gamepad2.dpad_up) {
                 liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(IntakeandLiftPID.HIGHJUNCTION));
-                while (true) {
-                    liftandServo.followMotionProfile();
-                }
             }
             if (gamepad2.dpad_down) {
                 liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(IntakeandLiftPID.GROUNDJUNCTION));
-                while (true) {
-                    liftandServo.followMotionProfile();
-                }
             }
             if (gamepad2.dpad_left) {
                 liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(IntakeandLiftPID.MEDIUMJUNCTION));
-                while (true) {
-                    liftandServo.followMotionProfile();
-                }
             }
             if (gamepad2.dpad_right) {
                 liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(IntakeandLiftPID.LOWJUNCTION));
-                while (true) {
-                    liftandServo.followMotionProfile();
-                }
             }
 
             drive.update();
+            liftandServo.followMotionProfile();
 
             previousGamepad1.copy(gamepad1);
             previousGamepad2.copy(gamepad2);
