@@ -17,8 +17,6 @@ public class IntakeandLiftPID {
     public static double TICKS_PER_REV = 384.5;
     public static double SPOOL_RADIUS = .75;
 
-    public static PIDFCoefficients INTAKE_PID = new PIDFCoefficients(.009, 0, 0.0002, 0);
-
     public static double MAX_VEL = 62000;
     public static double MAX_ACCEL = 1000;
     public static double MAX_JERK = 0;  // Jerk isn't used if it's 0, but it might end up being necessary
@@ -38,9 +36,10 @@ public class IntakeandLiftPID {
     // TODO: Make private when we don't need them to be public anymore
     public ElapsedTime timer;
     // TODO: Remove telemetry variables
+    public int currentPosition = 0;
     public double currentVelocity = 0;
+    public int targetPosition = 0;
     public double targetVelocity = 0;
-    public double velocityError = 0;
 
     public DcMotorEx intake;
     public Servo clawServo;
@@ -54,11 +53,10 @@ public class IntakeandLiftPID {
 
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake.setDirection(DcMotor.Direction.REVERSE);
-//        intake.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, INTAKE_PID);
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    public void clawOpen(){
+    public void clawOpen() {
         clawServo.setPosition(1.0);
     }
     public void clawClose(){
@@ -89,13 +87,14 @@ public class IntakeandLiftPID {
 
         MotionState state = storedProfile.get(timer.time());
 
+        currentPosition = intake.getCurrentPosition();
         currentVelocity = intake.getVelocity();
+        targetPosition = (int) state.getX();
         targetVelocity = state.getV();
-        velocityError = targetVelocity - currentVelocity;
 
-        intake.setTargetPosition((int) state.getX());
+        intake.setTargetPosition(targetPosition);
         intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        intake.setVelocity(state.getV());
+        intake.setVelocity(targetVelocity);
     }
 
     public void setIntakePower(double power) {
