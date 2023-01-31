@@ -65,7 +65,7 @@ public class MotorDebugger extends LinearOpMode {
                 drive.setMotorPowers(0, MOTOR_POWER, 0);
                 telemetry.addLine("Running Motor: Back");
             } else if (gamepad1.y) {
-                intake.setRelativeTargetPosition(300);
+                intake.setRelativeTargetPosition(100);
                 telemetry.addLine("Running Motor: Intake");
             } else {
                 drive.setMotorPowers(0, 0, 0);
