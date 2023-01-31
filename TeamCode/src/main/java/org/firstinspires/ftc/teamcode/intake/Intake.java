@@ -25,7 +25,7 @@ public class Intake {
 
     public static double MAX_LIFT_HEIGHT = 2800; // In ticks
 
-    public static double GRAVITY_ACCEL = 200; // Constant feedforward acceleration (in ticks/sec/sec) to counteract the lift
+    public static double GRAVITY_ACCEL = 100; // Constant feedforward acceleration (in ticks/sec/sec) to counteract the lift
     public static double MAX_VEL = 62000;
     public static double MAX_ACCEL = 2000;
     public static double MAX_JERK = 0;  // Jerk isn't used if it's 0, but it might end up being necessary
