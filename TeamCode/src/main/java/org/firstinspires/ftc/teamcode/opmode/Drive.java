@@ -17,10 +17,10 @@ import org.firstinspires.ftc.teamcode.intake.IntakeConstants;
 @TeleOp
 public class Drive extends OpMode {
     private static double SLOW_MODE_SCALAR = 0.4;
-    private static double LIFT_MULTIPLIER = 800; // TICKS/SEC
+    private static double LIFT_MULTIPLIER = 500; // TICKS/SEC. This num should be pretty close to MAX_VEL? If it's too far off, then when we stop moving the stick the lift will continue moving for a while after
 
-    // TODO: Remove, this is for debugging purposes
-//        private static Pose2d START_POSE = PoseStorage.currentPose;
+    // TODO: Remove, this is for debugging purpose
+    // private static Pose2d START_POSE = PoseStorage.currentPose;
     private static Pose2d START_POSE = new Pose2d(36, -62.8, Math.toRadians(90));
 
     private ElapsedTime timer;
