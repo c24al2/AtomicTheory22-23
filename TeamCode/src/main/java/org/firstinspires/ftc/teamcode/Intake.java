@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.util.LynxModuleUtil;
 
+// https://github.com/NoahBres/VelocityPIDTuningTutorial/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/SampleLinkedPIDUse.java
 @Config
 public class Intake {
     public static PIDCoefficients INTAKE_PID = new PIDCoefficients(.009, 0, 0.0002);
@@ -69,7 +70,7 @@ public class Intake {
     }
 
     public void setTargetPosition(double targetPosition) {
-        // Add bounds so that the lift can not go too high or too low and unstring itself
+        // Add bounds so that the lift can not go too high or too low
         if (targetPosition < 0) {
             targetPosition = 0;
         } else if (targetPosition > MAX_LIFT_HEIGHT) {
