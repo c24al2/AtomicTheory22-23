@@ -23,7 +23,9 @@ public class Intake {
     public static double kA = 0;
     public static double kStatic = 0;
 
-    public static double MAX_LIFT_HEIGHT = 2800; // In ticks
+    public static double MOTION_PROFILE_RECREATION_THRESHOLD = 2; // Only recreate the motion profile if target position changes by this many ticks
+
+    public static double MAX_LIFT_HEIGHT = 1800; // In ticks
 
     public static double GRAVITY_ACCEL = 100; // Constant feedforward acceleration (in ticks/sec/sec) to counteract the lift
     public static double MAX_VEL = 62000;
@@ -36,7 +38,9 @@ public class Intake {
     public Servo clawServo;
 
     private PIDFController controller;
-    private MotionProfile motionProfile;
+    public MotionProfile motionProfile;
+
+    public double power = 0;
 
     public Intake(HardwareMap hardwareMap) {
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
@@ -56,6 +60,7 @@ public class Intake {
         }
 
         controller = new PIDFController(INTAKE_PID, kV, kA, kStatic);
+        setTargetPosition(intake.getCurrentPosition());
     }
 
     public void openClaw() {
@@ -77,15 +82,17 @@ public class Intake {
             targetPosition = MAX_LIFT_HEIGHT;
         }
 
-        motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
-                new MotionState(intake.getCurrentPosition(), intake.getVelocity(), 0),
-                new MotionState(targetPosition, 0, 0),
-                MAX_VEL,
-                MAX_ACCEL,
-                MAX_JERK
-        );
+        if (motionProfile == null || Math.abs(motionProfile.end().getX() - targetPosition) > MOTION_PROFILE_RECREATION_THRESHOLD) {
+            motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
+                    new MotionState(intake.getCurrentPosition(), intake.getVelocity(), 0),
+                    new MotionState(targetPosition, 0, 0),
+                    MAX_VEL,
+                    MAX_ACCEL,
+                    MAX_JERK
+            );
 
-        timer.reset();
+            timer.reset();
+        }
     }
 
     public void setRelativeTargetPosition(double deltaTargetPosition) {
@@ -100,7 +107,7 @@ public class Intake {
         controller.setTargetVelocity(state.getV());
         controller.setTargetAcceleration(state.getA() + GRAVITY_ACCEL);
 
-        double power = controller.update(intake.getCurrentPosition(), intake.getVelocity());
+        power = controller.update(intake.getCurrentPosition(), intake.getVelocity());
         intake.setPower(power);
     }
 }

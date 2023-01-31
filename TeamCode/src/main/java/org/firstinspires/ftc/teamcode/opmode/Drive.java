@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmode;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.profile.MotionState;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -16,8 +17,8 @@ import org.firstinspires.ftc.teamcode.intake.IntakeConstants;
 @Config
 @TeleOp
 public class Drive extends OpMode {
-    private static double SLOW_MODE_SCALAR = 0.4;
-    private static double LIFT_MULTIPLIER = 500; // TICKS/SEC. This num should be pretty close to MAX_VEL? If it's too far off, then when we stop moving the stick the lift will continue moving for a while after
+    public static double SLOW_MODE_SCALAR = 0.4;
+    public static double LIFT_MULTIPLIER = 700; // TICKS/SEC. This num should be pretty close to MAX_VEL? If it's too far off, then when we stop moving the stick the lift will continue moving for a while after
 
     // TODO: Remove, this is for debugging purpose
     // private static Pose2d START_POSE = PoseStorage.currentPose;
@@ -49,15 +50,16 @@ public class Drive extends OpMode {
             driverSlowMode = !driverSlowMode;
         }
 
-        // Read pose
-        Pose2d poseEstimate = drive.getPoseEstimate();
-
         // Create a vector from the gamepad x/y inputs
         Vector2d translationalInput = new Vector2d(-gamepad1.left_stick_y, -gamepad1.left_stick_x);
+
+        // Read pose
+//        Pose2d poseEstimate = drive.getPoseEstimate();
         // Then, rotate that vector by the inverse of the robots' DELTA heading for driver lock
 //        translationalInput = translationalInput.rotated(-(poseEstimate.getHeading() - START_POSE.getHeading()));
 
         Pose2d input = new Pose2d(translationalInput, -gamepad1.right_stick_x);
+
         if (driverSlowMode) {
             input = input.times(SLOW_MODE_SCALAR);
         }
@@ -91,6 +93,15 @@ public class Drive extends OpMode {
         if (!previousGamepad2.dpad_down && gamepad2.dpad_down) {
             intake.setTargetPosition(IntakeConstants.GROUND_JUNCTION_HEIGHT);
         }
+
+        MotionState state = intake.motionProfile.get(intake.timer.time());
+        telemetry.addData("End X", intake.getTargetPosition());
+        telemetry.addData("X", state.getX());
+        telemetry.addData("V", state.getV());
+        telemetry.addData("A", state.getA());
+        telemetry.addData("Current X", intake.intake.getCurrentPosition());
+        telemetry.addData("Current V", intake.intake.getVelocity());
+        telemetry.addData("Power", intake.power);
 
         drive.update();
         intake.followMotionProfile();
