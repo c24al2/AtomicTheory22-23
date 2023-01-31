@@ -54,9 +54,8 @@ public class Drive extends OpMode {
 
         // Create a vector from the gamepad x/y inputs
         Vector2d translationalInput = new Vector2d(-gamepad1.left_stick_y, -gamepad1.left_stick_x);
-        // Then, rotate that vector by the inverse of the robots' DELTA heading
-        // AKA driver lock. Disabling this line will disable driver lock
-        translationalInput = translationalInput.rotated(-(poseEstimate.getHeading() - START_POSE.getHeading()));
+        // Then, rotate that vector by the inverse of the robots' DELTA heading for driver lock
+//        translationalInput = translationalInput.rotated(-(poseEstimate.getHeading() - START_POSE.getHeading()));
 
         Pose2d input = new Pose2d(translationalInput, -gamepad1.right_stick_x);
         if (driverSlowMode) {
@@ -64,7 +63,6 @@ public class Drive extends OpMode {
         }
 
         // Pass in the rotated input + right stick value for rotation
-        // Rotation is not part of the rotated input thus must be passed in separately
         drive.setWeightedDrivePower(input);
 
         intake.setRelativeTargetPosition(-gamepad2.left_stick_y * LIFT_MULTIPLIER * timer.time());
