@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.drive.IntakeandLiftPID;
+import org.firstinspires.ftc.teamcode.Intake;
 import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
 
 /**
@@ -43,7 +43,7 @@ public class MotorDebugger extends LinearOpMode {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
         SampleOmniDrive drive = new SampleOmniDrive(hardwareMap);
-        IntakeandLiftPID intakeandLiftPID = new IntakeandLiftPID(hardwareMap);
+        Intake intake = new Intake(hardwareMap);
 
         telemetry.addLine("Press play to begin the debugging opmode");
         telemetry.update();
@@ -65,7 +65,7 @@ public class MotorDebugger extends LinearOpMode {
                 drive.setMotorPowers(0, MOTOR_POWER, 0);
                 telemetry.addLine("Running Motor: Back");
             } else if (gamepad1.y) {
-                intakeandLiftPID.setIntakePower(0.2);
+                intake.setRelativeTargetPosition(300);
                 telemetry.addLine("Running Motor: Intake");
             } else {
                 drive.setMotorPowers(0, 0, 0);
@@ -76,12 +76,12 @@ public class MotorDebugger extends LinearOpMode {
             telemetry.addData("Left Motor Position: ", drive.leftMotor.getCurrentPosition());
             telemetry.addData("Back Motor Position: ", drive.backMotor.getCurrentPosition());
             telemetry.addData("Right Motor Position: ", drive.rightMotor.getCurrentPosition());
-            telemetry.addData("Intake Motor Position: ", intakeandLiftPID.intake.getCurrentPosition());
+            telemetry.addData("Intake Motor Position: ", intake.intake.getCurrentPosition());
             telemetry.addLine();
             telemetry.addData("Left Motor Velocity: ", drive.leftMotor.getVelocity());
             telemetry.addData("Back Motor Velocity: ", drive.backMotor.getVelocity());
             telemetry.addData("Right Motor Velocity: ", drive.rightMotor.getVelocity());
-            telemetry.addData("Intake Motor Velocity: ", intakeandLiftPID.intake.getVelocity());
+            telemetry.addData("Intake Motor Velocity: ", intake.intake.getVelocity());
 
             telemetry.update();
         }
