@@ -8,8 +8,9 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Intake;
+import org.firstinspires.ftc.teamcode.intake.Intake;
 import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
+import org.firstinspires.ftc.teamcode.intake.IntakeConstants;
 
 
 @Config
@@ -78,19 +79,19 @@ public class Drive extends OpMode {
         }
 
         if (!previousGamepad2.dpad_up && gamepad2.dpad_up) {
-//            liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(IntakeandLiftPID.HIGHJUNCTION));
-        }
-
-        if (!previousGamepad2.dpad_down && gamepad2.dpad_down) {
-//            liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(IntakeandLiftPID.GROUNDJUNCTION));
-        }
-
-        if (!previousGamepad2.dpad_left && gamepad2.dpad_left) {
-//            liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(IntakeandLiftPID.MEDIUMJUNCTION));
+            intake.setTargetPosition(IntakeConstants.HIGH_JUNCTION_HEIGHT);
         }
 
         if (!previousGamepad2.dpad_right && gamepad2.dpad_right) {
-//            liftandServo.generateMotionProfile(liftandServo.distanceToEncoders(IntakeandLiftPID.LOWJUNCTION));
+            intake.setTargetPosition(IntakeConstants.MEDIUM_JUNCTION_HEIGHT);
+        }
+
+        if (!previousGamepad2.dpad_left && gamepad2.dpad_left) {
+            intake.setTargetPosition(IntakeConstants.LOW_JUNCTION_HEIGHT);
+        }
+
+        if (!previousGamepad2.dpad_down && gamepad2.dpad_down) {
+            intake.setTargetPosition(IntakeConstants.GROUND_JUNCTION_HEIGHT);
         }
 
         drive.update();
