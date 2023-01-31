@@ -22,6 +22,8 @@ public class Intake {
     public static double kA = 0;
     public static double kStatic = 0;
 
+    public static double MAX_LIFT_HEIGHT = 2800; // In ticks
+
     public static double GRAVITY_ACCEL = 200; // Constant feedforward acceleration (in ticks/sec/sec) to counteract the lift
     public static double MAX_VEL = 62000;
     public static double MAX_ACCEL = 2000;
@@ -67,6 +69,13 @@ public class Intake {
     }
 
     public void setTargetPosition(double targetPosition) {
+        // Add bounds so that the lift can not go too high or too low and unstring itself
+        if (targetPosition < 0) {
+            targetPosition = 0;
+        } else if (targetPosition > MAX_LIFT_HEIGHT) {
+            targetPosition = MAX_LIFT_HEIGHT;
+        }
+
         motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
                 new MotionState(intake.getCurrentPosition(), intake.getVelocity(), 0),
                 new MotionState(targetPosition, 0, 0),
