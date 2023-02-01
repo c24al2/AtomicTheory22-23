@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.intake.IntakeConstants;
 @TeleOp
 public class Drive extends OpMode {
     public static double SLOW_MODE_SCALAR = 0.4;
-    public static double LIFT_MULTIPLIER = 700; // TICKS/SEC. This num should be pretty close to MAX_VEL? If it's too far off, then when we stop moving the stick the lift will continue moving for a while after
+    public static double LIFT_MULTIPLIER = 1000; // TICKS/SEC. This num should be pretty close to MAX_VEL? If it's too far off, then when we stop moving the stick the lift will continue moving for a while after
 
     // TODO: Remove, this is for debugging purpose
     // private static Pose2d START_POSE = PoseStorage.currentPose;
@@ -96,6 +96,7 @@ public class Drive extends OpMode {
 
         MotionState state = intake.motionProfile.get(intake.timer.time());
         telemetry.addData("End X", intake.getTargetPosition());
+        telemetry.addData("Reached End", intake.motionProfileHasReachedEnd());
         telemetry.addData("X", state.getX());
         telemetry.addData("V", state.getV());
         telemetry.addData("A", state.getA());

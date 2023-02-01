@@ -4,7 +4,9 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.control.PIDFController;
 import com.acmerobotics.roadrunner.profile.MotionProfile;
+import com.acmerobotics.roadrunner.profile.MotionProfileBuilder;
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
+import com.acmerobotics.roadrunner.profile.MotionSegment;
 import com.acmerobotics.roadrunner.profile.MotionState;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,7 +15,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.util.LynxModuleUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // https://github.com/NoahBres/VelocityPIDTuningTutorial/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/SampleLinkedPIDUse.java
 @Config
@@ -22,14 +28,15 @@ public class Intake {
     public static double kV = 0;
     public static double kA = 0;
     public static double kStatic = 0;
+    public static double kG = 0;
 
-    public static double MOTION_PROFILE_RECREATION_THRESHOLD = 2; // Only recreate the motion profile if target position changes by this many ticks
+    public static double MOTION_PROFILE_RECREATION_THRESHOLD = 5; // Only recreate the motion profile if target position changes by this many ticks
 
     public static double MAX_LIFT_HEIGHT = 1800; // In ticks
 
-    public static double GRAVITY_ACCEL = 900; // Constant feedforward acceleration (in ticks/sec/sec) to counteract the lift
-    public static double MAX_VEL = 62000;
-    public static double MAX_ACCEL = 2000;
+//    public static double GRAVITY_ACCEL = 5500; // Constant feedforward acceleration (in ticks/sec/sec) to counteract the lift
+    public static double MAX_VEL = 1000;
+    public static double MAX_ACCEL = 1000;
     public static double MAX_JERK = 0;  // Jerk isn't used if it's 0, but it might end up being necessary
 
     public ElapsedTime timer;
@@ -60,8 +67,14 @@ public class Intake {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        controller = new PIDFController(INTAKE_PID, kV, kA, kStatic);
-        setTargetPosition(intake.getCurrentPosition());
+        controller = new PIDFController(INTAKE_PID, kV, kA, kStatic, (x, v) -> kG);
+        motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
+                new MotionState(intake.getCurrentPosition(), intake.getVelocity(), 0),
+                new MotionState(intake.getCurrentPosition(), 0, 0),
+                MAX_VEL,
+                MAX_ACCEL,
+                MAX_JERK
+        );
     }
 
     public void openClaw() {
@@ -75,6 +88,10 @@ public class Intake {
         return motionProfile.end().getX();
     }
 
+    public boolean motionProfileHasReachedEnd() {
+        return timer.time() >= motionProfile.duration();
+    }
+
     public void setTargetPosition(double targetPosition) {
         // Add bounds so that the lift can not go too high or too low
         if (targetPosition < 0) {
@@ -83,7 +100,11 @@ public class Intake {
             targetPosition = MAX_LIFT_HEIGHT;
         }
 
-        if (motionProfile == null || Math.abs(motionProfile.end().getX() - targetPosition) > MOTION_PROFILE_RECREATION_THRESHOLD) {
+        if (Math.abs(motionProfile.end().getX() - targetPosition) < MOTION_PROFILE_RECREATION_THRESHOLD) {
+            return;
+        }
+
+        if (motionProfileHasReachedEnd()) {
             motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
                     new MotionState(intake.getCurrentPosition(), intake.getVelocity(), 0),
                     new MotionState(targetPosition, 0, 0),
@@ -93,6 +114,33 @@ public class Intake {
             );
 
             timer.reset();
+        } else {
+            List<MotionSegment> allMotionSegments = motionProfile.getSegments();
+            List<MotionSegment> completedSegments = new ArrayList<>();
+            MotionState lastState = motionProfile.end();
+            double remainingTime = timer.time();
+            for (MotionSegment segment : allMotionSegments) {
+                // TODO: Check if last segment should be added or not
+                if (remainingTime <= segment.getDt()) {
+                    lastState = segment.get(remainingTime);
+                    break;
+                }
+                completedSegments.add(segment);
+                remainingTime -= segment.getDt();
+            }
+
+            motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
+                    lastState,
+                    new MotionState(targetPosition, 0, 0),
+                    MAX_VEL,
+                    MAX_ACCEL,
+                    MAX_JERK
+            );
+
+            if (completedSegments.size() > 0) {
+                MotionProfile completedProfile = new MotionProfile(completedSegments);
+                motionProfile = completedProfile.plus(motionProfile);
+            }
         }
     }
 
@@ -106,7 +154,7 @@ public class Intake {
 
         controller.setTargetPosition(state.getX());
         controller.setTargetVelocity(state.getV());
-        controller.setTargetAcceleration(state.getA() + GRAVITY_ACCEL);
+        controller.setTargetAcceleration(state.getA());
 
         power = controller.update(intake.getCurrentPosition(), intake.getVelocity());
         intake.setPower(power);
