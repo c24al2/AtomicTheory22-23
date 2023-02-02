@@ -49,6 +49,8 @@ public class Drive extends OpMode {
 
     @Override
     public void loop() {
+       double servoTarget = 0;
+
         // Enable toggling driver slow mode when press a
         if (!previousGamepad1.a && gamepad1.a) {
             driverSlowMode = !driverSlowMode;
@@ -75,14 +77,6 @@ public class Drive extends OpMode {
         telemetry.addData("deltaPosition", deltaPosition);
         intake.setRelativeTargetPosition(deltaPosition);
         timer.reset();
-
-        if (gamepad2.x){
-            intake.closeClaw();
-        }
-
-        if (gamepad2.y){
-            intake.openClaw();
-        }
 
         if (!previousGamepad2.dpad_up && gamepad2.dpad_up) {
             intake.setTargetPosition(IntakeConstants.HIGH_JUNCTION_HEIGHT);
