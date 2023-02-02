@@ -127,7 +127,7 @@ public class Intake {
         if (intake.getCurrentPosition() > targetPosition) {
             if (motionProfileHasReachedEnd()) {
                 motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
-                        new MotionState(intake.getCurrentPosition(), intake.getVelocity(), GRAVITY_ACCEL),
+                        new MotionState(intake.getCurrentPosition(), intake.getVelocity(), -GRAVITY_ACCEL),
                         new MotionState(targetPosition, 0, 0),
                         MAX_VEL,
                         MAX_ACCEL,
