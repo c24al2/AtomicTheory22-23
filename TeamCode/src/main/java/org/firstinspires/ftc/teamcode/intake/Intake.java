@@ -31,11 +31,10 @@ public class Intake {
     public static double kA = 0;
     public static double kStatic = 0;
 
-    public static double MOTION_PROFILE_RECREATION_THRESHOLD = 5; // Only recreate the motion profile if target position changes by this many ticks
+    public static double INTAKE_POWER_THRESHOLD = 0.02;
 
     public static double MAX_LIFT_HEIGHT = 1800; // In ticks
 
-//    public static double GRAVITY_ACCEL = -5500; // Constant feedforward acceleration (in ticks/sec/sec) to counteract the lift
     public static double MAX_VEL = 1000;
     public static double MAX_ACCEL = 1000;
     public static double MAX_JERK = 0;  // Jerk isn't used if it's 0, but it might end up being necessary
@@ -68,13 +67,6 @@ public class Intake {
         }
 
         controller = new PIDFController(INTAKE_PID, kV, kA, kStatic);
-        motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
-                new MotionState(intake.getCurrentPosition(), intake.getVelocity(), 0),
-                new MotionState(intake.getCurrentPosition(), 0, 0),
-                MAX_VEL,
-                MAX_ACCEL,
-                MAX_JERK
-        );
 
         dashboard = FtcDashboard.getInstance();
         dashboard.setTelemetryTransmissionInterval(25);
@@ -87,14 +79,6 @@ public class Intake {
         clawServo.setPosition(0.8);
     }
 
-    public double getTargetPosition() {
-        return motionProfile.end().getX();
-    }
-
-    public boolean motionProfileHasReachedEnd() {
-        return timer.time() >= motionProfile.duration();
-    }
-
     public void setTargetPosition(double targetPosition) {
         // Add bounds so that the lift can not go too high or too low
         if (targetPosition < 0) {
@@ -103,60 +87,28 @@ public class Intake {
             targetPosition = MAX_LIFT_HEIGHT;
         }
 
-        if (Math.abs(motionProfile.end().getX() - targetPosition) < MOTION_PROFILE_RECREATION_THRESHOLD) {
-            return;
-        }
+        motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
+                new MotionState(intake.getCurrentPosition(), intake.getVelocity()),
+                new MotionState(targetPosition, 0, 0),
+                MAX_VEL,
+                MAX_ACCEL,
+                MAX_JERK
+        );
 
-        if (motionProfileHasReachedEnd()) {
-            motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
-                    new MotionState(intake.getCurrentPosition(), intake.getVelocity()),
-                    new MotionState(targetPosition, 0, 0),
-                    MAX_VEL,
-                    MAX_ACCEL,
-                    MAX_JERK
-            );
-
-            timer.reset();
-        } else {
-            List<MotionSegment> allMotionSegments = motionProfile.getSegments();
-            List<MotionSegment> completedSegments = new ArrayList<>();
-            MotionState lastState = motionProfile.end();
-            double remainingTime = timer.time();
-            for (MotionSegment segment : allMotionSegments) {
-                // TODO: Check if last segment should be added or not
-                if (remainingTime <= segment.getDt()) {
-                    lastState = segment.get(remainingTime);
-                    break;
-                }
-                completedSegments.add(segment);
-                remainingTime -= segment.getDt();
-            }
-
-            motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
-                    lastState,
-                    new MotionState(targetPosition, 0, 0),
-                    MAX_VEL,
-                    MAX_ACCEL,
-                    MAX_JERK
-            );
-
-            if (completedSegments.size() > 0) {
-                MotionProfile completedProfile = new MotionProfile(completedSegments);
-                motionProfile = completedProfile.plus(motionProfile);
-            }
-        }
+        timer.reset();
     }
 
-    public void setRelativeTargetPosition(double deltaTargetPosition) {
-        double newTargetPosition = getTargetPosition() + deltaTargetPosition;
-        TelemetryPacket packet = new TelemetryPacket();
-        packet.put("oldTargetPosition", getTargetPosition());
-        packet.put("newTargetPosition", newTargetPosition);
-        dashboard.sendTelemetryPacket(packet);
-        setTargetPosition(newTargetPosition);
+    public void setPower(double power) {
+        if (Math.abs(power) < INTAKE_POWER_THRESHOLD) return;
+
+        motionProfile = null;
+
+        intake.setPower(power);
     }
 
     public void followMotionProfile() {
+        if (motionProfile == null) return;
+
         MotionState state = motionProfile.get(timer.time());
 
         controller.setTargetPosition(state.getX());
@@ -165,14 +117,5 @@ public class Intake {
 
         double power = controller.update(intake.getCurrentPosition(), intake.getVelocity());
         intake.setPower(power);
-
-        TelemetryPacket packet = new TelemetryPacket();
-        packet.put("slideTime", timer.time());
-        packet.put("slideX", intake.getCurrentPosition());
-        packet.put("slideV", intake.getVelocity());
-        packet.put("targetSlideX", state.getX());
-        packet.put("targetSlideV", state.getV());
-        packet.put("slidePower", power);
-        dashboard.sendTelemetryPacket(packet);
     }
 }
