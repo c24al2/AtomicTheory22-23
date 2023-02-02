@@ -30,13 +30,12 @@ public class Intake {
     public static double kV = 0;
     public static double kA = 0;
     public static double kStatic = 0;
-    public static double kG = 0;
 
     public static double MOTION_PROFILE_RECREATION_THRESHOLD = 5; // Only recreate the motion profile if target position changes by this many ticks
 
     public static double MAX_LIFT_HEIGHT = 1800; // In ticks
 
-//    public static double GRAVITY_ACCEL = 5500; // Constant feedforward acceleration (in ticks/sec/sec) to counteract the lift
+//    public static double GRAVITY_ACCEL = -5500; // Constant feedforward acceleration (in ticks/sec/sec) to counteract the lift
     public static double MAX_VEL = 1000;
     public static double MAX_ACCEL = 1000;
     public static double MAX_JERK = 0;  // Jerk isn't used if it's 0, but it might end up being necessary
@@ -110,7 +109,7 @@ public class Intake {
 
         if (motionProfileHasReachedEnd()) {
             motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
-                    new MotionState(intake.getCurrentPosition(), intake.getVelocity(), 0),
+                    new MotionState(intake.getCurrentPosition(), intake.getVelocity()),
                     new MotionState(targetPosition, 0, 0),
                     MAX_VEL,
                     MAX_ACCEL,
@@ -165,7 +164,7 @@ public class Intake {
         controller.setTargetAcceleration(state.getA());
 
         double power = controller.update(intake.getCurrentPosition(), intake.getVelocity());
-        intake.setPower(power + kG);
+        intake.setPower(power);
 
         TelemetryPacket packet = new TelemetryPacket();
         packet.put("slideTime", timer.time());
