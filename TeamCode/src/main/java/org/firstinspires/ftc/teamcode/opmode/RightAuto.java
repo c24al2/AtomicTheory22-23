@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.PoseStorage;
 import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
+import org.firstinspires.ftc.teamcode.intake.Intake;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.vision.CameraController;
 import org.firstinspires.ftc.teamcode.vision.ParkingPositionPipeline;
@@ -19,9 +20,9 @@ import org.firstinspires.ftc.teamcode.vision.ParkingPositionPipeline;
 @Autonomous
 public class RightAuto extends LinearOpMode {
     public static Pose2d START_POSE = new Pose2d(36, -62.8, Math.toRadians(90));
-    public static Pose2d PLACE_PRELOADED_CONE_POSE = new Pose2d(18, -7, Math.toRadians(45));
-    public static Pose2d PICKUP_CONE_FROM_STACK_POSE = new Pose2d(60, -12, Math.toRadians(0));
-    public static Pose2d PLACE_STACK_CONE_POSE = new Pose2d(31, -7, Math.toRadians(135));
+    public static Pose2d PLACE_PRELOADED_CONE_POSE = new Pose2d(18, -5, Math.toRadians(45));
+    public static Pose2d PICKUP_CONE_FROM_STACK_POSE = new Pose2d(60, -8, Math.toRadians(0));
+    public static Pose2d PLACE_STACK_CONE_POSE = new Pose2d(30, -5, Math.toRadians(135));
 
     // This is essentially just defines the possible steps our program will take
     enum State {
@@ -37,8 +38,7 @@ public class RightAuto extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        FtcDashboard dashboard = FtcDashboard.getInstance();
-        Telemetry telemetry = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
+        Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
         CameraController cameraController = new CameraController(hardwareMap);
         ParkingPositionPipeline aprilTagPipeline = new ParkingPositionPipeline();
@@ -50,6 +50,8 @@ public class RightAuto extends LinearOpMode {
         cameraController.stopStreaming(); // Reduce resource usage by not processing any more camera
 
         SampleOmniDrive drive = new SampleOmniDrive(hardwareMap);
+        Intake intake = new Intake(hardwareMap);
+
         drive.setPoseEstimate(START_POSE);
 
         TrajectorySequence placePreloadedCone = drive.trajectorySequenceBuilder(START_POSE)
@@ -137,7 +139,7 @@ public class RightAuto extends LinearOpMode {
             // We update drive continuously in the background, regardless of state
             drive.update();
             // We update our lift PID continuously in the background, regardless of state
-//            lift.update();
+            intake.followMotionProfile();
 
             // Read pose
             Pose2d poseEstimate = drive.getPoseEstimate();

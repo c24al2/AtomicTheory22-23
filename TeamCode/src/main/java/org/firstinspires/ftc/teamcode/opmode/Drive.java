@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.profile.MotionState;
@@ -35,6 +37,8 @@ public class Drive extends OpMode {
 
     @Override
     public void init() {
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
         timer = new ElapsedTime();
 
         drive = new SampleOmniDrive(hardwareMap);
@@ -67,7 +71,9 @@ public class Drive extends OpMode {
         // Pass in the rotated input + right stick value for rotation
         drive.setWeightedDrivePower(input);
 
-        intake.setRelativeTargetPosition(-gamepad2.left_stick_y * LIFT_MULTIPLIER * timer.time());
+        double deltaPosition = -gamepad2.left_stick_y * LIFT_MULTIPLIER * timer.time();
+        telemetry.addData("deltaPosition", deltaPosition);
+        intake.setRelativeTargetPosition(deltaPosition);
         timer.reset();
 
         if (gamepad2.x){
@@ -93,16 +99,6 @@ public class Drive extends OpMode {
         if (!previousGamepad2.dpad_down && gamepad2.dpad_down) {
             intake.setTargetPosition(IntakeConstants.GROUND_JUNCTION_HEIGHT);
         }
-
-        MotionState state = intake.motionProfile.get(intake.timer.time());
-        telemetry.addData("End X", intake.getTargetPosition());
-        telemetry.addData("Reached End", intake.motionProfileHasReachedEnd());
-        telemetry.addData("X", state.getX());
-        telemetry.addData("V", state.getV());
-        telemetry.addData("A", state.getA());
-        telemetry.addData("Current X", intake.intake.getCurrentPosition());
-        telemetry.addData("Current V", intake.intake.getVelocity());
-        telemetry.addData("Power", intake.power);
 
         drive.update();
         intake.followMotionProfile();

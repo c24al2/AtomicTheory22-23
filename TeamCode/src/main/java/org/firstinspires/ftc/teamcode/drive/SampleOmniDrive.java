@@ -55,12 +55,15 @@ public class SampleOmniDrive extends OmniDrive {
 
     private static final boolean USE_EXTERNAL_HEADING = true;
 
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 1);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(8, 0, 1);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(6, 0, 1);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(6, 0, 1);
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
-    public static double OMEGA_WEIGHT = 0.2;
+    public static double OMEGA_WEIGHT = 1;
+    public static double VX_SCALAR = 1;
+    public static double VY_SCALAR = 1;
+    public static double OMEGA_SCALAR = 0.1;
 
     private final TrajectorySequenceRunner trajectorySequenceRunner;
 
@@ -261,6 +264,12 @@ public class SampleOmniDrive extends OmniDrive {
                     OMEGA_WEIGHT * drivePower.getHeading()
             ).div(denom);
         }
+
+        vel = new Pose2d(
+                VX_SCALAR * vel.getX(),
+                VY_SCALAR * vel.getY(),
+                OMEGA_SCALAR * vel.getHeading()
+        );
 
         setDrivePower(vel);
     }

@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.intake;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.control.PIDFController;
 import com.acmerobotics.roadrunner.profile.MotionProfile;
@@ -44,10 +46,9 @@ public class Intake {
     public DcMotorEx intake;
     public Servo clawServo;
 
-    private PIDFController controller;
+    public PIDFController controller;
     public MotionProfile motionProfile;
-
-    public double power = 0;
+    private final FtcDashboard dashboard;
 
     public Intake(HardwareMap hardwareMap) {
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
@@ -67,7 +68,7 @@ public class Intake {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        controller = new PIDFController(INTAKE_PID, kV, kA, kStatic, (x, v) -> kG);
+        controller = new PIDFController(INTAKE_PID, kV, kA, kStatic);
         motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
                 new MotionState(intake.getCurrentPosition(), intake.getVelocity(), 0),
                 new MotionState(intake.getCurrentPosition(), 0, 0),
@@ -75,6 +76,9 @@ public class Intake {
                 MAX_ACCEL,
                 MAX_JERK
         );
+
+        dashboard = FtcDashboard.getInstance();
+        dashboard.setTelemetryTransmissionInterval(25);
     }
 
     public void openClaw() {
@@ -146,6 +150,10 @@ public class Intake {
 
     public void setRelativeTargetPosition(double deltaTargetPosition) {
         double newTargetPosition = getTargetPosition() + deltaTargetPosition;
+        TelemetryPacket packet = new TelemetryPacket();
+        packet.put("oldTargetPosition", getTargetPosition());
+        packet.put("newTargetPosition", newTargetPosition);
+        dashboard.sendTelemetryPacket(packet);
         setTargetPosition(newTargetPosition);
     }
 
@@ -156,7 +164,16 @@ public class Intake {
         controller.setTargetVelocity(state.getV());
         controller.setTargetAcceleration(state.getA());
 
-        power = controller.update(intake.getCurrentPosition(), intake.getVelocity());
-        intake.setPower(power);
+        double power = controller.update(intake.getCurrentPosition(), intake.getVelocity());
+        intake.setPower(power + kG);
+
+        TelemetryPacket packet = new TelemetryPacket();
+        packet.put("slideTime", timer.time());
+        packet.put("slideX", intake.getCurrentPosition());
+        packet.put("slideV", intake.getVelocity());
+        packet.put("targetSlideX", state.getX());
+        packet.put("targetSlideV", state.getV());
+        packet.put("slidePower", power);
+        dashboard.sendTelemetryPacket(packet);
     }
 }
