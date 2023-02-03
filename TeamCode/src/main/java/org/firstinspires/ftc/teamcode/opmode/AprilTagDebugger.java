@@ -7,19 +7,19 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.vision.CameraController;
-import org.firstinspires.ftc.teamcode.vision.ParkingPositionPipeline;
+import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline;
 
 @Config
 @TeleOp
 public class AprilTagDebugger extends OpMode {
     public CameraController cameraController;
-    public ParkingPositionPipeline aprilTagPipeline;
+    public AprilTagPipeline aprilTagPipeline;
 
     @Override
     public void init() {
         telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         cameraController = new CameraController(hardwareMap);
-        aprilTagPipeline = new ParkingPositionPipeline();
+        aprilTagPipeline = new AprilTagPipeline();
         cameraController.setPipeline(aprilTagPipeline);
     }
 

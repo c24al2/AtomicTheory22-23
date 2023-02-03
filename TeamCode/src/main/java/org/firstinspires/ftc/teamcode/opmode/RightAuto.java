@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
 import org.firstinspires.ftc.teamcode.intake.Intake;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.vision.CameraController;
-import org.firstinspires.ftc.teamcode.vision.ParkingPositionPipeline;
+import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline;
 
 @Config
 @Autonomous
@@ -41,7 +41,7 @@ public class RightAuto extends LinearOpMode {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
         CameraController cameraController = new CameraController(hardwareMap);
-        ParkingPositionPipeline aprilTagPipeline = new ParkingPositionPipeline();
+        AprilTagPipeline aprilTagPipeline = new AprilTagPipeline();
         cameraController.setPipeline(aprilTagPipeline);
 
         telemetry.addData("Parking Position", aprilTagPipeline.parkingPosition);

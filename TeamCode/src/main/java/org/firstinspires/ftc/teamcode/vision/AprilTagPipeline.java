@@ -10,7 +10,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
 
-public class ParkingPositionPipeline extends OpenCvPipeline {
+public class AprilTagPipeline extends OpenCvPipeline {
     public enum ParkingPosition {
         NO_TAGS_SEEN,
         ZONE1,
@@ -34,7 +34,7 @@ public class ParkingPositionPipeline extends OpenCvPipeline {
     private long nativeApriltagPtr;
 
     // Constuctor - called when the pipeline is created
-    public ParkingPositionPipeline() {
+    public AprilTagPipeline() {
         // Allocate a native context object. See the corresponding deletion in the finalizer
         nativeApriltagPtr = AprilTagDetectorJNI.createApriltagDetector(TAG_FAMILY, DECIMATION, THREADS);
     }
