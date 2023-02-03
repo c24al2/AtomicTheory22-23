@@ -139,7 +139,7 @@ public class RightAuto extends LinearOpMode {
             // We update drive continuously in the background, regardless of state
             drive.update();
             // We update our lift PID continuously in the background, regardless of state
-            intake.followMotionProfile();
+            intake.update();
 
             // Read pose
             Pose2d poseEstimate = drive.getPoseEstimate();

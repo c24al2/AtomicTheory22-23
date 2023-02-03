@@ -5,7 +5,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.profile.MotionState;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -83,22 +82,22 @@ public class Drive extends OpMode {
         }
 
         if (gamepad2.dpad_up) {
-            intake.setTargetPosition(IntakeConstants.HIGH_JUNCTION_HEIGHT);
+            intake.createMotionProfile(IntakeConstants.HIGH_JUNCTION_HEIGHT);
         }
 
         if (gamepad2.dpad_right) {
-            intake.setTargetPosition(IntakeConstants.MEDIUM_JUNCTION_HEIGHT);
+            intake.createMotionProfile(IntakeConstants.MEDIUM_JUNCTION_HEIGHT);
         }
 
         if (gamepad2.dpad_left) {
-            intake.setTargetPosition(IntakeConstants.LOW_JUNCTION_HEIGHT);
+            intake.createMotionProfile(IntakeConstants.LOW_JUNCTION_HEIGHT);
         }
 
         if (gamepad2.dpad_down) {
-            intake.setTargetPosition(IntakeConstants.GROUND_JUNCTION_HEIGHT);
+            intake.createMotionProfile(IntakeConstants.GROUND_JUNCTION_HEIGHT);
         }
 
-        intake.followMotionProfile();
+        intake.update();
 
         if (Math.abs(gamepad2.left_stick_y) > 0.2) {
             intake.setPower(-gamepad2.left_stick_y * 0.7);

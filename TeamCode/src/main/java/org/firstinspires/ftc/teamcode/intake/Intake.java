@@ -2,13 +2,10 @@ package org.firstinspires.ftc.teamcode.intake;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.control.PIDFController;
 import com.acmerobotics.roadrunner.profile.MotionProfile;
-import com.acmerobotics.roadrunner.profile.MotionProfileBuilder;
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
-import com.acmerobotics.roadrunner.profile.MotionSegment;
 import com.acmerobotics.roadrunner.profile.MotionState;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -17,11 +14,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.util.LynxModuleUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 // https://github.com/NoahBres/VelocityPIDTuningTutorial/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/SampleLinkedPIDUse.java
 @Config
@@ -55,6 +48,7 @@ public class Intake {
 
         intake = hardwareMap.get(DcMotorEx.class, "intake");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
+
         intake.setDirection(DcMotor.Direction.REVERSE);
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -78,7 +72,7 @@ public class Intake {
         clawServo.setPosition(0.5);
     }
 
-    public void setTargetPosition(double targetPosition) {
+    public void createMotionProfile(double targetPosition) {
         // Add bounds so that the lift can not go too high or too low
         if (targetPosition < 0) {
             targetPosition = 0;
@@ -100,16 +94,19 @@ public class Intake {
     public void setPower(double power) {
         motionProfile = null;
         intake.setPower(power);
+        controller.setTargetPosition(intake.getCurrentPosition());
+        controller.setTargetVelocity(0);
+//        controller.setTargetAcceleration();
     }
 
-    public void followMotionProfile() {
-        if (motionProfile == null) return;
+    public void update() {
+        if (motionProfile != null) {
+            MotionState state = motionProfile.get(timer.time());
 
-        MotionState state = motionProfile.get(timer.time());
-
-        controller.setTargetPosition(state.getX());
-        controller.setTargetVelocity(state.getV());
-        controller.setTargetAcceleration(state.getA());
+            controller.setTargetPosition(state.getX());
+            controller.setTargetVelocity(state.getV());
+            controller.setTargetAcceleration(state.getA());
+        }
 
         double power = controller.update(intake.getCurrentPosition(), intake.getVelocity());
         intake.setPower(power);
