@@ -24,13 +24,16 @@ public class RightAuto extends LinearOpMode {
     public static Pose2d PICKUP_CONE_FROM_STACK_POSE = new Pose2d(60, -8, Math.toRadians(0));
     public static Pose2d PLACE_STACK_CONE_POSE = new Pose2d(30, -5, Math.toRadians(135));
 
+    public static int NUM_CONES_TO_PLACE = 2;
+
     // This is essentially just defines the possible steps our program will take
-    enum State {
+    private enum State {
         START,
         PLACE_PRELOADED_CONE,
         PRELOADED_CONE_TO_STACK,
         PICKUP_CONE_FROM_STACK_AND_PLACE,
         GO_TO_STACK,
+        PARK,
         DONE,
     }
 
@@ -60,7 +63,7 @@ public class RightAuto extends LinearOpMode {
                 .splineTo(PLACE_PRELOADED_CONE_POSE.vec(), PLACE_PRELOADED_CONE_POSE.getHeading())
                 .build();
 
-        TrajectorySequence driveFromPlacedPreloadedConePoseToStack = drive.trajectorySequenceBuilder(PLACE_PRELOADED_CONE_POSE)
+        TrajectorySequence preloadedConeToStack = drive.trajectorySequenceBuilder(PLACE_PRELOADED_CONE_POSE)
                 .setReversed(true)
                 .splineToLinearHeading(PICKUP_CONE_FROM_STACK_POSE, PICKUP_CONE_FROM_STACK_POSE.getHeading())
                 .build();
@@ -71,7 +74,7 @@ public class RightAuto extends LinearOpMode {
                 .splineToSplineHeading(PLACE_STACK_CONE_POSE, PLACE_STACK_CONE_POSE.getHeading())
                 .build();
 
-        TrajectorySequence driveFromPlacedConePoseToStack = drive.trajectorySequenceBuilder(PLACE_STACK_CONE_POSE)
+        TrajectorySequence placedConeToStack = drive.trajectorySequenceBuilder(PLACE_STACK_CONE_POSE)
                 .setReversed(true)
                 .splineToSplineHeading(PICKUP_CONE_FROM_STACK_POSE, PICKUP_CONE_FROM_STACK_POSE.getHeading())
                 .build();
@@ -104,6 +107,7 @@ public class RightAuto extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
+        int conesPlaced = 0;
         while (opModeIsActive() && !isStopRequested()) {
             switch (currentState) {
                 case START:
@@ -115,23 +119,36 @@ public class RightAuto extends LinearOpMode {
                 case PLACE_PRELOADED_CONE:
                     if (!drive.isBusy()) {
                         currentState = State.PRELOADED_CONE_TO_STACK;
-                        drive.followTrajectorySequenceAsync(driveFromPlacedPreloadedConePoseToStack);
+                        drive.followTrajectorySequenceAsync(preloadedConeToStack);
                     }
                     break;
                 case PRELOADED_CONE_TO_STACK:
+                case GO_TO_STACK:
                     if (!drive.isBusy()) {
                         currentState = State.PICKUP_CONE_FROM_STACK_AND_PLACE;
                         drive.followTrajectorySequenceAsync(pickUpConeAndPlace);
+                        conesPlaced++;
                     }
                     break;
                 case PICKUP_CONE_FROM_STACK_AND_PLACE:
+                    if (!drive.isBusy()) {
+                        if (conesPlaced == NUM_CONES_TO_PLACE) {
+                            currentState = State.PARK;
+                            drive.followTrajectorySequenceAsync(driveFromPlacedConePoseToParkingPosition);
+                        } else {
+                            currentState = State.GO_TO_STACK;
+                            drive.followTrajectorySequenceAsync(placedConeToStack);
+                        }
+                    }
+                    break;
+                case PARK:
                     if (!drive.isBusy()) {
                         currentState = State.DONE;
                     }
                     break;
                 case DONE:
                     // Do nothing in DONE
-                    // currentState does not change once in IDLE
+                    // currentState does not change once in DONE
                     // This concludes the autonomous program
                     break;
             }
