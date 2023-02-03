@@ -92,13 +92,12 @@ public class Intake {
         intake.setPower(power);
         controller.setTargetPosition(intake.getCurrentPosition());
         controller.setTargetVelocity(0);
-//        controller.setTargetAcceleration();
+        controller.setTargetAcceleration(0);
     }
 
     public void stepController() {
         if (motionProfile != null) {
             MotionState state = motionProfile.get(timer.time());
-
             controller.setTargetPosition(state.getX());
             controller.setTargetVelocity(state.getV());
             controller.setTargetAcceleration(state.getA());
