@@ -24,9 +24,7 @@ public class Intake {
     public static double kA = 0;
     public static double kStatic = 0;
 
-    public static double INTAKE_POWER_THRESHOLD = 0.02;
-
-    public static double MAX_LIFT_HEIGHT = 1800; // In ticks
+    public static double MAX_LIFT_HEIGHT = 1900; // In ticks
 
     public static double MAX_VEL = 1000;
     public static double MAX_ACCEL = 400;
@@ -62,10 +60,10 @@ public class Intake {
     }
 
     public void openClaw() {
-        clawServo.setPosition(1.0);
+        clawServo.setPosition(0.5);
     }
     public void closeClaw(){
-        clawServo.setPosition(0.5);
+        clawServo.setPosition(0.2);
     }
 
     public void createMotionProfile(double targetPosition) {
