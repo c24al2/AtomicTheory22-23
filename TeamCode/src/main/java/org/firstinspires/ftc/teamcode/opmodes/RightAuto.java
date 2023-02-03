@@ -141,16 +141,9 @@ public class RightAuto extends LinearOpMode {
             // We update our lift PID continuously in the background, regardless of state
             intake.stepController();
 
-            // Read pose
-            Pose2d poseEstimate = drive.getPoseEstimate();
-
             // Continually write pose to `PoseStorage`
-            PoseStorage.currentPose = poseEstimate;
+            PoseStorage.currentPose = drive.getPoseEstimate();
 
-            // Print pose to telemetry
-            telemetry.addData("x", poseEstimate.getX());
-            telemetry.addData("y", poseEstimate.getY());
-            telemetry.addData("heading", poseEstimate.getHeading());
             telemetry.update();
         }
     }
