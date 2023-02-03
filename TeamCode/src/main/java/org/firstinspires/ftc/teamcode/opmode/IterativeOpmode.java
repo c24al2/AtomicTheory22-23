@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.intake.IntakeConstants;
 
 @Config
 @TeleOp
-public class Drive extends OpMode {
+public class IterativeOpmode extends OpMode {
     public static double SLOW_MODE_SCALAR = 0.4;
     public static double DRIVER_ROTATION_SCALAR = 0.05;
     public static double GUNNER_STICK_THRESHOLD = 0.05;
