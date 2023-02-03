@@ -11,29 +11,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.intake.Intake;
 import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
 
-/**
- * This is a simple teleop routine for debugging your motor configuration.
- * Pressing each of the buttons will power its respective motor.
- *
- * Button Mappings:
- *
- * Xbox/PS4 Button - Motor
- *   X / ▢         - Left Motor
- *   A / X         - Back Motor
- *   B / O         - Right Motor
- *                   / ______ \
- *     ------------.-'   _  '-..+
- *              /   _  ( Y )  _  \
- *             |  ( X )  _  ( B ) |
- *        ___  '.      ( A )     /|
- *      .'    '.    '-._____.-'  .'
- *     |       |                 |
- *      '.___.' '.               |
- *               '.             /
- *                \.          .'
- *                  \________/
- *
- */
 @Config
 @TeleOp
 public class MotorDebugger extends OpMode {
@@ -49,7 +26,7 @@ public class MotorDebugger extends OpMode {
         drive = new SampleOmniDrive(hardwareMap);
         intake = new Intake(hardwareMap);
 
-        telemetry.addLine("Press play to begin the debugging opmode");
+        telemetry.addLine("Press play to begin the motor debugging opmode");
     }
 
     @Override
