@@ -62,10 +62,10 @@ public class Intake {
     }
 
     public void openClaw() {
-        clawServo.setPosition(1.0);
+        clawServo.setPosition(0.5);
     }
     public void closeClaw(){
-        clawServo.setPosition(0.5);
+        clawServo.setPosition(0.2);
     }
 
     public void createMotionProfile(double targetPosition) {
