@@ -27,8 +27,6 @@ public class IterativeOpmode extends OpMode {
     // private static Pose2d START_POSE = PoseStorage.currentPose;
     private static Pose2d START_POSE = new Pose2d(36, -62.8, Math.toRadians(90));
 
-    private ElapsedTime timer;
-
     private boolean driverSlowMode = false;
     private Gamepad previousGamepad1 = new Gamepad();
     private Gamepad previousGamepad2 = new Gamepad();
@@ -39,8 +37,6 @@ public class IterativeOpmode extends OpMode {
     @Override
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-
-        timer = new ElapsedTime();
 
         drive = new SampleOmniDrive(hardwareMap);
         intake = new Intake(hardwareMap);
@@ -74,7 +70,6 @@ public class IterativeOpmode extends OpMode {
 
         if (Math.abs(gamepad2.left_stick_y) > GUNNER_STICK_THRESHOLD) {
             intake.setPower(-gamepad2.left_stick_y * INTAKE_POWER_SCALAR);
-            timer.reset();
         } else {
             intake.stepController();
         }
