@@ -99,7 +99,7 @@ public class Intake {
 //        controller.setTargetAcceleration();
     }
 
-    public void update() {
+    public void stepController() {
         if (motionProfile != null) {
             MotionState state = motionProfile.get(timer.time());
 

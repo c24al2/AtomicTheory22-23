@@ -19,6 +19,9 @@ import org.firstinspires.ftc.teamcode.intake.IntakeConstants;
 @TeleOp
 public class Drive extends OpMode {
     public static double SLOW_MODE_SCALAR = 0.4;
+    public static double DRIVER_ROTATION_SCALAR = 0.05;
+    public static double GUNNER_STICK_THRESHOLD = 0.05;
+    public static double INTAKE_POWER_SCALAR = 0.7;
 
     // TODO: Remove, this is for debugging purpose
     // private static Pose2d START_POSE = PoseStorage.currentPose;
@@ -47,8 +50,6 @@ public class Drive extends OpMode {
 
     @Override
     public void loop() {
-       double servoTarget = 0;
-
         // Enable toggling driver slow mode when press a
         if (!previousGamepad1.a && gamepad1.a) {
             driverSlowMode = !driverSlowMode;
@@ -62,7 +63,7 @@ public class Drive extends OpMode {
         // Then, rotate that vector by the inverse of the robots' DELTA heading for driver lock
 //        translationalInput = translationalInput.rotated(-(poseEstimate.getHeading() - START_POSE.getHeading()));
 
-        Pose2d input = new Pose2d(translationalInput, -gamepad1.right_stick_x);
+        Pose2d input = new Pose2d(translationalInput, -gamepad1.right_stick_x * DRIVER_ROTATION_SCALAR);
 
         if (driverSlowMode) {
             input = input.times(SLOW_MODE_SCALAR);
@@ -71,45 +72,40 @@ public class Drive extends OpMode {
         // Pass in the rotated input + right stick value for rotation
         drive.setWeightedDrivePower(input);
 
-        if (gamepad2.x){
+        if (Math.abs(gamepad2.left_stick_y) > GUNNER_STICK_THRESHOLD) {
+            intake.setPower(-gamepad2.left_stick_y * INTAKE_POWER_SCALAR);
+            timer.reset();
+        } else {
+            intake.stepController();
+        }
+
+        if (gamepad2.x) {
             intake.closeClaw();
-            telemetry.addData("Claw","Claw Closed");
+            telemetry.addData("Claw","Closed");
         }
 
-        if(gamepad2.y){
+        if (gamepad2.y) {
             intake.openClaw();
-            telemetry.addData("Claw","Claw Open");
+            telemetry.addData("Claw","Open");
         }
 
-        if (gamepad2.dpad_up) {
+        if (!previousGamepad2.dpad_up && gamepad2.dpad_up) {
             intake.createMotionProfile(IntakeConstants.HIGH_JUNCTION_HEIGHT);
         }
 
-        if (gamepad2.dpad_right) {
+        if (!previousGamepad2.dpad_right && gamepad2.dpad_right) {
             intake.createMotionProfile(IntakeConstants.MEDIUM_JUNCTION_HEIGHT);
         }
 
-        if (gamepad2.dpad_left) {
+        if (!previousGamepad2.dpad_left && gamepad2.dpad_left) {
             intake.createMotionProfile(IntakeConstants.LOW_JUNCTION_HEIGHT);
         }
 
-        if (gamepad2.dpad_down) {
+        if (!previousGamepad2.dpad_down && gamepad2.dpad_down) {
             intake.createMotionProfile(IntakeConstants.GROUND_JUNCTION_HEIGHT);
         }
 
-        intake.update();
-
-        if (Math.abs(gamepad2.left_stick_y) > 0.2) {
-            intake.setPower(-gamepad2.left_stick_y * 0.7);
-            timer.reset();
-        }
-        else{
-            intake.setPower(0);
-        }
-
-
         drive.update();
-
 
         previousGamepad1.copy(gamepad1);
         previousGamepad2.copy(gamepad2);
