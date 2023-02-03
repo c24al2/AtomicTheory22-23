@@ -88,8 +88,13 @@ public class Intake {
     }
 
     public void setPower(double power) {
+        if (intake.getCurrentPosition() >= MAX_LIFT_HEIGHT && power > 0 || intake.getCurrentPosition() <= 0 && power < 0) {
+            intake.setPower(0);
+        } else {
+            intake.setPower(power);
+        }
+
         motionProfile = null;
-        intake.setPower(power);
         controller.setTargetPosition(intake.getCurrentPosition());
         controller.setTargetVelocity(0);
         controller.setTargetAcceleration(0);
