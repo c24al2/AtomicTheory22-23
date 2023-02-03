@@ -73,12 +73,12 @@ public class IterativeOpmode extends OpMode {
             intake.stepController();
         }
 
-        if (gamepad2.x) {
+        if (!previousGamepad2.x && gamepad2.x) {
             intake.closeClaw();
             telemetry.addData("Claw","Closed");
         }
 
-        if (gamepad2.y) {
+        if (!previousGamepad2.y && gamepad2.y) {
             intake.openClaw();
             telemetry.addData("Claw","Open");
         }
