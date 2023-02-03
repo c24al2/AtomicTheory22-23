@@ -23,12 +23,12 @@ public class IterativeOpmode extends OpMode {
     public static double INTAKE_POWER_SCALAR = 0.7;
 
     // TODO: Remove, this is for debugging purpose
-    // private static Pose2d START_POSE = PoseStorage.currentPose;
-    private static Pose2d START_POSE = new Pose2d(36, -62.8, Math.toRadians(90));
+    // public static Pose2d START_POSE = PoseStorage.currentPose;
+    public static Pose2d START_POSE = new Pose2d(36, -62.8, Math.toRadians(90));
 
     private boolean driverSlowMode = false;
-    private Gamepad previousGamepad1 = new Gamepad();
-    private Gamepad previousGamepad2 = new Gamepad();
+    public Gamepad previousGamepad1 = new Gamepad();
+    public Gamepad previousGamepad2 = new Gamepad();
 
     public SampleOmniDrive drive;
     public Intake intake;
