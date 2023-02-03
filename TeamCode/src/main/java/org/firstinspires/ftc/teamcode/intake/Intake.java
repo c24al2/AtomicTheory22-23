@@ -36,7 +36,7 @@ public class Intake {
     public static double MAX_LIFT_HEIGHT = 1800; // In ticks
 
     public static double MAX_VEL = 1000;
-    public static double MAX_ACCEL = 1000;
+    public static double MAX_ACCEL = 400;
     public static double MAX_JERK = 0;  // Jerk isn't used if it's 0, but it might end up being necessary
 
     public ElapsedTime timer;
@@ -55,7 +55,6 @@ public class Intake {
 
         intake = hardwareMap.get(DcMotorEx.class, "intake");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
-
         intake.setDirection(DcMotor.Direction.REVERSE);
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -76,7 +75,7 @@ public class Intake {
         clawServo.setPosition(1.0);
     }
     public void closeClaw(){
-        clawServo.setPosition(0.8);
+        clawServo.setPosition(0.5);
     }
 
     public void setTargetPosition(double targetPosition) {
@@ -99,10 +98,7 @@ public class Intake {
     }
 
     public void setPower(double power) {
-        if (Math.abs(power) < INTAKE_POWER_THRESHOLD) return;
-
         motionProfile = null;
-
         intake.setPower(power);
     }
 

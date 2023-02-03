@@ -72,27 +72,45 @@ public class Drive extends OpMode {
         // Pass in the rotated input + right stick value for rotation
         drive.setWeightedDrivePower(input);
 
-        intake.setPower(-gamepad2.left_stick_y);
-        timer.reset();
+        if (gamepad2.x){
+            intake.closeClaw();
+            telemetry.addData("Claw","Claw Closed");
+        }
 
-        if (!previousGamepad2.dpad_up && gamepad2.dpad_up) {
+        if(gamepad2.y){
+            intake.openClaw();
+            telemetry.addData("Claw","Claw Open");
+        }
+
+        if (gamepad2.dpad_up) {
             intake.setTargetPosition(IntakeConstants.HIGH_JUNCTION_HEIGHT);
         }
 
-        if (!previousGamepad2.dpad_right && gamepad2.dpad_right) {
+        if (gamepad2.dpad_right) {
             intake.setTargetPosition(IntakeConstants.MEDIUM_JUNCTION_HEIGHT);
         }
 
-        if (!previousGamepad2.dpad_left && gamepad2.dpad_left) {
+        if (gamepad2.dpad_left) {
             intake.setTargetPosition(IntakeConstants.LOW_JUNCTION_HEIGHT);
         }
 
-        if (!previousGamepad2.dpad_down && gamepad2.dpad_down) {
+        if (gamepad2.dpad_down) {
             intake.setTargetPosition(IntakeConstants.GROUND_JUNCTION_HEIGHT);
         }
 
-        drive.update();
         intake.followMotionProfile();
+
+        if (Math.abs(gamepad2.left_stick_y) > 0.2) {
+            intake.setPower(-gamepad2.left_stick_y * 0.7);
+            timer.reset();
+        }
+        else{
+            intake.setPower(0);
+        }
+
+
+        drive.update();
+
 
         previousGamepad1.copy(gamepad1);
         previousGamepad2.copy(gamepad2);
