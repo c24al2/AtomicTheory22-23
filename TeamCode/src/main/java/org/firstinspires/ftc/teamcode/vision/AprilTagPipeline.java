@@ -15,7 +15,7 @@ import java.util.ArrayList;
 @Config
 public class AprilTagPipeline extends OpenCvPipeline {
     // Stores that LAST SEEN AprilTag representing a parking position
-    public ParkingPosition parkingPosition = ParkingPosition.NO_TAGS_SEEN;
+    private ParkingPosition parkingPosition = ParkingPosition.NO_TAGS_SEEN;
 
     public static double TAG_SIZE = 0.035;  // Units are meters
     public static String TAG_FAMILY = "tag25h9";  // Chose 25h9 tags because they have the largest data bits but still have a relatively high hemming distance
@@ -29,7 +29,7 @@ public class AprilTagPipeline extends OpenCvPipeline {
     // Very technical (in short, stores pointer to underlying C object), so ignore if possible :) Shouldn't have to be touched
     private long nativeApriltagPtr;
 
-    Mat cropped = new Mat();
+    Mat cropped;
     Mat grayscaleCropped = new Mat();
 
     // Constuctor - called when the pipeline is created
@@ -52,14 +52,15 @@ public class AprilTagPipeline extends OpenCvPipeline {
     }
 
     @Override
-    public Mat processFrame(Mat input) {
+    public void init(Mat firstFrame) {
         // Only crop the height, don't crop the width
-        int y = (int) (0.6*input.height());
-        int height = (int) (0.4*input.height());
-        Rect cropArea = new Rect(0, y, input.width(), height);
+        int y = (int) (0.6*firstFrame.height());
+        int height = (int) (0.4*firstFrame.height());
+        cropped = firstFrame.submat(0, y, firstFrame.width(),height);
+    }
 
-        cropped = input.submat(cropArea);
-
+    @Override
+    public Mat processFrame(Mat input) {
         // Convert croppedImage to grayscale
         Imgproc.cvtColor(cropped, grayscaleCropped, Imgproc.COLOR_RGBA2GRAY);
 
@@ -78,7 +79,10 @@ public class AprilTagPipeline extends OpenCvPipeline {
             }
         }
 
-        Imgproc.rectangle(input, cropArea, new Scalar(255, 0, 0));
-        return input;
+        return grayscaleCropped;
+    }
+
+    public ParkingPosition getParkingPosition() {
+        return parkingPosition;
     }
 }

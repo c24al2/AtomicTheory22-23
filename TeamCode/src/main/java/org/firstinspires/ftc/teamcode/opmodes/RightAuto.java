@@ -44,7 +44,7 @@ public class RightAuto extends LinearOpMode {
         AprilTagPipeline aprilTagPipeline = new AprilTagPipeline();
         cameraController.setPipeline(aprilTagPipeline);
 
-        telemetry.addData("Parking Position", aprilTagPipeline.parkingPosition);
+        telemetry.addData("Parking Position", aprilTagPipeline.getParkingPosition());
         telemetry.update();
 
         cameraController.stopStreaming(); // Reduce resource usage by not processing any more camera
@@ -78,7 +78,7 @@ public class RightAuto extends LinearOpMode {
 
         TrajectorySequence driveFromPlacedConePoseToParkingPosition;
 
-        switch (aprilTagPipeline.parkingPosition) {
+        switch (aprilTagPipeline.getParkingPosition()) {
             case ZONE1:
                 driveFromPlacedConePoseToParkingPosition = drive.trajectorySequenceBuilder(PLACE_STACK_CONE_POSE)
                         .setReversed(true)

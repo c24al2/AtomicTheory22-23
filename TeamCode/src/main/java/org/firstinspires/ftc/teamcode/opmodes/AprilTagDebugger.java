@@ -25,6 +25,6 @@ public class AprilTagDebugger extends OpMode {
 
     @Override
     public void loop() {
-        telemetry.addData("Parking Position", aprilTagPipeline.parkingPosition);
+        telemetry.addData("Parking Position", aprilTagPipeline.getParkingPosition());
     }
 }
