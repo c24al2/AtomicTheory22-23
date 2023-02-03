@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -35,55 +36,52 @@ import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
  */
 @Config
 @TeleOp
-public class MotorDebugger extends LinearOpMode {
+public class MotorDebugger extends OpMode {
     public static double MOTOR_POWER = 1;
 
-    @Override
-    public void runOpMode() throws InterruptedException {
-        Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+    public SampleOmniDrive drive;
+    public Intake intake;
 
-        SampleOmniDrive drive = new SampleOmniDrive(hardwareMap);
-        Intake intake = new Intake(hardwareMap);
+    @Override
+    public void init() {
+        telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        drive = new SampleOmniDrive(hardwareMap);
+        intake = new Intake(hardwareMap);
 
         telemetry.addLine("Press play to begin the debugging opmode");
-        telemetry.update();
+    }
 
-        waitForStart();
+    @Override
+    public void loop() {
+        telemetry.addLine("Press each button to turn on its respective motor");
 
-        if (isStopRequested()) return;
-
-        while (!isStopRequested()) {
-            telemetry.addLine("Press each button to turn on its respective motor");
-
-            if (gamepad1.x) {
-                drive.setMotorPowers(MOTOR_POWER, 0, 0);
-                telemetry.addLine("Running Motor: Left");
-            } else if (gamepad1.b) {
-                drive.setMotorPowers(0, 0, MOTOR_POWER);
-                telemetry.addLine("Running Motor: Right");
-            } else if (gamepad1.a) {
-                drive.setMotorPowers(0, MOTOR_POWER, 0);
-                telemetry.addLine("Running Motor: Back");
-            } else if (gamepad1.y) {
-                intake.setPower(0.1);
-                telemetry.addLine("Running Motor: Intake");
-            } else {
-                drive.setMotorPowers(0, 0, 0);
-                telemetry.addLine("Running Motor: None");
-            }
-
-            telemetry.addLine();
-            telemetry.addData("Left Motor Position: ", drive.leftMotor.getCurrentPosition());
-            telemetry.addData("Back Motor Position: ", drive.backMotor.getCurrentPosition());
-            telemetry.addData("Right Motor Position: ", drive.rightMotor.getCurrentPosition());
-            telemetry.addData("Intake Motor Position: ", intake.intake.getCurrentPosition());
-            telemetry.addLine();
-            telemetry.addData("Left Motor Velocity: ", drive.leftMotor.getVelocity());
-            telemetry.addData("Back Motor Velocity: ", drive.backMotor.getVelocity());
-            telemetry.addData("Right Motor Velocity: ", drive.rightMotor.getVelocity());
-            telemetry.addData("Intake Motor Velocity: ", intake.intake.getVelocity());
-
-            telemetry.update();
+        if (gamepad1.x) {
+            drive.setMotorPowers(MOTOR_POWER, 0, 0);
+            telemetry.addLine("Running Motor: Left");
+        } else if (gamepad1.b) {
+            drive.setMotorPowers(0, 0, MOTOR_POWER);
+            telemetry.addLine("Running Motor: Right");
+        } else if (gamepad1.a) {
+            drive.setMotorPowers(0, MOTOR_POWER, 0);
+            telemetry.addLine("Running Motor: Back");
+        } else if (gamepad1.y) {
+            intake.setPower(0.1);
+            telemetry.addLine("Running Motor: Intake");
+        } else {
+            drive.setMotorPowers(0, 0, 0);
+            telemetry.addLine("Running Motor: None");
         }
+
+        telemetry.addLine();
+        telemetry.addData("Left Motor Position: ", drive.leftMotor.getCurrentPosition());
+        telemetry.addData("Back Motor Position: ", drive.backMotor.getCurrentPosition());
+        telemetry.addData("Right Motor Position: ", drive.rightMotor.getCurrentPosition());
+        telemetry.addData("Intake Motor Position: ", intake.intake.getCurrentPosition());
+        telemetry.addLine();
+        telemetry.addData("Left Motor Velocity: ", drive.leftMotor.getVelocity());
+        telemetry.addData("Back Motor Velocity: ", drive.backMotor.getVelocity());
+        telemetry.addData("Right Motor Velocity: ", drive.rightMotor.getVelocity());
+        telemetry.addData("Intake Motor Velocity: ", intake.intake.getVelocity());
     }
 }
