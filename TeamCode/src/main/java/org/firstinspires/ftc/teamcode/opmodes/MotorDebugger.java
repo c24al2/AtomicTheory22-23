@@ -31,16 +31,16 @@ public class MotorDebugger extends OpMode {
     public void loop() {
         telemetry.addLine("Press each button to turn on its respective motor");
 
-        if (gamepad1.x) {
+        if (gamepad1.x || gamepad2.x) {
             drive.setMotorPowers(MOTOR_POWER, 0, 0);
             telemetry.addData("Running Motor", "Left");
-        } else if (gamepad1.a) {
+        } else if (gamepad1.a || gamepad2.a) {
             drive.setMotorPowers(0, MOTOR_POWER, 0);
             telemetry.addData("Running Motor", "Back");
-        } else if (gamepad1.b) {
+        } else if (gamepad1.b || gamepad2.b) {
             drive.setMotorPowers(0, 0, MOTOR_POWER);
             telemetry.addData("Running Motor", "Right");
-        } else if (gamepad1.y) {
+        } else if (gamepad1.y || gamepad2.y) {
             intake.setPower(0.1);
             telemetry.addData("Running Motor", "Intake");
         } else {
