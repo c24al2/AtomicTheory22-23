@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.vision;
 import com.acmerobotics.dashboard.config.Config;
 
 import org.opencv.core.Mat;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.apriltag.AprilTagDetectorJNI;
@@ -29,10 +27,10 @@ public class AprilTagPipeline extends OpenCvPipeline {
     // Very technical (in short, stores pointer to underlying C object), so ignore if possible :) Shouldn't have to be touched
     private long nativeApriltagPtr;
 
-    Mat cropped;
-    Mat grayscaleCropped = new Mat();
+    Mat croppedImage;
+    Mat grayscaleCroppedImage = new Mat();
 
-    // Constuctor - called when the pipeline is created
+    // Constructor - called when the pipeline is created
     public AprilTagPipeline() {
         // Allocate a native context object. See the corresponding deletion in the finalizer
         nativeApriltagPtr = AprilTagDetectorJNI.createApriltagDetector(TAG_FAMILY, DECIMATION, THREADS);
@@ -56,20 +54,19 @@ public class AprilTagPipeline extends OpenCvPipeline {
         // Only crop the height, don't crop the width
         int y = (int) (0.6*firstFrame.height());
         int height = (int) (0.4*firstFrame.height());
-        cropped = firstFrame.submat(0, y, firstFrame.width(),height);
+        croppedImage = firstFrame.submat(y, height, 0, firstFrame.width());
     }
 
     @Override
-    public Mat processFrame(Mat input) {
+    public Mat processFrame(Mat image) {
         // Convert croppedImage to grayscale
-        Imgproc.cvtColor(cropped, grayscaleCropped, Imgproc.COLOR_RGBA2GRAY);
+        Imgproc.cvtColor(croppedImage, grayscaleCroppedImage, Imgproc.COLOR_RGBA2GRAY);
 
         // Run AprilTag detection on the grayscale, cropped image
-        ArrayList<AprilTagDetection> tags = AprilTagDetectorJNI.runAprilTagDetectorSimple(nativeApriltagPtr, grayscaleCropped, TAG_SIZE, FX, FY, CX, CY);
+        ArrayList<AprilTagDetection> tags = AprilTagDetectorJNI.runAprilTagDetectorSimple(nativeApriltagPtr, grayscaleCroppedImage, TAG_SIZE, FX, FY, CX, CY);
 
         // TODO: What if multiple AprilTags are found?
-        for(AprilTagDetection tag : tags) {
-            System.out.println(tag.id);
+        for (AprilTagDetection tag : tags) {
             if(tag.id == 1) {
                 parkingPosition = ParkingPosition.ZONE1;
             } else if (tag.id == 2) {
@@ -79,7 +76,7 @@ public class AprilTagPipeline extends OpenCvPipeline {
             }
         }
 
-        return grayscaleCropped;
+        return grayscaleCroppedImage;
     }
 
     public ParkingPosition getParkingPosition() {
