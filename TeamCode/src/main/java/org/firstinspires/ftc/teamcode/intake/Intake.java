@@ -23,6 +23,7 @@ public class Intake {
     public static double kV = 0;
     public static double kA = 0;
     public static double kStatic = 0;
+    public static double kG = 0.1;
 
     public static double MAX_LIFT_HEIGHT = 1900; // In ticks
 
@@ -86,13 +87,10 @@ public class Intake {
     }
 
     public void setPower(double power) {
-        if (intake.getCurrentPosition() >= MAX_LIFT_HEIGHT && power > 0 || intake.getCurrentPosition() <= 0 && power < 0) {
-            intake.setPower(0);
-        } else {
-            intake.setPower(power);
-        }
+        if ((intake.getCurrentPosition() >= MAX_LIFT_HEIGHT && power > 0) || (intake.getCurrentPosition() <= 0 && power < 0)) return;
 
         motionProfile = null;
+        intake.setPower(power + kG);
         controller.setTargetPosition(intake.getCurrentPosition());
         controller.setTargetVelocity(0);
         controller.setTargetAcceleration(0);
@@ -107,6 +105,6 @@ public class Intake {
         }
 
         double power = controller.update(intake.getCurrentPosition(), intake.getVelocity());
-        intake.setPower(power);
+        intake.setPower(power + kG);
     }
 }
