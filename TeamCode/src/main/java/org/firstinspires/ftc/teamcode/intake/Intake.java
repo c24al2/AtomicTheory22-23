@@ -39,7 +39,6 @@ public class Intake {
 
     public PIDFController controller;
     public MotionProfile motionProfile;
-    private final FtcDashboard dashboard;
 
     public Intake(HardwareMap hardwareMap) {
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
@@ -60,9 +59,6 @@ public class Intake {
         }
 
         controller = new PIDFController(INTAKE_PID, kV, kA, kStatic);
-
-        dashboard = FtcDashboard.getInstance();
-        dashboard.setTelemetryTransmissionInterval(25);
     }
 
     public void openClaw() {
