@@ -33,16 +33,20 @@ public class MotorDebugger extends OpMode {
 
         if (gamepad1.x) {
             drive.setMotorPowers(MOTOR_POWER, 0, 0);
-            telemetry.addLine("Running Motor: Left");
-        } else if (gamepad1.b) {
-            drive.setMotorPowers(0, 0, MOTOR_POWER);
-            telemetry.addLine("Running Motor: Right");
+            telemetry.addData("Running Motor", "Left");
         } else if (gamepad1.a) {
             drive.setMotorPowers(0, MOTOR_POWER, 0);
-            telemetry.addLine("Running Motor: Back");
+            telemetry.addData("Running Motor", "Back");
+        } else if (gamepad1.b) {
+            drive.setMotorPowers(0, 0, MOTOR_POWER);
+            telemetry.addData("Running Motor", "Right");
+        } else if (gamepad1.y) {
+            intake.setPower(0.1);
+            telemetry.addData("Running Motor", "Intake");
         } else {
             drive.setMotorPowers(0, 0, 0);
-            telemetry.addLine("Running Motor: None");
+            intake.setPower(0);
+            telemetry.addData("Running Motor", "None");
         }
 
         telemetry.addLine();
