@@ -107,6 +107,8 @@ public class RightAuto extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
+        intake.openClaw(); // So that it's less likely to bang into poles
+
         int conesPlaced = 0;
         while (opModeIsActive() && !isStopRequested()) {
             switch (currentState) {
