@@ -1,32 +1,30 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.vision.CameraController;
 import org.firstinspires.ftc.teamcode.vision.ParkingPositionPipeline;
 
+@Config
 @TeleOp
-public class AprilTagDebugger extends LinearOpMode {
+public class AprilTagDebugger extends OpMode {
+    public CameraController cameraController;
+    public ParkingPositionPipeline aprilTagPipeline;
+
     @Override
-    public void runOpMode() throws InterruptedException {
-        FtcDashboard dashboard = FtcDashboard.getInstance();
-        Telemetry telemetry = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
-
-        CameraController cameraController = new CameraController(hardwareMap);
-        ParkingPositionPipeline aprilTagPipeline = new ParkingPositionPipeline();
-
-        waitForStart();
-        if (isStopRequested()) return;
-
+    public void init() {
+        telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+        cameraController = new CameraController(hardwareMap);
+        aprilTagPipeline = new ParkingPositionPipeline();
         cameraController.setPipeline(aprilTagPipeline);
+    }
 
-        while (opModeIsActive() && !isStopRequested()) {
-            telemetry.addData("Parking Position", aprilTagPipeline.parkingPosition);
-            telemetry.update();
-        }
+    @Override
+    public void loop() {
+        telemetry.addData("Parking Position", aprilTagPipeline.parkingPosition);
     }
 }
