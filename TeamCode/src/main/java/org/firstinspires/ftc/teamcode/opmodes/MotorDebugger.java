@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.intake.Intake;
 import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
@@ -16,6 +17,9 @@ public class MotorDebugger extends OpMode {
 
     public SampleOmniDrive drive;
     public Intake intake;
+
+    private Gamepad previousGamepad1 = new Gamepad();
+    private Gamepad previousGamepad2 = new Gamepad();
 
     @Override
     public void init() {
@@ -59,5 +63,8 @@ public class MotorDebugger extends OpMode {
         telemetry.addData("Back Motor Velocity: ", drive.backMotor.getVelocity());
         telemetry.addData("Right Motor Velocity: ", drive.rightMotor.getVelocity());
         telemetry.addData("Intake Motor Velocity: ", intake.intake.getVelocity());
+
+        previousGamepad1.copy(gamepad1);
+        previousGamepad2.copy(gamepad2);
     }
 }
