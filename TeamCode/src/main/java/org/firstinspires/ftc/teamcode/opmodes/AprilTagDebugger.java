@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.vision.CameraController;
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline;
 
 @Config
-@TeleOp
+@TeleOp(group = "debug")
 public class AprilTagDebugger extends OpMode {
     public CameraController cameraController;
     public AprilTagPipeline aprilTagPipeline;

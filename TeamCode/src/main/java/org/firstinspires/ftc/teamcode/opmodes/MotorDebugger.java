@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.intake.Intake;
 import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
 
 @Config
-@TeleOp
+@TeleOp(group = "debug")
 public class MotorDebugger extends OpMode {
     public static double MOTOR_POWER = 1;
 
