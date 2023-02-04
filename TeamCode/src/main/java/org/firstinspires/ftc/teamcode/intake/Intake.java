@@ -23,8 +23,6 @@ public class Intake {
     public static double kA = 0;
     public static double kStatic = 0;
 
-    public static double MAX_LIFT_HEIGHT = 2200; // In ticks
-
     public static double MAX_VEL = 1500;
     public static double MAX_ACCEL = 1500;
     public static double MAX_JERK = 0;  // Jerk isn't used if it's 0, but it might end up being necessary
@@ -81,8 +79,6 @@ public class Intake {
         // Add bounds so that the lift can not go too high or too low
         if (targetPosition < 0) {
             targetPosition = 0;
-        } else if (targetPosition > MAX_LIFT_HEIGHT) {
-            targetPosition = MAX_LIFT_HEIGHT;
         }
 
         motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
@@ -97,7 +93,7 @@ public class Intake {
     }
 
     public void setPower(double power) {
-        if ((intake.getCurrentPosition() >= MAX_LIFT_HEIGHT && power > 0) || (intake.getCurrentPosition() <= 0 && power < 0)) {
+        if (intake.getCurrentPosition() <= 0 && power < 0) {
             intake.setPower(0);
         } else {
             intake.setPower(power);
