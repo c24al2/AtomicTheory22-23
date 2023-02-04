@@ -23,8 +23,8 @@ public class MotorDebugger extends OpMode {
 
     public double liftPosition = 900;
     public double servoPosition = 0.5;
-    public static double LIFT_POSITION_STEP = 180;
-    public static double SERVO_POSITION_STEP = 0.1;
+    public static double LIFT_POSITION_STEP = 100;
+    public static double SERVO_POSITION_STEP = 0.025;
 
     @Override
     public void init() {
@@ -33,7 +33,7 @@ public class MotorDebugger extends OpMode {
         drive = new SampleOmniDrive(hardwareMap);
         intake = new Intake(hardwareMap);
 
-        intake.createMotionProfile(liftPosition);
+        intake.followMotionProfileAsync(liftPosition);
         intake.clawServo.setPosition(servoPosition);
 
         telemetry.addLine("Press play to begin the motor debugging opmode");
@@ -59,18 +59,23 @@ public class MotorDebugger extends OpMode {
 
         if ((!previousGamepad1.dpad_up && gamepad1.dpad_up) || (!previousGamepad2.dpad_up && gamepad2.dpad_up)) {
             liftPosition += LIFT_POSITION_STEP;
-            intake.createMotionProfile(liftPosition);
-        } else if ((!previousGamepad1.dpad_down && gamepad1.dpad_down) || (!previousGamepad2.dpad_down && gamepad2.dpad_down)) {
+            intake.followMotionProfileAsync(liftPosition);
+        }
+
+        if ((!previousGamepad1.dpad_down && gamepad1.dpad_down) || (!previousGamepad2.dpad_down && gamepad2.dpad_down)) {
             liftPosition -= LIFT_POSITION_STEP;
-            intake.createMotionProfile(liftPosition);
-        } else if ((!previousGamepad1.dpad_right && gamepad1.dpad_right) || (!previousGamepad2.dpad_right && gamepad2.dpad_right)) {
+            intake.followMotionProfileAsync(liftPosition);
+        }
+
+        if ((!previousGamepad1.dpad_right && gamepad1.dpad_right) || (!previousGamepad2.dpad_right && gamepad2.dpad_right)) {
             servoPosition += SERVO_POSITION_STEP;
-            intake.clawServo.setPosition(servoPosition);
-        } else if ((!previousGamepad1.dpad_left && gamepad1.dpad_left) || (!previousGamepad2.dpad_left && gamepad2.dpad_left)) {
-            servoPosition -= SERVO_POSITION_STEP;
             intake.clawServo.setPosition(servoPosition);
         }
 
+        if ((!previousGamepad1.dpad_left && gamepad1.dpad_left) || (!previousGamepad2.dpad_left && gamepad2.dpad_left)) {
+            servoPosition -= SERVO_POSITION_STEP;
+            intake.clawServo.setPosition(servoPosition);
+        }
 
         intake.stepController();
 
