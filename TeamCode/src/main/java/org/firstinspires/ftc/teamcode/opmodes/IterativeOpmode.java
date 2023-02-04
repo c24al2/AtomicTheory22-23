@@ -17,10 +17,11 @@ import org.firstinspires.ftc.teamcode.intake.IntakeConstants;
 @Config
 @TeleOp
 public class IterativeOpmode extends OpMode {
-    public static double SLOW_MODE_SCALAR = 0.4;
-    public static double DRIVER_ROTATION_SCALAR = 0.05;
+    public static double DRIVER_POWER_SCALAR = 0.7;
+    public static double SLOW_MODE_POWER_SCALAR = 0.5;
+    public static double DRIVER_ROTATION_SCALAR = 0.08;
     public static double GUNNER_STICK_THRESHOLD = 0.05;
-    public static double INTAKE_POWER_SCALAR = 0.7;
+    public static double INTAKE_POWER_SCALAR = 0.4;
 
     // TODO: Remove, this is for debugging purpose
     // public static Pose2d START_POSE = PoseStorage.currentPose;
@@ -50,6 +51,8 @@ public class IterativeOpmode extends OpMode {
             driverSlowMode = !driverSlowMode;
         }
 
+        telemetry.addData("Slow mode", driverSlowMode);
+
         // Create a vector from the gamepad x/y inputs
         Vector2d translationalInput = new Vector2d(-gamepad1.left_stick_y, -gamepad1.left_stick_x);
 
@@ -60,8 +63,9 @@ public class IterativeOpmode extends OpMode {
 
         Pose2d input = new Pose2d(translationalInput, -gamepad1.right_stick_x * DRIVER_ROTATION_SCALAR);
 
+        input = input.times(DRIVER_POWER_SCALAR);
         if (driverSlowMode) {
-            input = input.times(SLOW_MODE_SCALAR);
+            input = input.times(SLOW_MODE_POWER_SCALAR);
         }
 
         // Pass in the rotated input + right stick value for rotation
@@ -75,28 +79,28 @@ public class IterativeOpmode extends OpMode {
 
         if (!previousGamepad2.x && gamepad2.x) {
             intake.closeClaw();
-            telemetry.addData("Claw","Closed");
+            telemetry.addData("Claw", "Closed");
         }
 
         if (!previousGamepad2.y && gamepad2.y) {
             intake.openClaw();
-            telemetry.addData("Claw","Open");
+            telemetry.addData("Claw", "Open");
         }
 
         if (!previousGamepad2.dpad_up && gamepad2.dpad_up) {
-            intake.createMotionProfile(IntakeConstants.HIGH_JUNCTION_HEIGHT);
+            intake.followMotionProfileAsync(IntakeConstants.HIGH_JUNCTION_HEIGHT);
         }
 
         if (!previousGamepad2.dpad_right && gamepad2.dpad_right) {
-            intake.createMotionProfile(IntakeConstants.MEDIUM_JUNCTION_HEIGHT);
+            intake.followMotionProfileAsync(IntakeConstants.MEDIUM_JUNCTION_HEIGHT);
         }
 
         if (!previousGamepad2.dpad_left && gamepad2.dpad_left) {
-            intake.createMotionProfile(IntakeConstants.LOW_JUNCTION_HEIGHT);
+            intake.followMotionProfileAsync(IntakeConstants.LOW_JUNCTION_HEIGHT);
         }
 
         if (!previousGamepad2.dpad_down && gamepad2.dpad_down) {
-            intake.createMotionProfile(IntakeConstants.GROUND_JUNCTION_HEIGHT);
+            intake.followMotionProfileAsync(IntakeConstants.GROUND_JUNCTION_HEIGHT);
         }
 
         drive.update();
