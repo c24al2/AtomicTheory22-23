@@ -6,16 +6,19 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.PoseStorage;
 import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
 import org.firstinspires.ftc.teamcode.intake.Intake;
+import org.firstinspires.ftc.teamcode.intake.IntakeConstants;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.vision.CameraController;
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline;
 
+@Disabled
 @Config
 @Autonomous
 public class RightAuto extends LinearOpMode {
@@ -47,11 +50,6 @@ public class RightAuto extends LinearOpMode {
         AprilTagPipeline aprilTagPipeline = new AprilTagPipeline();
         cameraController.setPipeline(aprilTagPipeline);
 
-        telemetry.addData("Parking Position", aprilTagPipeline.getParkingPosition());
-        telemetry.update();
-
-        cameraController.stopStreaming(); // Reduce resource usage by not processing any more camera
-
         SampleOmniDrive drive = new SampleOmniDrive(hardwareMap);
         Intake intake = new Intake(hardwareMap);
 
@@ -78,6 +76,12 @@ public class RightAuto extends LinearOpMode {
                 .setReversed(true)
                 .splineToSplineHeading(PICKUP_CONE_FROM_STACK_POSE, PICKUP_CONE_FROM_STACK_POSE.getHeading())
                 .build();
+
+        while (!isStarted() && !isStopRequested()) {
+            telemetry.addData("Parking Position", aprilTagPipeline.getParkingPosition());
+            telemetry.update();
+            sleep(25);
+        }
 
         TrajectorySequence driveFromPlacedConePoseToParkingPosition;
 
@@ -107,7 +111,8 @@ public class RightAuto extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
-        intake.openClaw(); // So that it's less likely to bang into poles
+        intake.closeClaw();
+        intake.followMotionProfileAsync(IntakeConstants.MEDIUM_JUNCTION_HEIGHT);
 
         int conesPlaced = 0;
         while (opModeIsActive() && !isStopRequested()) {
