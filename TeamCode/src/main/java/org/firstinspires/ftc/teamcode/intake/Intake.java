@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.intake;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.control.PIDFController;
@@ -23,12 +22,11 @@ public class Intake {
     public static double kV = 0;
     public static double kA = 0;
     public static double kStatic = 0;
-    public static double kG = 0.1;
 
-    public static double MAX_LIFT_HEIGHT = 1900; // In ticks
+    public static double MAX_LIFT_HEIGHT = 2200; // In ticks
 
-    public static double MAX_VEL = 1000;
-    public static double MAX_ACCEL = 400;
+    public static double MAX_VEL = 1500;
+    public static double MAX_ACCEL = 1500;
     public static double MAX_JERK = 0;  // Jerk isn't used if it's 0, but it might end up being necessary
 
     public ElapsedTime timer;
@@ -63,11 +61,23 @@ public class Intake {
     public void openClaw() {
         clawServo.setPosition(0.5);
     }
-    public void closeClaw(){
-        clawServo.setPosition(0.2);
+    public void closeClaw() {
+        clawServo.setPosition(0.36);
     }
 
-    public void createMotionProfile(double targetPosition) {
+    public boolean finishedFollowingMotionProfile() {
+        return timer.time() >= motionProfile.duration();
+    }
+
+    public void followMotionProfile(double targetPosition) {
+        followMotionProfileAsync(targetPosition);
+
+        while (!Thread.currentThread().isInterrupted() && !finishedFollowingMotionProfile()) {
+            stepController();
+        }
+    }
+
+    public void followMotionProfileAsync(double targetPosition) {
         // Add bounds so that the lift can not go too high or too low
         if (targetPosition < 0) {
             targetPosition = 0;
@@ -90,7 +100,7 @@ public class Intake {
         if ((intake.getCurrentPosition() >= MAX_LIFT_HEIGHT && power > 0) || (intake.getCurrentPosition() <= 0 && power < 0)) {
             intake.setPower(0);
         } else {
-            intake.setPower(power + kG);
+            intake.setPower(power);
         }
 
         motionProfile = null;
@@ -108,6 +118,6 @@ public class Intake {
         }
 
         double power = controller.update(intake.getCurrentPosition(), intake.getVelocity());
-        intake.setPower(power + kG);
+        intake.setPower(power);
     }
 }
