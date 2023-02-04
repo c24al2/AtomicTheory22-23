@@ -54,8 +54,4 @@ public class CameraController {
     public void setPipeline(AprilTagPipeline pipeline) {
         camera.setPipeline(pipeline);
     }
-
-    public void stopStreaming() {
-        camera.stopStreaming();
-    }
 }
