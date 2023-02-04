@@ -15,10 +15,10 @@ public class AprilTagPipeline extends OpenCvPipeline {
     // Stores that LAST SEEN AprilTag representing a parking position
     private ParkingPosition parkingPosition = ParkingPosition.NO_TAGS_SEEN;
 
-    public static double TAG_SIZE = 0.035;  // Units are meters
+    public static double TAG_SIZE = 0.034;  // Units are meters
     public static String TAG_FAMILY = "tag25h9";  // Chose 25h9 tags because they have the largest data bits but still have a relatively high hemming distance
     public static float DECIMATION = 1.0f;  // Increasing decimation speeds up tag finding, but might reduce accuracy/reliability
-    public static int THREADS = 3;  // Number of threads to use to scan for the AprilTag
+    public static int THREADS = 1;  // Number of threads to use to scan for the AprilTag
     public static double FX = 1.39747644e+03;  // The camera's horizontal focal length in pixels (don't change unless using new camera)
     public static double FY = 1.39191699e+03 ;  // The camera's vertical focal length in pixels (don't change unless using new camera)
     public static double CX = 9.64795834e+02;  // The camera's horizontal focal center in pixels (don't change unless using new camera)
@@ -27,8 +27,7 @@ public class AprilTagPipeline extends OpenCvPipeline {
     // Very technical (in short, stores pointer to underlying C object), so ignore if possible :) Shouldn't have to be touched
     private long nativeApriltagPtr;
 
-    Mat croppedImage;
-    Mat grayscaleCroppedImage = new Mat();
+    Mat grayscaleImage = new Mat();
 
     // Constructor - called when the pipeline is created
     public AprilTagPipeline() {
@@ -50,20 +49,12 @@ public class AprilTagPipeline extends OpenCvPipeline {
     }
 
     @Override
-    public void init(Mat firstFrame) {
-        // Only crop the height, don't crop the width
-        int y = (int) (0.6*firstFrame.height());
-        int height = (int) (0.4*firstFrame.height());
-        croppedImage = firstFrame.submat(y, height, 0, firstFrame.width());
-    }
-
-    @Override
     public Mat processFrame(Mat image) {
         // Convert croppedImage to grayscale
-        Imgproc.cvtColor(croppedImage, grayscaleCroppedImage, Imgproc.COLOR_RGBA2GRAY);
+        Imgproc.cvtColor(image, grayscaleImage, Imgproc.COLOR_RGBA2GRAY);
 
         // Run AprilTag detection on the grayscale, cropped image
-        ArrayList<AprilTagDetection> tags = AprilTagDetectorJNI.runAprilTagDetectorSimple(nativeApriltagPtr, grayscaleCroppedImage, TAG_SIZE, FX, FY, CX, CY);
+        ArrayList<AprilTagDetection> tags = AprilTagDetectorJNI.runAprilTagDetectorSimple(nativeApriltagPtr, grayscaleImage, TAG_SIZE, FX, FY, CX, CY);
 
         // TODO: What if multiple AprilTags are found?
         for (AprilTagDetection tag : tags) {
@@ -76,7 +67,7 @@ public class AprilTagPipeline extends OpenCvPipeline {
             }
         }
 
-        return grayscaleCroppedImage;
+        return grayscaleImage;
     }
 
     public ParkingPosition getParkingPosition() {
