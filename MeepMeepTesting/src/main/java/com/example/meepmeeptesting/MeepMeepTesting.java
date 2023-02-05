@@ -20,11 +20,11 @@ public class MeepMeepTesting {
                 .setConstraints(30, 30, Math.toRadians(270), Math.toRadians(90), 13)
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(START_POSE)
-//                                .addTemporalMarker(() -> intake.createMotionProfile(IntakeConstants.LOW_JUNCTION_HEIGHT)) // raise coe
-                                .splineTo(new Vector2d(-31, -56.5), Math.toRadians(50))
-//                                .addTemporalMarker(() -> intake.openClaw()) // raise coe
+//                                .addTemporalMarker(() -> intake.followMotionProfile(IntakeConstants.LOW_JUNCTION_HEIGHT))
+                                .lineToConstantHeading(new Vector2d(22, -59))
+//                                .addTemporalMarker(() -> intake.openClaw())
                                 .setReversed(true)
-                                .splineTo(START_POSE.vec(), Math.toRadians(180) + START_POSE.getHeading())
+                                .lineToConstantHeading(START_POSE.vec())
                                 .build()
                 );
 

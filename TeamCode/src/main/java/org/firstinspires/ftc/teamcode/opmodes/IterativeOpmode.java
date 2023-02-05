@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.intake.IntakeConstants;
 @TeleOp
 public class IterativeOpmode extends OpMode {
     public static double DRIVER_POWER_SCALAR = 0.7;
-    public static double SLOW_MODE_POWER_SCALAR = 0.5;
+    public static double SLOW_MODE_POWER_SCALAR = 0.55;
     public static double DRIVER_ROTATION_SCALAR = 0.08;
     public static double GUNNER_STICK_THRESHOLD = 0.05;
     public static double INTAKE_POWER_SCALAR = 0.4;

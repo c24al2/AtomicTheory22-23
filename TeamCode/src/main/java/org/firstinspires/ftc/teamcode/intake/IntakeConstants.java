@@ -8,4 +8,5 @@ public class IntakeConstants {
     public static double MEDIUM_JUNCTION_HEIGHT = 1600;
     public static double LOW_JUNCTION_HEIGHT = 1000;
     public static double GROUND_JUNCTION_HEIGHT = 140;
+    public static double LOWEST_HEIGHT = 0;
 }

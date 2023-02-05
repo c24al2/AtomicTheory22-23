@@ -45,7 +45,7 @@ public class ParkingAuto extends LinearOpMode {
         if (isStopRequested()) return;
 
         intake.closeClaw();
-        intake.followMotionProfileAsync(IntakeConstants.MEDIUM_JUNCTION_HEIGHT);
+        intake.followMotionProfile(IntakeConstants.MEDIUM_JUNCTION_HEIGHT);
 
         TrajectorySequence driveToParkingPosition;
 
@@ -70,6 +70,8 @@ public class ParkingAuto extends LinearOpMode {
         }
 
         drive.followTrajectorySequence(driveToParkingPosition);
+
+        intake.followMotionProfile(IntakeConstants.LOWEST_HEIGHT);
 
         PoseStorage.currentPose = drive.getPoseEstimate();
     }

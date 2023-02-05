@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -36,11 +37,17 @@ public class RightLowAmbitionAuto extends LinearOpMode {
         drive.setPoseEstimate(START_POSE);
 
         TrajectorySequence placePreloaded = drive.trajectorySequenceBuilder(START_POSE)
-                .addTemporalMarker(() -> intake.followMotionProfile(IntakeConstants.LOW_JUNCTION_HEIGHT)) // raise coe
-                .splineTo(new Vector2d(31, -56.5), Math.toRadians(130))
+                .setAccelConstraint(new ProfileAccelerationConstraint(12))
+                .addTemporalMarker(() -> intake.followMotionProfile(IntakeConstants.LOW_JUNCTION_HEIGHT))
+                .waitSeconds(1)
+                .lineToConstantHeading(new Vector2d(22, -59))
+                .waitSeconds(1)
+                .addTemporalMarker(() -> intake.followMotionProfile(IntakeConstants.LOW_JUNCTION_HEIGHT / 2))
+                .waitSeconds(1)
                 .addTemporalMarker(() -> intake.openClaw())
+                .waitSeconds(1)
                 .setReversed(true)
-                .splineTo(START_POSE.vec(), Math.toRadians(180) + START_POSE.getHeading())
+                .lineToConstantHeading(START_POSE.vec())
                 .build();
 
         while (!isStarted() && !isStopRequested()) {
@@ -78,6 +85,8 @@ public class RightLowAmbitionAuto extends LinearOpMode {
 
         drive.followTrajectorySequence(placePreloaded);
         drive.followTrajectorySequence(driveToParkingPosition);
+
+        intake.followMotionProfile(IntakeConstants.LOWEST_HEIGHT);
 
         PoseStorage.currentPose = drive.getPoseEstimate();
     }
