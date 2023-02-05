@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline;
 @Disabled
 @Config
 @Autonomous
-public class RightAuto extends LinearOpMode {
+public class RightCycleAuto extends LinearOpMode {
     public static Pose2d START_POSE = new Pose2d(36, -62.8, Math.toRadians(90));
     public static Pose2d PLACE_PRELOADED_CONE_POSE = new Pose2d(18, -5, Math.toRadians(45));
     public static Pose2d PICKUP_CONE_FROM_STACK_POSE = new Pose2d(60, -8, Math.toRadians(0));
