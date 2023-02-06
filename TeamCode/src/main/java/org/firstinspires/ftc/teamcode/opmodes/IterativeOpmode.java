@@ -24,9 +24,6 @@ public class IterativeOpmode extends OpMode {
     public static double GUNNER_STICK_THRESHOLD = 0.02;
     public static double INTAKE_POWER_SCALAR = 0.4;
 
-     public static Pose2d START_POSE = PoseStorage.currentPose;
-//    public static Pose2d START_POSE = new Pose2d(36, -62.8, Math.toRadians(90));
-
     private boolean driverSlowMode = false;
     public Gamepad previousGamepad1 = new Gamepad();
     public Gamepad previousGamepad2 = new Gamepad();
@@ -41,7 +38,7 @@ public class IterativeOpmode extends OpMode {
         drive = new SampleOmniDrive(hardwareMap);
         intake = new Intake(hardwareMap);
 
-        drive.setPoseEstimate(START_POSE);
+        drive.setPoseEstimate(PoseStorage.currentPose);
     }
 
     @Override
