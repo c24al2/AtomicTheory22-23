@@ -20,7 +20,7 @@ public class OdometryLocalizer extends ThreeTrackingWheelLocalizer {
             new Pose2d(Math.sin(Math.toRadians(30)), Math.cos(Math.toRadians(30)), Math.toRadians(150))  // left
     );
 
-    public static double TICKS_PER_REV = 0;
+    public static double TICKS_PER_REV = 8192;
     public static double WHEEL_RADIUS = 0.984; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
@@ -60,9 +60,9 @@ public class OdometryLocalizer extends ThreeTrackingWheelLocalizer {
         //  compensation method
 
         return Arrays.asList(
-                encoderTicksToInches(frontEncoder.getRawVelocity()),
-                encoderTicksToInches(leftEncoder.getRawVelocity()),
-                encoderTicksToInches(rightEncoder.getRawVelocity())
+                encoderTicksToInches(frontEncoder.getCorrectedVelocity()),
+                encoderTicksToInches(leftEncoder.getCorrectedVelocity()),
+                encoderTicksToInches(rightEncoder.getCorrectedVelocity())
         );
     }
 }
