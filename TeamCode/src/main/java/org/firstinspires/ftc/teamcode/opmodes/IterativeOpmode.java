@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.drive.PoseStorage;
 import org.firstinspires.ftc.teamcode.intake.Intake;
 import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
 import org.firstinspires.ftc.teamcode.intake.IntakeConstants;
@@ -17,15 +18,14 @@ import org.firstinspires.ftc.teamcode.intake.IntakeConstants;
 @Config
 @TeleOp
 public class IterativeOpmode extends OpMode {
-    public static double DRIVER_POWER_SCALAR = 0.7;
-    public static double SLOW_MODE_POWER_SCALAR = 0.55;
+    public static double DRIVER_POWER_SCALAR = 0.75;
+    public static double SLOW_MODE_POWER_SCALAR = 0.6;
     public static double DRIVER_ROTATION_SCALAR = 0.08;
-    public static double GUNNER_STICK_THRESHOLD = 0.05;
+    public static double GUNNER_STICK_THRESHOLD = 0.02;
     public static double INTAKE_POWER_SCALAR = 0.4;
 
-    // TODO: Remove, this is for debugging purpose
-    // public static Pose2d START_POSE = PoseStorage.currentPose;
-    public static Pose2d START_POSE = new Pose2d(36, -62.8, Math.toRadians(90));
+     public static Pose2d START_POSE = PoseStorage.currentPose;
+//    public static Pose2d START_POSE = new Pose2d(36, -62.8, Math.toRadians(90));
 
     private boolean driverSlowMode = false;
     public Gamepad previousGamepad1 = new Gamepad();
@@ -78,13 +78,11 @@ public class IterativeOpmode extends OpMode {
         }
 
         if (!previousGamepad2.x && gamepad2.x) {
-            intake.closeClaw();
-            telemetry.addData("Claw", "Closed");
+            intake.setClawPosition(IntakeConstants.CLAW_CLOSED_POSITION);
         }
 
         if (!previousGamepad2.y && gamepad2.y) {
-            intake.openClaw();
-            telemetry.addData("Claw", "Open");
+            intake.setClawPosition(IntakeConstants.CLAW_OPEN_POSITION);
         }
 
         if (!previousGamepad2.dpad_up && gamepad2.dpad_up) {

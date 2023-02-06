@@ -56,11 +56,8 @@ public class Intake {
         controller = new PIDFController(INTAKE_PID, kV, kA, kStatic);
     }
 
-    public void openClaw() {
-        clawServo.setPosition(0.5);
-    }
-    public void closeClaw() {
-        clawServo.setPosition(0.36);
+    public void setClawPosition(double position) {
+        clawServo.setPosition(position);
     }
 
     public boolean finishedFollowingMotionProfile() {
