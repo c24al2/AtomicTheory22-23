@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.intake.IntakeConstants;
 @TeleOp
 public class IterativeOpmode extends OpMode {
     public static double DRIVER_SPEED_SCALAR = 0.73;
-    public static double DRIVER_ROTATION_SCALAR = 0.09;
+    public static double DRIVER_ROTATION_SCALAR = 0.06;
     public static double DRIVER_SLOW_MODE_SCALAR = 0.6;
     public static double DRIVER_CANCEL_SPRINT_THRESHOLD = 0.85;
 
@@ -28,6 +28,7 @@ public class IterativeOpmode extends OpMode {
 
     private boolean driverSprintMode = false;
     private boolean driverSlowMode = false;
+
     public Gamepad previousGamepad1 = new Gamepad();
     public Gamepad previousGamepad2 = new Gamepad();
 
@@ -73,7 +74,6 @@ public class IterativeOpmode extends OpMode {
             input = input.times(DRIVER_SLOW_MODE_SCALAR);
         }
 
-        // Pass in the rotated input + right stick value for rotation
         drive.setWeightedDrivePower(input);
 
         if (Math.abs(gamepad2.left_stick_y) > GUNNER_STICK_THRESHOLD) {
