@@ -1,0 +1,101 @@
+Index: TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drive/IntakeandLiftPID.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.firstinspires.ftc.teamcode.drive;\n\nimport com.acmerobotics.dashboard.config.Config;\nimport com.acmerobotics.dashboard.telemetry.MultipleTelemetry;\nimport com.acmerobotics.roadrunner.control.PIDCoefficients;\nimport com.acmerobotics.roadrunner.control.PIDFController;\nimport com.acmerobotics.roadrunner.profile.MotionProfile;\nimport com.acmerobotics.roadrunner.profile.MotionProfileGenerator;\nimport com.acmerobotics.roadrunner.profile.MotionState;\nimport com.qualcomm.robotcore.hardware.DcMotor;\nimport com.qualcomm.robotcore.hardware.DcMotorEx;\nimport com.qualcomm.robotcore.hardware.Servo;\nimport com.qualcomm.robotcore.hardware.DcMotorSimple;\nimport com.qualcomm.robotcore.hardware.Gamepad;\nimport com.qualcomm.robotcore.hardware.HardwareMap;\nimport com.qualcomm.robotcore.hardware.PIDFCoefficients;\nimport com.qualcomm.robotcore.util.ElapsedTime;\nimport com.qualcomm.robotcore.util.Range;\n\n@Config\npublic class IntakeandLiftPID{\n    public ElapsedTime timer = new ElapsedTime();\n    public static PIDFCoefficients coeffs = new PIDFCoefficients(.009, 0, 0.0002, 0);\n    public double currentVelocity = 0;\n    public double targetVelocity = 0;\n    public double velocityError = 0;\n    public double p = coeffs.p;\n    public double i = coeffs.i;\n    public double d = coeffs.d;\n    public double f = coeffs.f;\n    double lastP;\n    double lastI;\n    double lastD;\n    double lastF;\n    boolean onEncoders = true;\n\n    public DcMotorEx intake;\n    public Servo clawServo;\n    public static double maxVelocity = 133000;\n    public static double maxAcceleration = 2000;\n    // Jerk isn't used if it's 0, but it might end up being necessary\n    public static double maxJerk = 0;\n    float targetPosition = 0;\n\n    MotionProfile profile;\n\n    public IntakeandLiftPID(HardwareMap hardwareMap) {\n        intake = hardwareMap.get(DcMotorEx.class, \"intake\");\n        clawServo = hardwareMap.get(Servo.class, \"clawServo\");\n        intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);\n        intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);\n        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);\n        intake.setDirection(DcMotorSimple.Direction.FORWARD);\n        coeffs = intake.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);\n        p = coeffs.p;\n        i = coeffs.i;\n        d = coeffs.d;\n        f = coeffs.f;\n        lastP = p;\n        lastI = i;\n        lastD = d;\n        lastF = f;\n    }\n\n    public void clawOpen(){\n        clawServo.setPosition(0);\n    }\n    public void clawClose(){\n        clawServo.setPosition(0.5);\n    }\n\n    public MotionProfile generateProfile(int targetTicks){\n        MotionProfile newProfile = generateMotionProfile(targetTicks);\n        return newProfile;\n    }\n    public boolean intakeLift(MotionProfile profile1) {\n        return followMotionProfile(profile1);\n    }\n\n    public void intakeFullStep(int targetTicks){\n        MotionProfile activeProfile = generateProfile(targetTicks);\n        intakeLift(activeProfile);\n    }\n\n\n    public void intakeLiftEasy(int targetTicks) {\n        intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);\n        intake.setTargetPosition(targetTicks);\n        intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);\n        intake.setPower(0.7);\n    }\n\n    MotionProfile generateMotionProfile(double ticks) {\n        if (ticks == 0){\n            return null;\n        }\n\n        // Based on 60RPM motor, adjust if different\n        return MotionProfileGenerator.generateSimpleMotionProfile(\n                new MotionState(intake.getCurrentPosition(), 1600, 0),\n                new MotionState(ticks, 0, 0),\n                maxVelocity,\n                maxAcceleration,\n                maxJerk);\n    }\n\n    boolean followMotionProfile(MotionProfile profile){\n        // specify coefficients/gains\n        // create the controller\n        MotionState state = profile.get(timer.time());\n        if (profile.end().getX() < state.getX() && state.getX() < profile.start().getX() || profile.start().getX() < state.getX() && state.getX() < profile.end().getX()) {\n            currentVelocity = intake.getVelocity();\n            targetVelocity = state.getV();\n            velocityError = state.getV() - intake.getVelocity();\n            // in each iteration of the control loop\n            // measure the position or output variable\n            // apply the correction to the input variable\n            intake.setVelocity(state.getV());\n            return false;\n        } else {\n            intake.setPower(0);\n            timer.reset();\n            this.profile = generateMotionProfile(intake.getCurrentPosition());\n            return true;\n        }\n    }\n\n    public void run(Gamepad gamepad) {\n        if (gamepad.a) {\n            // Ability for manual control, which resets the motor's encoder value when done\n            if (onEncoders) {\n                onEncoders = false;\n                intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);\n            }\n            intake.setPower(-gamepad.left_stick_y * 0.7);\n        } else {\n            if (!onEncoders) {\n                // Resetting the encoder value\n                intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);\n                targetPosition = 0;\n                onEncoders = true;\n            }\n            targetPosition -= gamepad.left_stick_y * 80;\n            targetPosition = Range.clip(targetPosition, 0, 4000);\n            intakeLiftEasy((int) targetPosition);\n        }\n    }\n}
+===================================================================
+diff --git a/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drive/IntakeandLiftPID.java b/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drive/IntakeandLiftPID.java
+--- a/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drive/IntakeandLiftPID.java	
++++ b/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drive/IntakeandLiftPID.java	
+@@ -47,6 +47,7 @@
+     public IntakeandLiftPID(HardwareMap hardwareMap) {
+         intake = hardwareMap.get(DcMotorEx.class, "intake");
+         clawServo = hardwareMap.get(Servo.class, "clawServo");
++        clawServo.getController().pwmEnable();
+         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+         intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+@@ -63,11 +64,19 @@
+     }
+ 
+     public void clawOpen(){
+-        clawServo.setPosition(0);
+-    }
++        clawServo.setPosition(-0.5);
++    };
+     public void clawClose(){
+-        clawServo.setPosition(0.5);
+-    }
++        clawServo.setPosition(-0.2);
++    };
++
++
++    public int inchesToTicks(double inches){
++        double encoderCountsPerInch = DriveConstants.LIFT_ENCODER_RES/(2 * Math.PI * DriveConstants.SPOOL_RADIUS);
++        double encoderCounts = Math.round(encoderCountsPerInch * inches);
++        int encoderCountsInt = (int) encoderCounts;
++        return encoderCountsInt;
++    };
+ 
+     public MotionProfile generateProfile(int targetTicks){
+         MotionProfile newProfile = generateMotionProfile(targetTicks);
+@@ -108,41 +117,27 @@
+         // specify coefficients/gains
+         // create the controller
+         MotionState state = profile.get(timer.time());
+-        if (profile.end().getX() < state.getX() && state.getX() < profile.start().getX() || profile.start().getX() < state.getX() && state.getX() < profile.end().getX()) {
+-            currentVelocity = intake.getVelocity();
+-            targetVelocity = state.getV();
+-            velocityError = state.getV() - intake.getVelocity();
+-            // in each iteration of the control loop
+-            // measure the position or output variable
+-            // apply the correction to the input variable
+-            intake.setVelocity(state.getV());
+-            return false;
+-        } else {
+-            intake.setPower(0);
+-            timer.reset();
+-            this.profile = generateMotionProfile(intake.getCurrentPosition());
+-            return true;
+-        }
+-    }
++            while (profile.end().getX() < state.getX() && state.getX() < profile.start().getX() || profile.start().getX() < state.getX() && state.getX() < profile.end().getX()) {
++                currentVelocity = intake.getVelocity();
++                targetVelocity = state.getV();
++                velocityError = state.getV() - intake.getVelocity();
++                // in each iteration of the control loop
++                // measure the position or output variable
++                // apply the correction to the input variable
++                intake.setVelocity(state.getV());
++                return false;
++            }
++
++                intake.setPower(0);
++                timer.reset();
++                this.profile = generateMotionProfile(intake.getCurrentPosition());
++                return true;
++            }
+ 
+     public void run(Gamepad gamepad) {
+-        if (gamepad.a) {
+-            // Ability for manual control, which resets the motor's encoder value when done
+-            if (onEncoders) {
+-                onEncoders = false;
+-                intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+-            }
++            intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
++            if (gamepad.left_stick_y > 0.2 || gamepad.left_stick_y < 0.2){
+             intake.setPower(-gamepad.left_stick_y * 0.7);
+-        } else {
+-            if (!onEncoders) {
+-                // Resetting the encoder value
+-                intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+-                targetPosition = 0;
+-                onEncoders = true;
+-            }
+-            targetPosition -= gamepad.left_stick_y * 80;
+-            targetPosition = Range.clip(targetPosition, 0, 4000);
+-            intakeLiftEasy((int) targetPosition);
+         }
+     }
+ }
+\ No newline at end of file
