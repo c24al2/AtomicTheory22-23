@@ -90,13 +90,14 @@ public class Intake {
     }
 
     public void setPower(double power) {
+        motionProfile = null;
+
         if (intake.getCurrentPosition() <= 0 && power < 0) {
             intake.setPower(0);
         } else {
             intake.setPower(power);
         }
 
-        motionProfile = null;
         controller.setTargetPosition(intake.getCurrentPosition());
         controller.setTargetVelocity(0);
         controller.setTargetAcceleration(0);
