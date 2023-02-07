@@ -111,7 +111,7 @@ public class RightCycleAuto extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
-        intake.closeClaw();
+        intake.setClawPosition(IntakeConstants.CLAW_CLOSED_POSITION);
         intake.followMotionProfileAsync(IntakeConstants.MEDIUM_JUNCTION_HEIGHT);
 
         int conesPlaced = 0;

@@ -44,7 +44,7 @@ public class ParkingAuto extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
-        intake.closeClaw();
+        intake.setClawPosition(IntakeConstants.CLAW_CLOSED_POSITION);
         intake.followMotionProfile(IntakeConstants.MEDIUM_JUNCTION_HEIGHT);
 
         TrajectorySequence driveToParkingPosition;

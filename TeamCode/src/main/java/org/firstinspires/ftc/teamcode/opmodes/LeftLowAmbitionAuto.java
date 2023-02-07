@@ -44,7 +44,7 @@ public class LeftLowAmbitionAuto extends LinearOpMode {
                 .waitSeconds(1)
                 .addTemporalMarker(() -> intake.followMotionProfile(IntakeConstants.LOW_JUNCTION_HEIGHT / 2))
                 .waitSeconds(1)
-                .addTemporalMarker(() -> intake.openClaw())
+                .addTemporalMarker(() -> intake.setClawPosition(IntakeConstants.CLAW_CLOSED_POSITION))
                 .waitSeconds(1)
                 .setReversed(true)
                 .lineToConstantHeading(START_POSE.vec())
@@ -59,7 +59,7 @@ public class LeftLowAmbitionAuto extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
-        intake.closeClaw();
+        intake.setClawPosition(IntakeConstants.CLAW_CLOSED_POSITION);
 
         TrajectorySequence driveToParkingPosition;
 
