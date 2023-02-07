@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline;
 import org.firstinspires.ftc.teamcode.vision.CameraController;
 
 @Config
-@Autonomous
+@Autonomous(preselectTeleOp = "IterativeOpmode")
 public class LeftLowAmbitionAuto extends LinearOpMode {
     public static Pose2d START_POSE = new Pose2d(-36, -62.8, Math.toRadians(90));
 
@@ -44,7 +44,7 @@ public class LeftLowAmbitionAuto extends LinearOpMode {
                 .waitSeconds(1)
                 .addTemporalMarker(() -> intake.followMotionProfile(IntakeConstants.LOW_JUNCTION_HEIGHT / 2))
                 .waitSeconds(1)
-                .addTemporalMarker(() -> intake.openClaw())
+                .addTemporalMarker(() -> intake.setClawPosition(IntakeConstants.CLAW_CLOSED_POSITION))
                 .waitSeconds(1)
                 .setReversed(true)
                 .lineToConstantHeading(START_POSE.vec())
@@ -59,7 +59,7 @@ public class LeftLowAmbitionAuto extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
-        intake.closeClaw();
+        intake.setClawPosition(IntakeConstants.CLAW_CLOSED_POSITION);
 
         TrajectorySequence driveToParkingPosition;
 

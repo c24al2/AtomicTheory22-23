@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline;
 
 @Disabled
 @Config
-@Autonomous
+@Autonomous(preselectTeleOp = "IterativeOpmode")
 public class RightCycleAuto extends LinearOpMode {
     public static Pose2d START_POSE = new Pose2d(36, -62.8, Math.toRadians(90));
     public static Pose2d PLACE_PRELOADED_CONE_POSE = new Pose2d(18, -5, Math.toRadians(45));
@@ -111,7 +111,7 @@ public class RightCycleAuto extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
-        intake.closeClaw();
+        intake.setClawPosition(IntakeConstants.CLAW_CLOSED_POSITION);
         intake.followMotionProfileAsync(IntakeConstants.MEDIUM_JUNCTION_HEIGHT);
 
         int conesPlaced = 0;
