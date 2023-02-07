@@ -18,12 +18,15 @@ import org.firstinspires.ftc.teamcode.intake.IntakeConstants;
 @Config
 @TeleOp
 public class IterativeOpmode extends OpMode {
-    public static double DRIVER_POWER_SCALAR = 0.73;
-    public static double SLOW_MODE_POWER_SCALAR = 0.6;
+    public static double DRIVER_SPEED_SCALAR = 0.73;
     public static double DRIVER_ROTATION_SCALAR = 0.09;
-    public static double GUNNER_STICK_THRESHOLD = 0.02;
-    public static double INTAKE_POWER_SCALAR = 0.4;
+    public static double DRIVER_SLOW_MODE_SCALAR = 0.6;
+    public static double DRIVER_CANCEL_SPRINT_THRESHOLD = 0.85;
 
+    public static double INTAKE_SPEED_SCALAR = 0.4;
+    public static double GUNNER_STICK_THRESHOLD = 0.025;
+
+    private boolean driverSprintMode = false;
     private boolean driverSlowMode = false;
     public Gamepad previousGamepad1 = new Gamepad();
     public Gamepad previousGamepad2 = new Gamepad();
@@ -43,33 +46,38 @@ public class IterativeOpmode extends OpMode {
 
     @Override
     public void loop() {
-        // Enable toggling driver slow mode when press a
+        if (!previousGamepad1.left_stick_button && gamepad1.left_stick_button) {
+            driverSprintMode = true;
+        }
+
+        if (-gamepad1.left_stick_y < DRIVER_CANCEL_SPRINT_THRESHOLD) {
+            driverSprintMode = false;
+        }
+
         if (!previousGamepad1.a && gamepad1.a) {
             driverSlowMode = !driverSlowMode;
         }
 
+        telemetry.addData("Sprint mode", driverSprintMode);
         telemetry.addData("Slow mode", driverSlowMode);
 
-        // Create a vector from the gamepad x/y inputs
         Vector2d translationalInput = new Vector2d(-gamepad1.left_stick_y, -gamepad1.left_stick_x);
 
-        // Read pose
-//        Pose2d poseEstimate = drive.getPoseEstimate();
-        // Then, rotate that vector by the inverse of the robots' DELTA heading for driver lock
-//        translationalInput = translationalInput.rotated(-(poseEstimate.getHeading() - START_POSE.getHeading()));
+        if (!driverSprintMode) {
+            translationalInput = translationalInput.times(DRIVER_SPEED_SCALAR);
+        }
 
         Pose2d input = new Pose2d(translationalInput, -gamepad1.right_stick_x * DRIVER_ROTATION_SCALAR);
 
-        input = input.times(DRIVER_POWER_SCALAR);
-        if (driverSlowMode) {
-            input = input.times(SLOW_MODE_POWER_SCALAR);
+        if (driverSlowMode && !driverSprintMode) {
+            input = input.times(DRIVER_SLOW_MODE_SCALAR);
         }
 
         // Pass in the rotated input + right stick value for rotation
         drive.setWeightedDrivePower(input);
 
         if (Math.abs(gamepad2.left_stick_y) > GUNNER_STICK_THRESHOLD) {
-            intake.setPower(-gamepad2.left_stick_y * INTAKE_POWER_SCALAR);
+            intake.setPower(-gamepad2.left_stick_y * INTAKE_SPEED_SCALAR);
         } else {
             intake.stepController();
         }
