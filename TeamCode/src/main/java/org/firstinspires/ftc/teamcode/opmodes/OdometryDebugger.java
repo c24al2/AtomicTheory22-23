@@ -24,16 +24,12 @@ public class OdometryDebugger extends OpMode {
 
     @Override
     public void loop() {
-        List<Double> wheelPositions = odometryLocalizer.getWheelPositions();
-        telemetry.addData("Front Encoder Position", wheelPositions.get(0));
-        telemetry.addData("Left Encoder Position", wheelPositions.get(1));
-        telemetry.addData("Right Encoder Position", wheelPositions.get(2));
-
+        telemetry.addData("Front Encoder Position", odometryLocalizer.frontEncoder.getCurrentPosition());
+        telemetry.addData("Left Encoder Position", odometryLocalizer.frontEncoder.getCurrentPosition());
+        telemetry.addData("Right Encoder Position", odometryLocalizer.frontEncoder.getCurrentPosition());
         telemetry.addLine();
-
-        List<Double> wheelVelocities = odometryLocalizer.getWheelVelocities();
-        telemetry.addData("Front Encoder Velocity", wheelVelocities.get(0));
-        telemetry.addData("Left Encoder Velocity", wheelVelocities.get(1));
-        telemetry.addData("Right Encoder Velocity", wheelVelocities.get(2));
+        telemetry.addData("Front Encoder Velocity", odometryLocalizer.frontEncoder.getRawVelocity());
+        telemetry.addData("Left Encoder Velocity", odometryLocalizer.frontEncoder.getRawVelocity());
+        telemetry.addData("Right Encoder Velocity", odometryLocalizer.frontEncoder.getRawVelocity());
     }
 }
