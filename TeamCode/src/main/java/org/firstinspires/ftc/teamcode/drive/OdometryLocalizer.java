@@ -24,9 +24,9 @@ public class OdometryLocalizer extends ThreeTrackingWheelLocalizer {
     public static double WHEEL_RADIUS = 0.984; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    private final Encoder frontEncoder;
-    private final Encoder leftEncoder;
-    private final Encoder rightEncoder;
+    public Encoder frontEncoder;
+    public Encoder leftEncoder;
+    public Encoder rightEncoder;
 
     public OdometryLocalizer(HardwareMap hardwareMap) {
         super(WHEEL_POSES);
