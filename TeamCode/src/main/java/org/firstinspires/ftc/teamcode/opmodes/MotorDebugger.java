@@ -35,26 +35,18 @@ public class MotorDebugger extends OpMode {
 
         intake.followMotionProfileAsync(liftPosition);
         intake.clawServo.setPosition(servoPosition);
-
-        telemetry.addLine("Press play to begin the motor debugging opmode");
     }
 
     @Override
     public void loop() {
-        telemetry.addLine("Press each button to turn on its respective motor");
-
         if (gamepad1.x || gamepad2.x) {
             drive.setMotorPowers(MOTOR_POWER, 0, 0);
-            telemetry.addData("Running Motor", "Left");
         } else if (gamepad1.a || gamepad2.a) {
             drive.setMotorPowers(0, MOTOR_POWER, 0);
-            telemetry.addData("Running Motor", "Back");
         } else if (gamepad1.b || gamepad2.b) {
             drive.setMotorPowers(0, 0, MOTOR_POWER);
-            telemetry.addData("Running Motor", "Right");
         } else {
             drive.setMotorPowers(0, 0, 0);
-            telemetry.addData("Running Motor", "None");
         }
 
         if ((!previousGamepad1.dpad_up && gamepad1.dpad_up) || (!previousGamepad2.dpad_up && gamepad2.dpad_up)) {
@@ -79,7 +71,6 @@ public class MotorDebugger extends OpMode {
 
         intake.stepController();
 
-        telemetry.addLine();
         telemetry.addData("Left Motor Position: ", drive.leftMotor.getCurrentPosition());
         telemetry.addData("Back Motor Position: ", drive.backMotor.getCurrentPosition());
         telemetry.addData("Right Motor Position: ", drive.rightMotor.getCurrentPosition());
