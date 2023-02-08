@@ -6,12 +6,14 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
 import org.firstinspires.ftc.teamcode.drive.ThreeWheelOdometryLocalizer;
 
 @Config
 @TeleOp(group = "debug")
-public class OdometryDebugger extends OpMode {
+public class ThreeWheelOdometryDebugger extends OpMode {
     public ThreeWheelOdometryLocalizer threeWheelOdometryLocalizer;
+    public SampleOmniDrive drive;
 
     @Override
     public void init() {
