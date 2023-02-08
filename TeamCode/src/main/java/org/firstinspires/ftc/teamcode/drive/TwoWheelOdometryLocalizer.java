@@ -17,7 +17,7 @@ import java.util.List;
 @Config
 public class TwoWheelOdometryLocalizer extends TwoTrackingWheelLocalizer {
     private final static List<Pose2d> WHEEL_POSES = Arrays.asList(
-            new Pose2d(1.7, 0.22, Math.toRadians(90)), //front wheel
+            new Pose2d(-1.161, 1.79, Math.toRadians(330)),  // "left" wheel
             new Pose2d(-1.161, -1.79, Math.toRadians(210)) // "right" wheel
     );
 
@@ -25,7 +25,7 @@ public class TwoWheelOdometryLocalizer extends TwoTrackingWheelLocalizer {
     public static double WHEEL_RADIUS = 0.984; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    public Encoder frontEncoder;
+    public Encoder leftEncoder;
     public Encoder rightEncoder;
 
     private final SampleOmniDrive drive;
@@ -35,7 +35,7 @@ public class TwoWheelOdometryLocalizer extends TwoTrackingWheelLocalizer {
 
         this.drive = drive;
 
-        frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "bm"));
+        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "rm"));
         rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "lm"));
 
         // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
@@ -60,7 +60,7 @@ public class TwoWheelOdometryLocalizer extends TwoTrackingWheelLocalizer {
     @Override
     public List<Double> getWheelPositions() {
         return Arrays.asList(
-                encoderTicksToInches(frontEncoder.getCurrentPosition()),
+                encoderTicksToInches(leftEncoder.getCurrentPosition()),
                 encoderTicksToInches(rightEncoder.getCurrentPosition())
         );
     }
@@ -73,7 +73,7 @@ public class TwoWheelOdometryLocalizer extends TwoTrackingWheelLocalizer {
         //  compensation method
 
         return Arrays.asList(
-                encoderTicksToInches(frontEncoder.getRawVelocity()),
+                encoderTicksToInches(leftEncoder.getRawVelocity()),
                 encoderTicksToInches(rightEncoder.getRawVelocity())
         );
     }
