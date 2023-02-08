@@ -26,7 +26,6 @@ public class RightCycleAuto extends LinearOpMode {
 
     public int CONES_TO_PLACE = 3;
 
-    // This is essentially just defines the possible steps our program will take
     private enum State {
         PLACE_PRELOADED_CONE_AND_GO_TO_STACK,
         PICKUP_CONE_FROM_STACK_AND_PLACE,
