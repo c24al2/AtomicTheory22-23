@@ -140,9 +140,11 @@ public class RightCycleAuto extends LinearOpMode {
                     }
                     break;
                 case PARK:
-                    // Do nothing in PARK
                     // currentState does not change once in PARK
                     // This concludes the autonomous program
+                    if (!drive.isBusy()) {
+                        requestOpModeStop();
+                    }
                     break;
             }
 
