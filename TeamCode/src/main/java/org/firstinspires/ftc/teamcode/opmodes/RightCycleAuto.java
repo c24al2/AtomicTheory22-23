@@ -22,25 +22,21 @@ import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline;
 @Config
 @Autonomous(preselectTeleOp = "IterativeOpmode")
 public class RightCycleAuto extends LinearOpMode {
-    public static Pose2d START_POSE = new Pose2d(36, -62.8, Math.toRadians(90));
-    public static Pose2d PLACE_PRELOADED_CONE_POSE = new Pose2d(18, -5, Math.toRadians(45));
-    public static Pose2d PICKUP_CONE_FROM_STACK_POSE = new Pose2d(60, -8, Math.toRadians(0));
-    public static Pose2d PLACE_STACK_CONE_POSE = new Pose2d(30, -5, Math.toRadians(135));
+    public static Pose2d START_POSE = new Pose2d(36, -62.5, Math.toRadians(90));
+    public static Pose2d STACK_POSE = new Pose2d(60, -12, Math.toRadians(0));
+    public static Pose2d PLACE_CONE_POSE = new Pose2d(30, -5, Math.toRadians(135));
 
-    public static int NUM_CONES_TO_PLACE = 2;
+    public int CONES_TO_PLACE = 3;
 
     // This is essentially just defines the possible steps our program will take
     private enum State {
-        START,
-        PLACE_PRELOADED_CONE,
-        PRELOADED_CONE_TO_STACK,
+        PLACE_PRELOADED_CONE_AND_GO_TO_STACK,
         PICKUP_CONE_FROM_STACK_AND_PLACE,
         GO_TO_STACK,
         PARK,
-        DONE,
     }
 
-    State currentState = State.START;
+    State currentState = State.PLACE_PRELOADED_CONE_AND_GO_TO_STACK;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -55,26 +51,33 @@ public class RightCycleAuto extends LinearOpMode {
 
         drive.setPoseEstimate(START_POSE);
 
-        TrajectorySequence placePreloadedCone = drive.trajectorySequenceBuilder(START_POSE)
+        TrajectorySequence placePreloadedConeAndGoToStack = drive.trajectorySequenceBuilder(START_POSE)
+                .addTemporalMarker(() -> intake.setClawPosition(IntakeConstants.CLAW_CLOSED_POSITION))
+                .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.LOW_JUNCTION_HEIGHT))
+                .waitSeconds(0.1)
                 .lineToSplineHeading(new Pose2d(18, -60, Math.toRadians(90)))
                 .splineToConstantHeading(new Vector2d(12, -36), Math.toRadians(90))
-                .splineTo(PLACE_PRELOADED_CONE_POSE.vec(), PLACE_PRELOADED_CONE_POSE.getHeading())
-                .build();
-
-        TrajectorySequence preloadedConeToStack = drive.trajectorySequenceBuilder(PLACE_PRELOADED_CONE_POSE)
-                .setReversed(true)
-                .splineToLinearHeading(PICKUP_CONE_FROM_STACK_POSE, PICKUP_CONE_FROM_STACK_POSE.getHeading())
+                .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.HIGH_JUNCTION_HEIGHT))
+                .splineToConstantHeading(new Vector2d(24, -7), Math.toRadians(0))
+                .addTemporalMarker(() -> intake.setClawPosition(IntakeConstants.CLAW_OPEN_POSITION))
+                .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.GROUND_JUNCTION_HEIGHT))
+                .splineToSplineHeading(STACK_POSE, STACK_POSE.getHeading())
                 .build();
 
         // The claw should ALWAYS be at right height before this trajectory is run
-        TrajectorySequence pickUpConeAndPlace = drive.trajectorySequenceBuilder(PICKUP_CONE_FROM_STACK_POSE)
+        TrajectorySequence pickUpConeAndPlace = drive.trajectorySequenceBuilder(STACK_POSE)
+                .addTemporalMarker(() -> intake.setClawPosition(IntakeConstants.CLAW_CLOSED_POSITION))
+                .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.HIGH_JUNCTION_HEIGHT))
+                .waitSeconds(0.2)
                 .setReversed(true)
-                .splineToSplineHeading(PLACE_STACK_CONE_POSE, PLACE_STACK_CONE_POSE.getHeading())
+                .splineToSplineHeading(PLACE_CONE_POSE, PLACE_CONE_POSE.getHeading())
+                .addTemporalMarker(() -> intake.setClawPosition(IntakeConstants.CLAW_OPEN_POSITION))
                 .build();
 
-        TrajectorySequence placedConeToStack = drive.trajectorySequenceBuilder(PLACE_STACK_CONE_POSE)
+        TrajectorySequence placedConeToStack = drive.trajectorySequenceBuilder(PLACE_CONE_POSE)
+                .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.GROUND_JUNCTION_HEIGHT))
                 .setReversed(true)
-                .splineToSplineHeading(PICKUP_CONE_FROM_STACK_POSE, PICKUP_CONE_FROM_STACK_POSE.getHeading())
+                .splineToSplineHeading(STACK_POSE, STACK_POSE.getHeading())
                 .build();
 
         while (!isStarted() && !isStopRequested()) {
@@ -87,23 +90,24 @@ public class RightCycleAuto extends LinearOpMode {
 
         switch (aprilTagPipeline.getParkingPosition()) {
             case ZONE1:
-                driveFromPlacedConePoseToParkingPosition = drive.trajectorySequenceBuilder(PLACE_STACK_CONE_POSE)
+                driveFromPlacedConePoseToParkingPosition = drive.trajectorySequenceBuilder(PLACE_CONE_POSE)
+                        .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.LOWEST_HEIGHT))
                         .setReversed(true)
-                        .splineTo(new Vector2d(18, -12), Math.toRadians(180))
-                        .splineTo(new Vector2d(12, -36), Math.toRadians(270))
+                        .splineTo(new Vector2d(12, -12), Math.toRadians(180))
                         .build();
                 break;
             default: // ZONE2 and NO_TAGS_SEEN
-                driveFromPlacedConePoseToParkingPosition = drive.trajectorySequenceBuilder(PLACE_STACK_CONE_POSE)
+                driveFromPlacedConePoseToParkingPosition = drive.trajectorySequenceBuilder(PLACE_CONE_POSE)
+                        .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.LOWEST_HEIGHT))
                         .setReversed(true)
-                        .splineTo(new Vector2d(36, -36), Math.toRadians(270))
+                        .splineTo(new Vector2d(36, -12), Math.toRadians(270))
                         .build();
                 break;
             case ZONE3:
-                driveFromPlacedConePoseToParkingPosition = drive.trajectorySequenceBuilder(PLACE_STACK_CONE_POSE)
+                driveFromPlacedConePoseToParkingPosition = drive.trajectorySequenceBuilder(PLACE_CONE_POSE)
+                        .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.LOWEST_HEIGHT))
                         .setReversed(true)
-                        .splineTo(new Vector2d(54, -12), Math.toRadians(0))
-                        .splineTo(new Vector2d(60, -36), Math.toRadians(270))
+                        .splineTo(new Vector2d(60, -12), Math.toRadians(0))
                         .build();
                 break;
         }
@@ -111,51 +115,35 @@ public class RightCycleAuto extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
-        intake.setClawPosition(IntakeConstants.CLAW_CLOSED_POSITION);
-        intake.followMotionProfileAsync(IntakeConstants.MEDIUM_JUNCTION_HEIGHT);
-
-        int conesPlaced = 0;
         while (opModeIsActive() && !isStopRequested()) {
             switch (currentState) {
-                case START:
+                case PLACE_PRELOADED_CONE_AND_GO_TO_STACK:
                     if (!drive.isBusy()) {
-                        currentState = State.PLACE_PRELOADED_CONE;
-                        drive.followTrajectorySequenceAsync(placePreloadedCone);
-                    }
-                    break;
-                case PLACE_PRELOADED_CONE:
-                    if (!drive.isBusy()) {
-                        currentState = State.PRELOADED_CONE_TO_STACK;
-                        drive.followTrajectorySequenceAsync(preloadedConeToStack);
-                    }
-                    break;
-                case PRELOADED_CONE_TO_STACK:
-                case GO_TO_STACK:
-                    if (!drive.isBusy()) {
+                        drive.followTrajectorySequenceAsync(placePreloadedConeAndGoToStack);
                         currentState = State.PICKUP_CONE_FROM_STACK_AND_PLACE;
-                        drive.followTrajectorySequenceAsync(pickUpConeAndPlace);
-                        conesPlaced++;
                     }
                     break;
                 case PICKUP_CONE_FROM_STACK_AND_PLACE:
                     if (!drive.isBusy()) {
-                        if (conesPlaced == NUM_CONES_TO_PLACE) {
-                            currentState = State.PARK;
+                        drive.followTrajectorySequenceAsync(pickUpConeAndPlace);
+                        currentState = State.GO_TO_STACK;
+                    }
+                    break;
+                case GO_TO_STACK:
+                    if (!drive.isBusy()) {
+                        if (CONES_TO_PLACE == 0) {
                             drive.followTrajectorySequenceAsync(driveFromPlacedConePoseToParkingPosition);
+                            currentState = State.PARK;
                         } else {
-                            currentState = State.GO_TO_STACK;
                             drive.followTrajectorySequenceAsync(placedConeToStack);
+                            currentState = State.PICKUP_CONE_FROM_STACK_AND_PLACE;
+                            CONES_TO_PLACE--;
                         }
                     }
                     break;
                 case PARK:
-                    if (!drive.isBusy()) {
-                        currentState = State.DONE;
-                    }
-                    break;
-                case DONE:
-                    // Do nothing in DONE
-                    // currentState does not change once in DONE
+                    // Do nothing in PARK
+                    // currentState does not change once in PARK
                     // This concludes the autonomous program
                     break;
             }
