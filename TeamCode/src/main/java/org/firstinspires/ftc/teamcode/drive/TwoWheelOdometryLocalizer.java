@@ -25,6 +25,9 @@ public class TwoWheelOdometryLocalizer extends TwoTrackingWheelLocalizer {
     public static double WHEEL_RADIUS = 0.984; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
+    public static double LEFT_ENCODER_MULTIPLIER = 1;
+    public static double RIGHT_ENCODER_MULTIPLIER = 1;
+
     public Encoder leftEncoder;
     public Encoder rightEncoder;
 
@@ -60,8 +63,8 @@ public class TwoWheelOdometryLocalizer extends TwoTrackingWheelLocalizer {
     @Override
     public List<Double> getWheelPositions() {
         return Arrays.asList(
-                encoderTicksToInches(leftEncoder.getCurrentPosition()),
-                encoderTicksToInches(rightEncoder.getCurrentPosition())
+                encoderTicksToInches(leftEncoder.getCurrentPosition()) * LEFT_ENCODER_MULTIPLIER,
+                encoderTicksToInches(rightEncoder.getCurrentPosition()) * RIGHT_ENCODER_MULTIPLIER
         );
     }
 
@@ -73,8 +76,8 @@ public class TwoWheelOdometryLocalizer extends TwoTrackingWheelLocalizer {
         //  compensation method
 
         return Arrays.asList(
-                encoderTicksToInches(leftEncoder.getRawVelocity()),
-                encoderTicksToInches(rightEncoder.getRawVelocity())
+                encoderTicksToInches(leftEncoder.getRawVelocity()) * LEFT_ENCODER_MULTIPLIER,
+                encoderTicksToInches(rightEncoder.getRawVelocity()) * RIGHT_ENCODER_MULTIPLIER
         );
     }
 }
