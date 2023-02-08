@@ -74,7 +74,7 @@ public class RightCycleAuto extends LinearOpMode {
                 .build();
 
         TrajectorySequence placedConeToStack = drive.trajectorySequenceBuilder(PLACE_CONE_POSE)
-                .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.GROUND_JUNCTION_HEIGHT))
+                .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.STACK_HEIGHTS[CONES_TO_PLACE-1]))
                 .setReversed(true)
                 .splineToSplineHeading(STACK_POSE, STACK_POSE.getHeading())
                 .build();

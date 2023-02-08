@@ -4,6 +4,14 @@ import com.acmerobotics.dashboard.config.Config;
 
 @Config
 public class IntakeConstants {
+    public static double[] STACK_HEIGHTS = {
+            140, // 1st cone
+            240, // 2nd cone
+            340, // 3rd cone
+            440, // 4th cone
+            540, // 5th cone
+    };
+
     public static double HIGH_JUNCTION_HEIGHT = 2200;
     public static double MEDIUM_JUNCTION_HEIGHT = 1600;
     public static double LOW_JUNCTION_HEIGHT = 1000;
