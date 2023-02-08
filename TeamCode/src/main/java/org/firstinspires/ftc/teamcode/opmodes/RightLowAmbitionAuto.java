@@ -86,7 +86,7 @@ public class RightLowAmbitionAuto extends LinearOpMode {
         drive.followTrajectorySequence(placePreloaded);
         drive.followTrajectorySequence(driveToParkingPosition);
 
-        intake.followMotionProfile(IntakeConstants.LOWEST_HEIGHT);
+        intake.followMotionProfile(IntakeConstants.BOTTOM);
 
         PoseStorage.currentPose = drive.getPoseEstimate();
     }

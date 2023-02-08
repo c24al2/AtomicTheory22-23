@@ -6,7 +6,6 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -90,21 +89,21 @@ public class RightCycleAuto extends LinearOpMode {
         switch (aprilTagPipeline.getParkingPosition()) {
             case ZONE1:
                 driveFromPlacedConePoseToParkingPosition = drive.trajectorySequenceBuilder(PLACE_CONE_POSE)
-                        .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.LOWEST_HEIGHT))
+                        .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.BOTTOM))
                         .setReversed(true)
                         .splineTo(new Vector2d(12, -12), Math.toRadians(180))
                         .build();
                 break;
             default: // ZONE2 and NO_TAGS_SEEN
                 driveFromPlacedConePoseToParkingPosition = drive.trajectorySequenceBuilder(PLACE_CONE_POSE)
-                        .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.LOWEST_HEIGHT))
+                        .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.BOTTOM))
                         .setReversed(true)
                         .splineTo(new Vector2d(36, -12), Math.toRadians(270))
                         .build();
                 break;
             case ZONE3:
                 driveFromPlacedConePoseToParkingPosition = drive.trajectorySequenceBuilder(PLACE_CONE_POSE)
-                        .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.LOWEST_HEIGHT))
+                        .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.BOTTOM))
                         .setReversed(true)
                         .splineTo(new Vector2d(60, -12), Math.toRadians(0))
                         .build();

@@ -71,7 +71,7 @@ public class ParkingAuto extends LinearOpMode {
 
         drive.followTrajectorySequence(driveToParkingPosition);
 
-        intake.followMotionProfile(IntakeConstants.LOWEST_HEIGHT);
+        intake.followMotionProfile(IntakeConstants.BOTTOM);
 
         PoseStorage.currentPose = drive.getPoseEstimate();
     }
