@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Config
-public class OdometryLocalizer extends ThreeTrackingWheelLocalizer {
+public class ThreeWheelOdometryLocalizer extends ThreeTrackingWheelLocalizer {
     private final static List<Pose2d> WHEEL_POSES = Arrays.asList(
             new Pose2d(1.7, 0.22, Math.toRadians(90)), //front wheel
             new Pose2d(-1.161, -1.79, Math.toRadians(210)), // "right" wheel
@@ -28,7 +28,7 @@ public class OdometryLocalizer extends ThreeTrackingWheelLocalizer {
     public Encoder leftEncoder;
     public Encoder rightEncoder;
 
-    public OdometryLocalizer(HardwareMap hardwareMap) {
+    public ThreeWheelOdometryLocalizer(HardwareMap hardwareMap) {
         super(WHEEL_POSES);
 
         frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "bm"));
