@@ -18,7 +18,6 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.vision.CameraController;
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline;
 
-@Disabled
 @Config
 @Autonomous(preselectTeleOp = "IterativeOpmode")
 public class RightCycleAuto extends LinearOpMode {
