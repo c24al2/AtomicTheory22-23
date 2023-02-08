@@ -18,13 +18,13 @@ import org.firstinspires.ftc.teamcode.intake.IntakeConstants;
 @Config
 @TeleOp(name = "Drive TeleOp")
 public class DriveTeleOp extends OpMode {
-    public static double DRIVER_SPEED_SCALAR = 0.73;
-    public static double DRIVER_ROTATION_SCALAR = 0.06;
+    public static double DRIVER_SPEED_SCALAR = 0.65;
+    public static double DRIVER_ROTATION_SCALAR = 0.05;
     public static double DRIVER_SLOW_MODE_SCALAR = 0.6;
     public static double DRIVER_CANCEL_SPRINT_THRESHOLD = 0.85;
 
     public static double INTAKE_SPEED_SCALAR = 0.4;
-    public static double GUNNER_STICK_THRESHOLD = 0.025;
+    public static double GUNNER_STICK_THRESHOLD = 0.03;
 
     private boolean driverSprintMode = false;
     private boolean driverSlowMode = false;
