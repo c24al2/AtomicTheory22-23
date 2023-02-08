@@ -137,8 +137,9 @@ public class SampleOmniDrive extends OmniDrive {
 
         // TODO: reverse any motors using DcMotor.setDirection()
 
-        // TODO: if desired, use setLocalizer() to change the localization method
-         setLocalizer(new ThreeWheelOdometryLocalizer(hardwareMap));
+        // If desired, use setLocalizer() to change the localization method, by default it uses OmniLocalizer
+//        setLocalizer(new ThreeWheelOdometryLocalizer(hardwareMap));
+        setLocalizer(new TwoWheelOdometryLocalizer(hardwareMap, this));
 
         TrajectoryFollower follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID, new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
         trajectorySequenceRunner = new TrajectorySequenceRunner(follower, HEADING_PID);
@@ -245,7 +246,8 @@ public class SampleOmniDrive extends OmniDrive {
     public void setWeightedDrivePower(Pose2d drivePower) {
         Pose2d vel = drivePower;
 
-        if (Math.abs(drivePower.getX()) + Math.abs(drivePower.getY()) + Math.abs(drivePower.getHeading()) > 1) {
+        if (Math.abs(drivePower.getX()) + Math.abs(drivePower.getY())
+                + Math.abs(drivePower.getHeading()) > 1) {
             // re-normalize the powers according to the weights
             double denom = VX_WEIGHT * Math.abs(drivePower.getX())
                     + VY_WEIGHT * Math.abs(drivePower.getY())
