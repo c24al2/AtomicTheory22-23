@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.vision.CameraController;
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline;
 
 @Config
-@Autonomous(preselectTeleOp = "IterativeOpmode")
+@Autonomous(preselectTeleOp = "Drive TeleOp")
 public class RightCycleAuto extends LinearOpMode {
     public static Pose2d START_POSE = new Pose2d(36, -62.5, Math.toRadians(90));
     public static Pose2d STACK_POSE = new Pose2d(60, -12, Math.toRadians(0));
