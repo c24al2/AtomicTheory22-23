@@ -28,7 +28,7 @@ public class TwoWheelOdometryLocalizer extends TwoTrackingWheelLocalizer {
     public Encoder frontEncoder;
     public Encoder rightEncoder;
 
-    private SampleOmniDrive drive;
+    private final SampleOmniDrive drive;
 
     public TwoWheelOdometryLocalizer(HardwareMap hardwareMap, SampleOmniDrive drive) {
         super(WHEEL_POSES);
