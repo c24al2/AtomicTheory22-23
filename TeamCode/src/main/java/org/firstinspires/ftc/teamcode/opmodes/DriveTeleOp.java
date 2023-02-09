@@ -23,7 +23,7 @@ public class DriveTeleOp extends OpMode {
     public static double DRIVER_SLOW_MODE_SCALAR = 0.6;
     public static double DRIVER_CANCEL_SPRINT_THRESHOLD = 0.85;
 
-    public static double INTAKE_SPEED_SCALAR = 0.4;
+    public static double INTAKE_SPEED_SCALAR = 0.3;
     public static double GUNNER_STICK_THRESHOLD = 0.03;
 
     private boolean driverSprintMode = false;

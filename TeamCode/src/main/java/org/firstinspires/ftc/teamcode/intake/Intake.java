@@ -22,6 +22,7 @@ public class Intake {
     public static double kV = 0;
     public static double kA = 0;
     public static double kStatic = 0;
+    public static double kG = 0.05;
 
     public static double MAX_VEL = 1500;
     public static double MAX_ACCEL = 1500;
@@ -93,9 +94,9 @@ public class Intake {
         motionProfile = null;
 
         if (intake.getCurrentPosition() <= 0 && power < 0) {
-            intake.setPower(0);
+            intake.setPower(kG);
         } else {
-            intake.setPower(power);
+            intake.setPower(power + kG);
         }
 
         controller.setTargetPosition(intake.getCurrentPosition());
