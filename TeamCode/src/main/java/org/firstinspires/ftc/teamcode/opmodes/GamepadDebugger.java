@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline;
 import org.firstinspires.ftc.teamcode.vision.CameraController;
 
-@Config
 @TeleOp(group = "debug")
 public class GamepadDebugger extends OpMode {
     @Override

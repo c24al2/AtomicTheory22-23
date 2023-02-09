@@ -13,7 +13,6 @@ import org.firstinspires.ftc.teamcode.drive.TwoWheelOdometryLocalizer;
 import java.util.List;
 
 @Disabled
-@Config
 @TeleOp(group = "debug")
 public class TwoWheelOdometryDebugger extends OpMode {
     public TwoWheelOdometryLocalizer twoWheelOdometryLocalizer;

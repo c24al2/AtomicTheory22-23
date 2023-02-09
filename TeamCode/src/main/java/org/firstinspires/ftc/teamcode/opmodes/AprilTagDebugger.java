@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.vision.CameraController;
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline;
 
-@Config
 @TeleOp(group = "debug")
 public class AprilTagDebugger extends OpMode {
     public CameraController cameraController;
