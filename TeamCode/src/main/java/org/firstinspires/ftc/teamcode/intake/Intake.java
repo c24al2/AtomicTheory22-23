@@ -24,8 +24,8 @@ public class Intake {
     public static double kStatic = 0;
     public static double kG = 0.05;
 
-    public static double MAX_VEL = 1500;
-    public static double MAX_ACCEL = 1500;
+    public static double MAX_VEL = 2200;
+    public static double MAX_ACCEL = 2200;
     public static double MAX_JERK = 0;  // Jerk isn't used if it's 0, but it might end up being necessary
 
     public ElapsedTime timer;
