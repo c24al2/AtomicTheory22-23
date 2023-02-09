@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.teamcode.intake.Intake;
 import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
 
+import java.util.List;
+
 @Config
 @TeleOp(group = "debug")
 public class MotorDebugger extends OpMode {
@@ -71,16 +73,20 @@ public class MotorDebugger extends OpMode {
 
         intake.stepController();
 
-        telemetry.addData("Left Motor Position: ", drive.leftMotor.getCurrentPosition());
-        telemetry.addData("Back Motor Position: ", drive.backMotor.getCurrentPosition());
-        telemetry.addData("Right Motor Position: ", drive.rightMotor.getCurrentPosition());
-        telemetry.addData("Intake Motor Position: ", intake.intake.getCurrentPosition());
-        telemetry.addData("Intake Servo Position: ", intake.clawServo.getPosition());
+        List<Double> motorPositions = drive.getWheelPositions();
+        telemetry.addData("Left Motor Position (in)", motorPositions.get(0));
+        telemetry.addData("Back Motor Position (in)", motorPositions.get(1));
+        telemetry.addData("Right Motor Position (in)", motorPositions.get(2));
+        telemetry.addData("Intake Motor Position (ticks)", intake.intake.getCurrentPosition());
+        telemetry.addData("Intake Servo Position (scalar)", intake.clawServo.getPosition());
+
         telemetry.addLine();
-        telemetry.addData("Left Motor Velocity: ", drive.leftMotor.getVelocity());
-        telemetry.addData("Back Motor Velocity: ", drive.backMotor.getVelocity());
-        telemetry.addData("Right Motor Velocity: ", drive.rightMotor.getVelocity());
-        telemetry.addData("Intake Motor Velocity: ", intake.intake.getVelocity());
+
+        List<Double> motorVelocities = drive.getWheelVelocities();
+        telemetry.addData("Left Motor Velocity (in/s)", motorVelocities.get(0));
+        telemetry.addData("Back Motor Velocity (in/s)", motorVelocities.get(1));
+        telemetry.addData("Right Motor Velocity (in/s)", motorVelocities.get(2));
+        telemetry.addData("Intake Motor Velocity (ticks/s)", intake.intake.getVelocity());
 
         previousGamepad1.copy(gamepad1);
         previousGamepad2.copy(gamepad2);
