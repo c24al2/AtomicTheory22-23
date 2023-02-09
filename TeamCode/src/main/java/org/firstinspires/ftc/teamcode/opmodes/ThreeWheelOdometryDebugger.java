@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
 import org.firstinspires.ftc.teamcode.drive.ThreeWheelOdometryLocalizer;
 
+import java.util.List;
+
 @Config
 @TeleOp(group = "debug")
 public class ThreeWheelOdometryDebugger extends OpMode {
@@ -24,12 +26,16 @@ public class ThreeWheelOdometryDebugger extends OpMode {
 
     @Override
     public void loop() {
-        telemetry.addData("Front Encoder Position", threeWheelOdometryLocalizer.frontEncoder.getCurrentPosition());
-        telemetry.addData("Left Encoder Position", threeWheelOdometryLocalizer.leftEncoder.getCurrentPosition());
-        telemetry.addData("Right Encoder Position", threeWheelOdometryLocalizer.rightEncoder.getCurrentPosition());
+        List<Double> encoderPositions = threeWheelOdometryLocalizer.getWheelPositions();
+        telemetry.addData("Front Encoder Position (in)", encoderPositions.get(0));
+        telemetry.addData("Left Encoder Position (in)", encoderPositions.get(1));
+        telemetry.addData("Right Encoder Position (in)", encoderPositions.get(2));
+
         telemetry.addLine();
-        telemetry.addData("Front Encoder Velocity", threeWheelOdometryLocalizer.frontEncoder.getRawVelocity());
-        telemetry.addData("Left Encoder Velocity", threeWheelOdometryLocalizer.leftEncoder.getRawVelocity());
-        telemetry.addData("Right Encoder Velocity", threeWheelOdometryLocalizer.rightEncoder.getRawVelocity());
+
+        List<Double> encoderVelocities = threeWheelOdometryLocalizer.getWheelVelocities();
+        telemetry.addData("Front Encoder Velocity (in/s)", encoderVelocities.get(0));
+        telemetry.addData("Left Encoder Velocity (in/s)", encoderVelocities.get(1));
+        telemetry.addData("Right Encoder Velocity (in/s)", encoderVelocities.get(2));
     }
 }
