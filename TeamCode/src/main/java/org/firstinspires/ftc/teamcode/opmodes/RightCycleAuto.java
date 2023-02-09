@@ -24,7 +24,8 @@ public class RightCycleAuto extends LinearOpMode {
     public static Pose2d STACK_POSE = new Pose2d(60, -12, Math.toRadians(0));
     public static Pose2d PLACE_CONE_POSE = new Pose2d(30, -5, Math.toRadians(135));
 
-    public int CONES_TO_PLACE = 3;
+    public static int CONES_TO_PLACE = 3;
+    private int placedCones = 0;
 
     private enum State {
         PLACE_PRELOADED_CONE,
@@ -72,7 +73,7 @@ public class RightCycleAuto extends LinearOpMode {
                 .build();
 
         TrajectorySequence goToStack = drive.trajectorySequenceBuilder(PLACE_CONE_POSE)
-                .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.STACK_HEIGHTS[CONES_TO_PLACE-1]))
+                .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.STACK_HEIGHTS[CONES_TO_PLACE-placedCones-1]))
                 .setReversed(true)
                 .splineToSplineHeading(STACK_POSE, STACK_POSE.getHeading())
                 .build();
@@ -122,13 +123,13 @@ public class RightCycleAuto extends LinearOpMode {
                     break;
                 case GO_TO_STACK:
                     if (!drive.isBusy()) {
-                        if (CONES_TO_PLACE == 0) {
+                        if (placedCones == CONES_TO_PLACE) {
                             drive.followTrajectorySequenceAsync(driveFromPlacedConePoseToParkingPosition);
                             currentState = State.PARK;
                         } else {
                             drive.followTrajectorySequenceAsync(goToStack);
                             currentState = State.PICKUP_CONE_FROM_STACK_AND_PLACE;
-                            CONES_TO_PLACE--;
+                            placedCones++;
                         }
                     }
                     break;
