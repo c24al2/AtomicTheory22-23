@@ -27,13 +27,13 @@ public class RightCycleAuto extends LinearOpMode {
     public int CONES_TO_PLACE = 3;
 
     private enum State {
-        PLACE_PRELOADED_CONE_AND_GO_TO_STACK,
-        PICKUP_CONE_FROM_STACK_AND_PLACE,
+        PLACE_PRELOADED_CONE,
         GO_TO_STACK,
+        PICKUP_CONE_FROM_STACK_AND_PLACE,
         PARK,
     }
 
-    State currentState = State.PLACE_PRELOADED_CONE_AND_GO_TO_STACK;
+    State currentState = State.PLACE_PRELOADED_CONE;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -48,22 +48,17 @@ public class RightCycleAuto extends LinearOpMode {
 
         drive.setPoseEstimate(START_POSE);
 
-        TrajectorySequence placePreloadedConeAndGoToStack = drive.trajectorySequenceBuilder(START_POSE)
+        TrajectorySequence placePreloadedCone = drive.trajectorySequenceBuilder(START_POSE)
                 .addTemporalMarker(() -> intake.setClawPosition(IntakeConstants.CLAW_CLOSED_POSITION))
                 .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.HIGH_JUNCTION_HEIGHT))
-                .lineToSplineHeading(new Pose2d(18, -60, Math.toRadians(90)))
-                .splineToConstantHeading(new Vector2d(12, -36), Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(24, -7), Math.toRadians(0))
+                .splineTo(new Vector2d(36, -24), Math.toRadians(90))
+                .splineTo(PLACE_CONE_POSE.vec(), PLACE_CONE_POSE.getHeading())
                 .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.HIGH_JUNCTION_HEIGHT - IntakeConstants.ON_JUNCTION_HEIGHT_CHANGE))
                 .waitSeconds(0.2)
                 .addTemporalMarker(() -> intake.setClawPosition(IntakeConstants.CLAW_OPEN_POSITION))
-                .waitSeconds(0.1)
-                .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.GROUND_JUNCTION_HEIGHT))
-                .setTangent(Math.toRadians(0))
-                .splineToSplineHeading(STACK_POSE, STACK_POSE.getHeading())
                 .build();
 
-        // The claw should ALWAYS be at right height before this trajectory is run
+        // The claw should be at right height before this trajectory is run
         TrajectorySequence pickUpConeAndPlace = drive.trajectorySequenceBuilder(STACK_POSE)
                 .addTemporalMarker(() -> intake.setClawPosition(IntakeConstants.CLAW_CLOSED_POSITION))
                 .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.HIGH_JUNCTION_HEIGHT))
@@ -119,15 +114,9 @@ public class RightCycleAuto extends LinearOpMode {
 
         while (opModeIsActive() && !isStopRequested()) {
             switch (currentState) {
-                case PLACE_PRELOADED_CONE_AND_GO_TO_STACK:
+                case PLACE_PRELOADED_CONE:
                     if (!drive.isBusy()) {
-                        drive.followTrajectorySequenceAsync(placePreloadedConeAndGoToStack);
-                        currentState = State.PICKUP_CONE_FROM_STACK_AND_PLACE;
-                    }
-                    break;
-                case PICKUP_CONE_FROM_STACK_AND_PLACE:
-                    if (!drive.isBusy()) {
-                        drive.followTrajectorySequenceAsync(pickUpConeAndPlace);
+                        drive.followTrajectorySequenceAsync(placePreloadedCone);
                         currentState = State.GO_TO_STACK;
                     }
                     break;
@@ -143,9 +132,13 @@ public class RightCycleAuto extends LinearOpMode {
                         }
                     }
                     break;
+                case PICKUP_CONE_FROM_STACK_AND_PLACE:
+                    if (!drive.isBusy()) {
+                        drive.followTrajectorySequenceAsync(pickUpConeAndPlace);
+                        currentState = State.GO_TO_STACK;
+                    }
+                    break;
                 case PARK:
-                    // currentState does not change once in PARK
-                    // This concludes the autonomous program
                     if (!drive.isBusy()) {
                         requestOpModeStop();
                     }

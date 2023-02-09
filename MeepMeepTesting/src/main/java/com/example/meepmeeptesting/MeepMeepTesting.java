@@ -20,17 +20,12 @@ public class MeepMeepTesting {
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(START_POSE)
 //                                .addTemporalMarker(() -> intake.setClawPosition(IntakeConstants.CLAW_CLOSED_POSITION))
-//                                .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.LOW_JUNCTION_HEIGHT))
-                                .waitSeconds(0.1)
-                                .lineToSplineHeading(new Pose2d(18, -60, Math.toRadians(90)))
-                                .splineToConstantHeading(new Vector2d(12, -36), Math.toRadians(90))
 //                                .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.HIGH_JUNCTION_HEIGHT))
-                                .splineToConstantHeading(new Vector2d(24, -7), Math.toRadians(0))
+                                .splineTo(new Vector2d(36, -24), Math.toRadians(90))
+                                .splineTo(PLACE_CONE_POSE.vec(), PLACE_CONE_POSE.getHeading())
+//                                .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.HIGH_JUNCTION_HEIGHT - IntakeConstants.ON_JUNCTION_HEIGHT_CHANGE))
+                                .waitSeconds(0.2)
 //                                .addTemporalMarker(() -> intake.setClawPosition(IntakeConstants.CLAW_OPEN_POSITION))
-//                                .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.GROUND_JUNCTION_HEIGHT))
-                                .waitSeconds(0.1)
-                                .setTangent(Math.toRadians(0))
-                                .splineToSplineHeading(STACK_POSE, STACK_POSE.getHeading())
                                 .build()
                 );
 
