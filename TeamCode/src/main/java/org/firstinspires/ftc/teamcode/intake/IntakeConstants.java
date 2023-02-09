@@ -19,5 +19,5 @@ public class IntakeConstants {
     public static double BOTTOM = 0;
 
     public static double CLAW_OPEN_POSITION = 0.5;
-    public static double CLAW_CLOSED_POSITION = 0.35;
+    public static double CLAW_CLOSED_POSITION = 0.34;
 }
