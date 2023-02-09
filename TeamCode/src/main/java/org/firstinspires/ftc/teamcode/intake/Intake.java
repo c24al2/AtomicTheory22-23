@@ -22,7 +22,7 @@ public class Intake {
     public static double kV = 0;
     public static double kA = 0;
     public static double kStatic = 0;
-    public static double kG = 0.05;
+    public static double kG = 0.02;
 
     public static double MAX_VEL = 2000;
     public static double MAX_ACCEL = 2000;
@@ -113,6 +113,6 @@ public class Intake {
         }
 
         double power = controller.update(intake.getCurrentPosition(), intake.getVelocity());
-        intake.setPower(power);
+        intake.setPower(power + kG);
     }
 }
