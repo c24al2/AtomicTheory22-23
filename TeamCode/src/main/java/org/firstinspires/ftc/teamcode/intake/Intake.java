@@ -94,7 +94,7 @@ public class Intake {
         motionProfile = null;
 
         if (intake.getCurrentPosition() <= 0 && power < 0) {
-            intake.setPower(kG);
+            intake.setPower(0);
         } else {
             intake.setPower(power + kG);
         }
