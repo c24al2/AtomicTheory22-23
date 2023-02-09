@@ -17,8 +17,8 @@ import java.util.List;
 @Config
 public class TwoWheelOdometryLocalizer extends TwoTrackingWheelLocalizer {
     private final static List<Pose2d> WHEEL_POSES = Arrays.asList(
-            new Pose2d(-1.161, 1.79, Math.toRadians(330)),  // "left" wheel
-            new Pose2d(-1.161, -1.79, Math.toRadians(210)) // "right" wheel
+            new Pose2d(-1.161, 1.79, Math.toRadians(120)),  // "left" wheel
+            new Pose2d(-1.161, -1.79, Math.toRadians(240)) // "right" wheel
     );
 
     public static double TICKS_PER_REV = 200;
@@ -28,8 +28,8 @@ public class TwoWheelOdometryLocalizer extends TwoTrackingWheelLocalizer {
     public static double LEFT_ENCODER_MULTIPLIER = 1;
     public static double RIGHT_ENCODER_MULTIPLIER = 1;
 
-    public Encoder leftEncoder;
-    public Encoder rightEncoder;
+    private final Encoder leftEncoder;
+    private final Encoder rightEncoder;
 
     private final SampleOmniDrive drive;
 

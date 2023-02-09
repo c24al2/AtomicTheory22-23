@@ -15,9 +15,9 @@ import java.util.List;
 @Config
 public class ThreeWheelOdometryLocalizer extends ThreeTrackingWheelLocalizer {
     private final static List<Pose2d> WHEEL_POSES = Arrays.asList(
-            new Pose2d(1.7, 0.22, Math.toRadians(90)), //front wheel
-            new Pose2d(-1.161, 1.79, Math.toRadians(330)),  // "left" wheel
-            new Pose2d(-1.161, -1.79, Math.toRadians(210)) // "right" wheel
+            new Pose2d(1.7, 0.22, Math.toRadians(0)), //front wheel
+            new Pose2d(-1.161, 1.79, Math.toRadians(120)),  // "left" wheel
+            new Pose2d(-1.161, -1.79, Math.toRadians(240)) // "right" wheel
     );
 
     public static double TICKS_PER_REV = 200;
@@ -28,9 +28,9 @@ public class ThreeWheelOdometryLocalizer extends ThreeTrackingWheelLocalizer {
     public static double LEFT_ENCODER_MULTIPLIER = 1;
     public static double RIGHT_ENCODER_MULTIPLIER = 1;
 
-    public Encoder frontEncoder;
-    public Encoder leftEncoder;
-    public Encoder rightEncoder;
+    private final Encoder frontEncoder;
+    private final Encoder leftEncoder;
+    private final Encoder rightEncoder;
 
     public ThreeWheelOdometryLocalizer(HardwareMap hardwareMap) {
         super(WHEEL_POSES);
