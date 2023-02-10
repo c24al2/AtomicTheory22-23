@@ -15,12 +15,12 @@ import java.util.List;
 @Config
 public class ThreeWheelOdometryLocalizer extends ThreeTrackingWheelLocalizer {
     private final static List<Pose2d> WHEEL_POSES = Arrays.asList(
-            new Pose2d(1.7, 0.22, Math.toRadians(0)), //front wheel
+            new Pose2d(1.7, 0.22, Math.toRadians(180)), //front wheel
             new Pose2d(-1.161, 1.79, Math.toRadians(120)),  // "left" wheel
-            new Pose2d(-1.161, -1.79, Math.toRadians(240)) // "right" wheel
+            new Pose2d(-1.161, -1.79, Math.toRadians(420)) // "right" wheel
     );
 
-    public static double TICKS_PER_REV = 200;
+    public static double TICKS_PER_REV = 800;
     public static double WHEEL_RADIUS = 0.984; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
