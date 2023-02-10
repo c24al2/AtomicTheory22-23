@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.util.LynxModuleUtil;
 // https://github.com/NoahBres/VelocityPIDTuningTutorial/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/SampleLinkedPIDUse.java
 @Config
 public class Intake {
-    public static PIDCoefficients INTAKE_PID = new PIDCoefficients(.009, 0, 0.0002);
+    public static PIDCoefficients INTAKE_PID = new PIDCoefficients(.009, 0, 0.0005);
     public static double kV = 0;
     public static double kA = 0;
     public static double kStatic = 0;
