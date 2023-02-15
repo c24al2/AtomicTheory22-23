@@ -64,8 +64,8 @@ public class DriveConstants {
      */
     public static double MAX_VEL = 30; // IDEAL: 40
     public static double MAX_ACCEL = 30; // IDEAL: EQUAL TO MAX_VEL
-    public static double MAX_ANG_VEL = Math.toRadians(90); // IDEAL: 360
-    public static double MAX_ANG_ACCEL = Math.toRadians(45); // IDEAL: 180?
+    public static double MAX_ANG_VEL = Math.toRadians(180); // IDEAL: 360
+    public static double MAX_ANG_ACCEL = Math.toRadians(90); // IDEAL: 180?
 
     public static double encoderTicksToInches(double ticks) {
         return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;

@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.localization.ThreeTrackingWheelLocalizer;
 import com.acmerobotics.roadrunner.localization.TwoTrackingWheelLocalizer;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -21,15 +20,15 @@ public class TwoWheelOdometryLocalizer extends TwoTrackingWheelLocalizer {
             new Pose2d(-1.161, -1.79, Math.toRadians(240)) // "right" wheel
     );
 
-    public static double TICKS_PER_REV = 200;
+    public static double TICKS_PER_REV = 800;
     public static double WHEEL_RADIUS = 0.984; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
     public static double LEFT_ENCODER_MULTIPLIER = 1;
     public static double RIGHT_ENCODER_MULTIPLIER = 1;
 
-    private final Encoder leftEncoder;
-    private final Encoder rightEncoder;
+    public Encoder leftEncoder;
+    public Encoder rightEncoder;
 
     private final SampleOmniDrive drive;
 
@@ -41,7 +40,7 @@ public class TwoWheelOdometryLocalizer extends TwoTrackingWheelLocalizer {
         leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "rm"));
         rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "lm"));
 
-        // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
+        rightEncoder.setDirection(Encoder.Direction.REVERSE);
     }
 
     public static double encoderTicksToInches(double ticks) {

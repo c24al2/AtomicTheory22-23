@@ -18,14 +18,13 @@ import org.firstinspires.ftc.teamcode.util.LynxModuleUtil;
 // https://github.com/NoahBres/VelocityPIDTuningTutorial/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/SampleLinkedPIDUse.java
 @Config
 public class Intake {
-    public static PIDCoefficients INTAKE_PID = new PIDCoefficients(.009, 0, 0.0005);
+    public static PIDCoefficients INTAKE_PID = new PIDCoefficients(.009, 0, 0.0002);
     public static double kV = 0;
     public static double kA = 0;
     public static double kStatic = 0;
-    public static double kG = 0.02;
 
-    public static double MAX_VEL = 2000;
-    public static double MAX_ACCEL = 2000;
+    public static double MAX_VEL = 1400;
+    public static double MAX_ACCEL = 1400;
     public static double MAX_JERK = 0;  // Jerk isn't used if it's 0, but it might end up being necessary
 
     public ElapsedTime timer;
@@ -96,7 +95,7 @@ public class Intake {
         if (intake.getCurrentPosition() <= 0 && power < 0) {
             intake.setPower(0);
         } else {
-            intake.setPower(power + kG);
+            intake.setPower(power);
         }
 
         controller.setTargetPosition(intake.getCurrentPosition());
@@ -113,6 +112,6 @@ public class Intake {
         }
 
         double power = controller.update(intake.getCurrentPosition(), intake.getVelocity());
-        intake.setPower(power + kG);
+        intake.setPower(power);
     }
 }

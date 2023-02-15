@@ -73,19 +73,29 @@ public class MotorDebugger extends OpMode {
 
         intake.stepController();
 
+        telemetry.addData("Left Motor Position (ticks)", drive.leftMotor.getCurrentPosition());
+        telemetry.addData("Back Motor Position (ticks)", drive.backMotor.getCurrentPosition());
+        telemetry.addData("Right Motor Position (ticks)", drive.rightMotor.getCurrentPosition());
+
         List<Double> motorPositions = drive.getWheelPositions();
         telemetry.addData("Left Motor Position (in)", motorPositions.get(0));
         telemetry.addData("Back Motor Position (in)", motorPositions.get(1));
         telemetry.addData("Right Motor Position (in)", motorPositions.get(2));
+
         telemetry.addData("Intake Motor Position (ticks)", intake.intake.getCurrentPosition());
         telemetry.addData("Intake Servo Position (scalar)", intake.clawServo.getPosition());
 
         telemetry.addLine();
 
+        telemetry.addData("Left Motor Position (ticks/s)", drive.leftMotor.getVelocity());
+        telemetry.addData("Back Motor Position (ticks/s)", drive.backMotor.getVelocity());
+        telemetry.addData("Right Motor Position (ticks/s)", drive.rightMotor.getVelocity());
+
         List<Double> motorVelocities = drive.getWheelVelocities();
         telemetry.addData("Left Motor Velocity (in/s)", motorVelocities.get(0));
         telemetry.addData("Back Motor Velocity (in/s)", motorVelocities.get(1));
         telemetry.addData("Right Motor Velocity (in/s)", motorVelocities.get(2));
+
         telemetry.addData("Intake Motor Velocity (ticks/s)", intake.intake.getVelocity());
 
         previousGamepad1.copy(gamepad1);

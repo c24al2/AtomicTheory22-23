@@ -5,11 +5,11 @@ import com.acmerobotics.dashboard.config.Config;
 @Config
 public class IntakeConstants {
     public static double[] STACK_HEIGHTS = {
-            140, // 1st cone
-            240, // 2nd cone
-            340, // 3rd cone
-            440, // 4th cone
-            540, // 5th cone
+            3, // 1st cone
+            150, // 2nd cone
+            202, // 3rd cone
+            305, // 4th cone
+            403, // 5th cone
     };
 
     public static double HIGH_JUNCTION_HEIGHT = 2200;
@@ -18,8 +18,8 @@ public class IntakeConstants {
     public static double GROUND_JUNCTION_HEIGHT = 140;
     public static double BOTTOM = 0;
 
-    public static double ON_JUNCTION_HEIGHT_CHANGE = 200;
+    public static double ON_JUNCTION_HEIGHT_CHANGE = 300;
 
     public static double CLAW_OPEN_POSITION = 0.5;
-    public static double CLAW_CLOSED_POSITION = 0.34;
+    public static double CLAW_CLOSED_POSITION = 0.35;
 }

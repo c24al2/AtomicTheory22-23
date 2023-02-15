@@ -16,7 +16,6 @@ import java.util.List;
 @TeleOp(group = "debug")
 public class TwoWheelOdometryDebugger extends OpMode {
     public TwoWheelOdometryLocalizer twoWheelOdometryLocalizer;
-    public SampleOmniDrive drive;
 
     @Override
     public void init() {
@@ -28,9 +27,19 @@ public class TwoWheelOdometryDebugger extends OpMode {
 
     @Override
     public void loop() {
+        telemetry.addData("Left Encoder Position (ticks)", twoWheelOdometryLocalizer.leftEncoder.getCurrentPosition());
+        telemetry.addData("Right Encoder Position (ticks)", twoWheelOdometryLocalizer.rightEncoder.getCurrentPosition());
+
+        telemetry.addLine();
+
         List<Double> encoderPositions = twoWheelOdometryLocalizer.getWheelPositions();
         telemetry.addData("Left Encoder Position (in)", encoderPositions.get(0));
         telemetry.addData("Right Encoder Position (in)", encoderPositions.get(1));
+
+        telemetry.addLine();
+
+        telemetry.addData("Left Encoder Velocity (ticks/s)", twoWheelOdometryLocalizer.leftEncoder.getRawVelocity());
+        telemetry.addData("Right Encoder Velocity (ticks/s)", twoWheelOdometryLocalizer.rightEncoder.getRawVelocity());
 
         telemetry.addLine();
 

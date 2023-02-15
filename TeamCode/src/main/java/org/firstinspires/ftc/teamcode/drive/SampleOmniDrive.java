@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-// TODO: What fields should be static and which should be final
 @Config
 public class SampleOmniDrive extends OmniDrive {
     private static final List<Pose2d> WHEEL_POSES = Arrays.asList(
@@ -55,8 +54,8 @@ public class SampleOmniDrive extends OmniDrive {
 
     private static final boolean USE_EXTERNAL_HEADING = true;
 
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 0);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(8, 0, 0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(7, 0, 0.2);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(7, 0, 0.2);
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
@@ -67,10 +66,9 @@ public class SampleOmniDrive extends OmniDrive {
     private static final TrajectoryVelocityConstraint VEL_CONSTRAINT = getVelocityConstraint(MAX_VEL, MAX_ANG_VEL, WHEEL_POSES);
     private static final TrajectoryAccelerationConstraint ACCEL_CONSTRAINT = getAccelerationConstraint(MAX_ACCEL);
 
-    private final DcMotorEx leftMotor;
-    private final DcMotorEx backMotor;
-    private final DcMotorEx rightMotor;
-    private final List<DcMotorEx> motors;
+    public DcMotorEx leftMotor;
+    public DcMotorEx backMotor;
+    public DcMotorEx rightMotor;
 
     private final BNO055IMU imu;
     private final VoltageSensor batteryVoltageSensor;
@@ -117,7 +115,7 @@ public class SampleOmniDrive extends OmniDrive {
         backMotor = hardwareMap.get(DcMotorEx.class, "bm");
         rightMotor = hardwareMap.get(DcMotorEx.class, "rm");
 
-        motors = Arrays.asList(leftMotor, backMotor, rightMotor);
+        List<DcMotorEx> motors = Arrays.asList(leftMotor, backMotor, rightMotor);
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
@@ -139,7 +137,7 @@ public class SampleOmniDrive extends OmniDrive {
 
         // If desired, use setLocalizer() to change the localization method, by default it uses OmniLocalizer
 //        setLocalizer(new ThreeWheelOdometryLocalizer(hardwareMap));
-        setLocalizer(new TwoWheelOdometryLocalizer(hardwareMap, this));
+//        setLocalizer(new TwoWheelOdometryLocalizer(hardwareMap, this));
 
         TrajectoryFollower follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID, new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
         trajectorySequenceRunner = new TrajectorySequenceRunner(follower, HEADING_PID);
@@ -221,15 +219,15 @@ public class SampleOmniDrive extends OmniDrive {
     }
 
     public void setMode(DcMotor.RunMode runMode) {
-        for (DcMotorEx motor : motors) {
-            motor.setMode(runMode);
-        }
+        leftMotor.setMode(runMode);
+        backMotor.setMode(runMode);
+        rightMotor.setMode(runMode);
     }
 
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
-        for (DcMotorEx motor : motors) {
-            motor.setZeroPowerBehavior(zeroPowerBehavior);
-        }
+        leftMotor.setZeroPowerBehavior(zeroPowerBehavior);
+        backMotor.setZeroPowerBehavior(zeroPowerBehavior);
+        rightMotor.setZeroPowerBehavior(zeroPowerBehavior);
     }
 
     public void setPIDFCoefficients(DcMotor.RunMode runMode, PIDFCoefficients coefficients) {
@@ -238,9 +236,9 @@ public class SampleOmniDrive extends OmniDrive {
                 coefficients.f * 12 / batteryVoltageSensor.getVoltage()
         );
 
-        for (DcMotorEx motor : motors) {
-            motor.setPIDFCoefficients(runMode, compensatedCoefficients);
-        }
+        leftMotor.setPIDFCoefficients(runMode, compensatedCoefficients);
+        backMotor.setPIDFCoefficients(runMode, compensatedCoefficients);
+        rightMotor.setPIDFCoefficients(runMode, compensatedCoefficients);
     }
 
     public void setWeightedDrivePower(Pose2d drivePower) {
@@ -265,20 +263,20 @@ public class SampleOmniDrive extends OmniDrive {
     @NonNull
     @Override
     public List<Double> getWheelPositions() {
-        List<Double> wheelPositions = new ArrayList<>();
-        for (DcMotorEx motor : motors) {
-            wheelPositions.add(encoderTicksToInches(motor.getCurrentPosition()));
-        }
-        return wheelPositions;
+        return Arrays.asList(
+                encoderTicksToInches(leftMotor.getCurrentPosition()),
+                encoderTicksToInches(backMotor.getCurrentPosition()),
+                encoderTicksToInches(rightMotor.getCurrentPosition())
+        );
     }
 
     @Override
     public List<Double> getWheelVelocities() {
-        List<Double> wheelVelocities = new ArrayList<>();
-        for (DcMotorEx motor : motors) {
-            wheelVelocities.add(encoderTicksToInches(motor.getVelocity()));
-        }
-        return wheelVelocities;
+        return Arrays.asList(
+                encoderTicksToInches(leftMotor.getVelocity()),
+                encoderTicksToInches(backMotor.getVelocity()),
+                encoderTicksToInches(rightMotor.getVelocity())
+        );
     }
 
     @Override

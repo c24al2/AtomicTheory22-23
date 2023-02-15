@@ -14,15 +14,15 @@ import org.firstinspires.ftc.teamcode.drive.SampleOmniDrive;
 import org.firstinspires.ftc.teamcode.intake.Intake;
 import org.firstinspires.ftc.teamcode.intake.IntakeConstants;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.vision.CameraController;
 import org.firstinspires.ftc.teamcode.vision.AprilTagPipeline;
+import org.firstinspires.ftc.teamcode.vision.CameraController;
 
 @Config
 @Autonomous(preselectTeleOp = "Drive TeleOp")
-public class RightCycleAuto extends LinearOpMode {
-    public static Pose2d START_POSE = new Pose2d(36, -62.5, Math.toRadians(45));
-    public static Pose2d PLACE_CONE_POSE = new Pose2d(26,  -3.8, Math.toRadians(90));
-    public static Pose2d STACK_POSE = new Pose2d(62.2, -5.2, Math.toRadians(0));
+public class LeftCycleAuto extends LinearOpMode {
+    public static Pose2d START_POSE = new Pose2d(-36, -62.5, Math.toRadians(45));
+    public static Pose2d PLACE_CONE_POSE = new Pose2d(-26,  -3.8, Math.toRadians(90));
+    public static Pose2d STACK_POSE = new Pose2d(-62.2, -5.2, Math.toRadians(0));
 
     public static int CONES_TO_PLACE = 2;
     private int placedCones = 0;
@@ -53,8 +53,8 @@ public class RightCycleAuto extends LinearOpMode {
                 .turn(Math.toRadians(45))
                 .addTemporalMarker(() -> intake.setClawPosition(IntakeConstants.CLAW_CLOSED_POSITION))
                 .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.HIGH_JUNCTION_HEIGHT))
-                .lineToSplineHeading(new Pose2d(18, -60, Math.toRadians(90)))
-                .splineToConstantHeading(new Vector2d(12, -36), Math.toRadians(90))
+                .lineToSplineHeading(new Pose2d(-18, -60, Math.toRadians(90)))
+                .splineToConstantHeading(new Vector2d(-12, -36), Math.toRadians(90))
                 .splineToConstantHeading(PLACE_CONE_POSE.vec(), Math.toRadians(0))
 //                .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.HIGH_JUNCTION_HEIGHT - IntakeConstants.ON_JUNCTION_HEIGHT_CHANGE))
 //                .waitSeconds(0.2)
@@ -70,7 +70,7 @@ public class RightCycleAuto extends LinearOpMode {
                 .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.HIGH_JUNCTION_HEIGHT))
                 .waitSeconds(0.5)
                 .back(35)
-                .turn(Math.toRadians(90))
+                .turn(Math.toRadians(-90))
                 .lineTo(PLACE_CONE_POSE.vec())
                 .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.HIGH_JUNCTION_HEIGHT - IntakeConstants.ON_JUNCTION_HEIGHT_CHANGE))
                 .waitSeconds(0.2)
@@ -81,7 +81,7 @@ public class RightCycleAuto extends LinearOpMode {
         TrajectorySequence goToStack = drive.trajectorySequenceBuilder(PLACE_CONE_POSE)
                 .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.STACK_HEIGHTS[5-placedCones-1]))
                 .back(5.7)
-                .turn(Math.toRadians(-90))
+                .turn(Math.toRadians(90))
                 .lineTo(STACK_POSE.vec())
                 .build();
 
@@ -98,21 +98,21 @@ public class RightCycleAuto extends LinearOpMode {
                 driveFromPlacedConePoseToParkingPosition = drive.trajectorySequenceBuilder(PLACE_CONE_POSE)
                         .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.BOTTOM))
                         .setReversed(true)
-                        .splineTo(new Vector2d(12, -14), Math.toRadians(180))
+                        .splineTo(new Vector2d(-60, -14), Math.toRadians(180))
                         .build();
                 break;
             default: // ZONE2 and NO_TAGS_SEEN
                 driveFromPlacedConePoseToParkingPosition = drive.trajectorySequenceBuilder(PLACE_CONE_POSE)
                         .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.BOTTOM))
                         .setReversed(true)
-                        .splineTo(new Vector2d(40, -14), Math.toRadians(270))
+                        .splineTo(new Vector2d(-40, -14), Math.toRadians(270))
                         .build();
                 break;
             case ZONE3:
                 driveFromPlacedConePoseToParkingPosition = drive.trajectorySequenceBuilder(PLACE_CONE_POSE)
                         .addTemporalMarker(() -> intake.followMotionProfileAsync(IntakeConstants.BOTTOM))
                         .setReversed(true)
-                        .splineTo(new Vector2d(60, -14), Math.toRadians(0))
+                        .splineTo(new Vector2d(-12, -14), Math.toRadians(0))
                         .build();
                 break;
         }

@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.vision.CameraController;
 @Config
 @Autonomous(preselectTeleOp = "Drive TeleOp")
 public class ParkingAuto extends LinearOpMode {
-    public static Pose2d START_POSE = new Pose2d(36, -62.8, Math.toRadians(90));
+    public static Pose2d START_POSE = new Pose2d(36, -62.8, Math.toRadians(45));
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -52,17 +52,20 @@ public class ParkingAuto extends LinearOpMode {
         switch (aprilTagPipeline.getParkingPosition()) {
             case ZONE1:
                 driveToParkingPosition = drive.trajectorySequenceBuilder(START_POSE)
+                        .turn(Math.toRadians(45))
                         .lineToSplineHeading(new Pose2d(18, -60, Math.toRadians(90)))
                         .splineToConstantHeading(new Vector2d(12, -24), Math.toRadians(90))
                         .build();
                 break;
             default: // ZONE2 and NO_TAGS_SEEN
                 driveToParkingPosition = drive.trajectorySequenceBuilder(START_POSE)
+                        .turn(Math.toRadians(45))
                         .splineTo(new Vector2d(36, -24), Math.toRadians(90))
                         .build();
                 break;
             case ZONE3:
                 driveToParkingPosition = drive.trajectorySequenceBuilder(START_POSE)
+                        .turn(Math.toRadians(45))
                         .lineToSplineHeading(new Pose2d(54, -60, Math.toRadians(90)))
                         .splineToConstantHeading(new Vector2d(60, -24), Math.toRadians(90))
                         .build();
